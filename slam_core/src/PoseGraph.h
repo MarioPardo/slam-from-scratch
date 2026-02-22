@@ -9,8 +9,8 @@ namespace slam {
 
 class PoseGraph{
 
-    double distThreshold  = 0.3;   // 30 cm
-    double angleThreshold = 0.35;  // ~20 deg
+    double distThreshold  = 0.2;   // 20 cm
+    double angleThreshold = 0.06;  // ~4 deg
 
     int nodeID = 0;
 

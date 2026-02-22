@@ -85,9 +85,12 @@ public:
     
     // Set parameters
     void setParams(const SplitMergeParams& params);
+
+    std::vector<Eigen::Vector2d> getLinesMainPoints(const std::vector<slam::LineSegment>& lines);
     
     // Get current parameters
     const SplitMergeParams& getParams() const { return params_; }
+
     
 private:
     SplitMergeParams params_;

@@ -31,7 +31,7 @@ Phase 3: Pose Graph
     
     Deliverable: Store pose graph + display it on visualization tool
 
-TODO NEXT: Use keyframes we are storing for ICP
+[X]: Use keyframes we are storing for ICP
         instead of scan to scan, we want scan to keyframe
         possibly change our distance thresholds.
     

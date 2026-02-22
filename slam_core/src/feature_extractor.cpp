@@ -38,6 +38,21 @@ std::vector<LineSegment> FeatureExtractor::extractLines(
     return filtered_lines;
 }
 
+// gets the edge + center points of a line
+std::vector<Eigen::Vector2d> getLinesMainPoints(const std::vector<slam::LineSegment>& lines) {
+    std::vector<Eigen::Vector2d> points;
+    points.reserve(lines.size() * 3);
+    
+    for (const auto& line : lines) 
+    {
+        points.push_back(line.start);
+        points.push_back(line.midpoint());
+        points.push_back(line.end);
+    }
+    
+    return points;
+}
+
 void FeatureExtractor::splitRecursive(
     const std::vector<Eigen::Vector2d>& points,
     int start_idx, int end_idx,

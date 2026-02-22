@@ -164,20 +164,7 @@ std::string createVisualizationMessage(
     return viz_data.str();
 }
 
-// gets the edge + center points of a line
-std::vector<Eigen::Vector2d> getLinesMainPoints(const std::vector<slam::LineSegment>& lines) {
-    std::vector<Eigen::Vector2d> points;
-    points.reserve(lines.size() * 3);
-    
-    for (const auto& line : lines) 
-    {
-        points.push_back(line.start);
-        points.push_back(line.midpoint());
-        points.push_back(line.end);
-    }
-    
-    return points;
-}
+
 
 ///////
 
@@ -203,12 +190,12 @@ int main(int /*argc*/, char* /*argv*/[]) {
         
         // Odom trajectory
         std::vector<slam::Pose2D> odom_trajectory; //keeping for now during development
-        slam::Pose2D prev_odom_pose = {0.0, 0.0, 0.0};
+        slam::Pose2D prev_odompose_keyframe = {0.0, 0.0, 0.0};
         
-        // ICP trajectory.  //TODO implement keyframe to reduce error buildup
+        // ICP trajectory.
         std::vector<slam::Pose2D> icp_trajectory;
-        slam::Pose2D prev_icp_pose  = {0.0, 0.0, 0.0};
-        std::vector<Eigen::Vector2d> prev_point_cloud;
+        slam::Pose2D keyframe_icp_pose        = {0.0, 0.0, 0.0};  // frozen at last keyframe
+        std::vector<Eigen::Vector2d> prev_pointcloud_keyframe;
         
         bool first_scan = true;
         
@@ -220,8 +207,8 @@ int main(int /*argc*/, char* /*argv*/[]) {
         
         // Message callback: odom map + ICP trajectory side-by-side
         auto messageCallback = [&publisher, &odometry, &lidar, &odom_trajectory, &icp_trajectory,
-                                 &message_count, &prev_point_cloud, &prev_odom_pose,
-                                 &prev_icp_pose, &first_scan, &pose_graph]
+                                 &message_count, &prev_pointcloud_keyframe, &prev_odompose_keyframe,
+                                 &keyframe_icp_pose, &first_scan, &pose_graph]
                                 (const std::string& /*topic*/, const std::string& message)
         {
             message_count++;
@@ -244,22 +231,18 @@ int main(int /*argc*/, char* /*argv*/[]) {
                 //ICP
                 slam::Pose2D curr_icp_pose = curr_odom_pose; //icp falls back to odom if issues
 
-                if (!first_scan && !prev_point_cloud.empty() && !curr_point_cloud.empty())
+                if (!first_scan && !prev_pointcloud_keyframe.empty() && !curr_point_cloud.empty())
                 {
-                    slam::Transform2D odom_delta = computePoseDelta(prev_odom_pose, curr_odom_pose);
+                    slam::Transform2D odom_delta = computePoseDelta(prev_odompose_keyframe, curr_odom_pose);
 
-                    double odom_dx     = odom_delta.translation.x();
-                    double odom_dy     = odom_delta.translation.y();
-                    double odom_dtheta = std::atan2(odom_delta.rotation(1, 0), odom_delta.rotation(0, 0));
-
-                    // Run ICP: align current scan onto previous scan
+                    // Run ICP: align current scan onto previous keyframe
                     slam::ICPResult icp = alignPointClouds(
-                        prev_point_cloud,  
+                        prev_pointcloud_keyframe,  
                         curr_point_cloud,   
                         odom_delta,         // initial guess
-                        50,
-                        1e-4,
-                        0.5
+                        80,
+                        1e-6,
+                        0.4
                     );
 
                     //ICP returns rotation in neg angle (not sure why lol)
@@ -270,16 +253,12 @@ int main(int /*argc*/, char* /*argv*/[]) {
                                       std::sin(fixed_angle),  std::cos(fixed_angle);
                     slam::Transform2D fixed_transform(fixed_rotation, icp.transform.translation);
 
-            
-                    curr_icp_pose = prev_icp_pose.transform(fixed_transform);
+                    curr_icp_pose = keyframe_icp_pose.transform(fixed_transform);
                 }
 
                 //Update states
                 if (!curr_point_cloud.empty())
                 {
-                    prev_point_cloud = curr_point_cloud;
-                    prev_odom_pose   = curr_odom_pose;
-                    prev_icp_pose    = curr_icp_pose;
                     first_scan       = false;
                 }
 
@@ -289,7 +268,13 @@ int main(int /*argc*/, char* /*argv*/[]) {
 
                 // Pose graph keyframing
                 if (!scan.ranges.empty())
-                    pose_graph.tryAddKeyframe(curr_icp_pose, scan, odom.timestamp);
+                    if (pose_graph.tryAddKeyframe(curr_icp_pose, scan, odom.timestamp))
+                    {
+                        prev_pointcloud_keyframe = curr_point_cloud;
+                        prev_odompose_keyframe   = curr_odom_pose;
+                        keyframe_icp_pose              = curr_icp_pose;
+                    }
+                        
 
                 // Publish: odom map + both trajectories + pose graph
                 std::string viz_message = createVisualizationMessage(
