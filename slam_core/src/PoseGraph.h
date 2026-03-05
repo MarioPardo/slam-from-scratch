@@ -12,6 +12,12 @@ class PoseGraph{
     double distThreshold  = 0.2;   // 20 cm
     double angleThreshold = 0.06;  // ~4 deg
 
+    //loop closure
+    double loopClosure_Radius = 0.5; //1m
+    int recentNodeExclusion = 10;
+    double loopClosure_ICPMaxError = 0.05;
+    int loopClosure_ICPMinCorrespondences = 20;
+
     int nodeID = 0;
 
     std::vector<slam::Node> nodes;
@@ -24,7 +30,9 @@ class PoseGraph{
 
     private:
         bool shouldAddKeyframe(const Pose2D& pose); //compare to latest keyframe and check if we pass angle or dist threshholds
-};
+        std::vector<Edge> detectLoopClosures(const Node& queryNode);
+
+    };
 
 
 }

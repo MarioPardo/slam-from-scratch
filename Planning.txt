@@ -22,7 +22,7 @@ Phase 1: Data and Constraints []
     []Transform function : take in 2 points, output transformation between em
     [X]Scan Matcher
 
-Phase 3: Pose Graph
+[x] Phase 4: Pose Graph
 
     [x] Keyframe logic
     [x] Graph data structure
@@ -35,6 +35,15 @@ Phase 3: Pose Graph
         instead of scan to scan, we want scan to keyframe
         possibly change our distance thresholds.
     
-Phase 4: Loop Closure
+
+[x]Phase 5: Loop Closure
+    - realizing that we've been here before 
 
 
+[] ICP Struggling with rotation
+    --> Integrate other sensor(s) to help it. 
+
+
+[]. Phase 5: Pose Graph Optimization
+    - snapping the map back into place
+    

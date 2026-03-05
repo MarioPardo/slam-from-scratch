@@ -91,9 +91,12 @@ struct Node {
     LidarScan lidar_scan;
 };
 
+enum EdgeType{MOVEMENT, LOOP_CLOSURE};
+
 struct Edge{
     int from_id;
     int to_id;
+    EdgeType edgeType;
     Transform2D transform;
 };
 

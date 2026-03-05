@@ -4,10 +4,24 @@
 
 namespace slam {
 
-LidarProcessor::LidarProcessor() {}
+//Transform a single LIDAR point from robot(polar) frame to world(cartesian) frame
+//TODO turn into more efficient matrix operation
+Point2D transformPoint(double range, double angle, const Pose2D& pose) {
+    double x_robot = range * std::cos(angle);
+    double y_robot = range * std::sin(angle);
+    
+    double cos_theta = std::cos(pose.theta);
+    double sin_theta = std::sin(pose.theta);
+    
+    Point2D world_point;
+    world_point.x = pose.x + x_robot * cos_theta - y_robot * sin_theta;
+    world_point.y = pose.y + x_robot * sin_theta + y_robot * cos_theta;
+    
+    return world_point;
+}
 
 //Transform LIDAR a whole lidar scan points from robot frame to world frame
-std::vector<Point2D> LidarProcessor::transformToWorld(const LidarScan& scan, const Pose2D& robot_pose) {
+std::vector<Point2D> transformToWorld(const LidarScan& scan, const Pose2D& robot_pose) {
     std::vector<Point2D> world_points;
     world_points.reserve(scan.count);
     
@@ -37,23 +51,8 @@ std::vector<Point2D> LidarProcessor::transformToWorld(const LidarScan& scan, con
     return world_points;
 }
 
-//Transform a single LIDAR point from robot frame to world frame
-//TODO turn into more efficient matrix operation
-Point2D LidarProcessor::transformPoint(double range, double angle, const Pose2D& pose) {
-    double x_robot = range * std::cos(angle);
-    double y_robot = range * std::sin(angle);
-    
-    double cos_theta = std::cos(pose.theta);
-    double sin_theta = std::sin(pose.theta);
-    
-    Point2D world_point;
-    world_point.x = pose.x + x_robot * cos_theta - y_robot * sin_theta;
-    world_point.y = pose.y + x_robot * sin_theta + y_robot * cos_theta;
-    
-    return world_point;
-}
 
-std::vector<Eigen::Vector2d> LidarProcessor::scanToPointCloud(const LidarScan& scan) {
+std::vector<Eigen::Vector2d> scanToPointCloud(const LidarScan& scan) {
     std::vector<Eigen::Vector2d> points;
 
     double angleIncrement = (scan.angle_max - scan.angle_min) / (scan.count - 1);

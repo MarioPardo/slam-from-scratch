@@ -101,7 +101,7 @@ while robot.step(TIME_STEP) != -1:
     }
     
     # Send robot state every X timesteps
-    if step_count % 1 == 0:
+    if step_count % 2 == 0:
         publisher.publish_robot_state(header, odometry, lidar_data)
         print(f"[Python] Sent robot state at step {step_count}")
     

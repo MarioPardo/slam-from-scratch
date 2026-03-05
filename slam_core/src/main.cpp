@@ -157,7 +157,8 @@ std::string createVisualizationMessage(
     for (size_t i = 0; i < graph_edges.size(); i++) {
         if (i > 0) viz_data << ",";
         viz_data << "{\"from\":" << graph_edges[i].from_id
-                 << ",\"to\":"   << graph_edges[i].to_id << "}";
+                 << ",\"to\":"   << graph_edges[i].to_id
+                 << ",\"type\":" << (graph_edges[i].edgeType == slam::LOOP_CLOSURE ? 1 : 0) << "}";
     }
     viz_data << "]}}";
     
@@ -185,7 +186,6 @@ int main(int /*argc*/, char* /*argv*/[]) {
 
         //Set up sensor processors
         slam::OdometryProcessor odometry(0.033, 0.16);
-        slam::LidarProcessor lidar;
         slam::PoseGraph pose_graph;
         
         // Odom trajectory
@@ -206,7 +206,7 @@ int main(int /*argc*/, char* /*argv*/[]) {
         int message_count = 0;
         
         // Message callback: odom map + ICP trajectory side-by-side
-        auto messageCallback = [&publisher, &odometry, &lidar, &odom_trajectory, &icp_trajectory,
+        auto messageCallback = [&publisher, &odometry, &odom_trajectory, &icp_trajectory,
                                  &message_count, &prev_pointcloud_keyframe, &prev_odompose_keyframe,
                                  &keyframe_icp_pose, &first_scan, &pose_graph]
                                 (const std::string& /*topic*/, const std::string& message)
@@ -224,8 +224,8 @@ int main(int /*argc*/, char* /*argv*/[]) {
                 std::vector<Eigen::Vector2d> curr_point_cloud;
 
                 if (!scan.ranges.empty()) {
-                    world_lidar_points   = lidar.transformToWorld(scan, curr_odom_pose);
-                    curr_point_cloud     = lidar.scanToPointCloud(scan);  // robot frame, for ICP
+                    world_lidar_points   = slam::transformToWorld(scan, curr_odom_pose);
+                    curr_point_cloud     = slam::scanToPointCloud(scan);  // robot frame, for ICP
                 }
 
                 //ICP
