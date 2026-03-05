@@ -228,38 +228,51 @@ int main(int /*argc*/, char* /*argv*/[]) {
                     curr_point_cloud     = slam::scanToPointCloud(scan);  // robot frame, for ICP
                 }
 
-                //ICP
-                slam::Pose2D curr_icp_pose = curr_odom_pose; //icp falls back to odom if issues
+                // ICP gating: skip ICP during turns, use odometry instead
+                const double GYRO_TURN_THRESHOLD = 0.2; // rad/s
+                const bool is_turning = std::abs(odom.gyro_z) > GYRO_TURN_THRESHOLD;
+
+                slam::Pose2D curr_icp_pose = curr_odom_pose; // fallback
 
                 if (!first_scan && !prev_pointcloud_keyframe.empty() && !curr_point_cloud.empty())
                 {
-                    slam::Transform2D odom_delta = computePoseDelta(prev_odompose_keyframe, curr_odom_pose);
+                    if (is_turning) //if turning, ICP struggles so we use odom to compute pose delta
+                    {
+                        // Integrate frame-to-frame odom delta onto previous ICP pose
+                        slam::Transform2D odom_delta = computePoseDelta(odom_trajectory.back(), curr_odom_pose);
+                        curr_icp_pose = icp_trajectory.back().transform(odom_delta);
+                        //curr_icp_pose.theta = odom.compass_heading;
+                    }
+                    else
+                    {
+                        slam::Transform2D odom_delta = computePoseDelta(prev_odompose_keyframe, curr_odom_pose);
 
-                    // Run ICP: align current scan onto previous keyframe
-                    slam::ICPResult icp = alignPointClouds(
-                        prev_pointcloud_keyframe,  
-                        curr_point_cloud,   
-                        odom_delta,         // initial guess
-                        80,
-                        1e-6,
-                        0.4
-                    );
+                        // Run ICP: align current scan onto previous keyframe scan
+                        slam::ICPResult icp = alignPointClouds(
+                            prev_pointcloud_keyframe,
+                            curr_point_cloud,
+                            odom_delta,         // initial guess
+                            80,
+                            1e-6,
+                            0.4
+                        );
 
-                    //ICP returns rotation in neg angle (not sure why lol)
-                    double raw_angle    = std::atan2(icp.transform.rotation(1, 0), icp.transform.rotation(0, 0));
-                    double fixed_angle  = -raw_angle;
-                    Eigen::Matrix2d fixed_rotation;
-                    fixed_rotation << std::cos(fixed_angle), -std::sin(fixed_angle),
-                                      std::sin(fixed_angle),  std::cos(fixed_angle);
-                    slam::Transform2D fixed_transform(fixed_rotation, icp.transform.translation);
+                        // ICP returns rotation in neg angle (not sure why lol)
+                        double raw_angle   = std::atan2(icp.transform.rotation(1, 0), icp.transform.rotation(0, 0));
+                        double fixed_angle = -raw_angle;
+                        Eigen::Matrix2d fixed_rotation;
+                        fixed_rotation << std::cos(fixed_angle), -std::sin(fixed_angle),
+                                          std::sin(fixed_angle),  std::cos(fixed_angle);
+                        slam::Transform2D fixed_transform(fixed_rotation, icp.transform.translation);
 
-                    curr_icp_pose = keyframe_icp_pose.transform(fixed_transform);
+                        curr_icp_pose = keyframe_icp_pose.transform(fixed_transform);
+                    }
                 }
 
                 //Update states
                 if (!curr_point_cloud.empty())
                 {
-                    first_scan       = false;
+                    first_scan = false;
                 }
 
                 //Record both trajectories

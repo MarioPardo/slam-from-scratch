@@ -40,10 +40,19 @@ Phase 1: Data and Constraints []
     - realizing that we've been here before 
 
 
-[] ICP Struggling with rotation
+[X] ICP Struggling with rotation
     --> Integrate other sensor(s) to help it. 
+    EKF is the obvious solution, but this is a huge task in itself. 
+    We will use ICP only when straight lines, odometry + gyro will be used when turning
+        We might want to revisit EKF if we find we need very exact positioning for pose graph optimization. 
+
+        Only using odometry. Might want to use copmass later on for theta, but this would require adding a compass theta reading to all our poses   
+            --> definitely doable
+
+        NOTE TODO: we are having to negate both ICP and compass angle , this feels weird and indicative of a bigger issue/misunderstading
+                        look into this. 
 
 
-[]. Phase 5: Pose Graph Optimization
+[]. Phase 6: Pose Graph Optimization
     - snapping the map back into place
     
