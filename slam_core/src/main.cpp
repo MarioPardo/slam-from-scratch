@@ -238,10 +238,8 @@ int main(int /*argc*/, char* /*argv*/[]) {
                 {
                     if (is_turning) //if turning, ICP struggles so we use odom to compute pose delta
                     {
-                        // Integrate frame-to-frame odom delta onto previous ICP pose
-                        slam::Transform2D odom_delta = computePoseDelta(odom_trajectory.back(), curr_odom_pose);
-                        curr_icp_pose = icp_trajectory.back().transform(odom_delta);
-                        //curr_icp_pose.theta = odom.compass_heading;
+                        // During turns, trust odometry directly for ICP pose
+                        curr_icp_pose = curr_odom_pose;
                     }
                     else
                     {

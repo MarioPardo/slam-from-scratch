@@ -55,7 +55,7 @@ bool PoseGraph:: tryAddKeyframe(const Pose2D& pose, const LidarScan& scan, doubl
         std::cout<<"Loop Closure found, Optimizing!" <<std::endl;
         bool success = PoseGraphOptimizer::optimize(this->nodes, this->edges);
         if(success)
-            std::<<cout<<"Pose Graph Optimized!" <<std::endl;
+            std::cout<<"Pose Graph Optimized!" <<std::endl;
     }
 
     return true;

@@ -147,6 +147,57 @@ void testWeightedCorrespondences() {
     std::cout << "Expected translation: [1.0, 0.5] (regardless of weights for pure translation)\n";
 }
 
+// Full ICP test: pure rotation alignment using alignPointClouds
+void testICPPureRotationAlignment() {
+    std::cout << "\n=== TEST 5: ICP Pure Rotation Alignment (45 degrees) ===\n";
+
+    // Source: points on a unit circle axes
+    std::vector<Eigen::Vector2d> source_points = {
+        Eigen::Vector2d(1, 0),
+        Eigen::Vector2d(0, 1),
+        Eigen::Vector2d(-1, 0),
+        Eigen::Vector2d(0, -1)
+    };
+
+    // Apply known 45 degree rotation to get target
+    double angle = M_PI / 4.0;  // 45 degrees
+    Eigen::Matrix2d known_rotation;
+    known_rotation << std::cos(angle), -std::sin(angle),
+                      std::sin(angle),  std::cos(angle);
+
+    std::vector<Eigen::Vector2d> target_points;
+    for (const auto& p : source_points) {
+        target_points.push_back(known_rotation * p);
+    }
+
+    // Initial guess: 38 degree rotation (close to true 45 deg), zero translation
+    Transform2D initial_guess;
+    {
+        double init_angle = 38.0 * M_PI / 180.0;
+        Eigen::Matrix2d R_init;
+        R_init << std::cos(init_angle), -std::sin(init_angle),
+                  std::sin(init_angle),  std::cos(init_angle);
+        initial_guess.rotation = R_init;
+        initial_guess.translation = Eigen::Vector2d::Zero();
+    }
+
+    ICPResult result = alignPointClouds(
+        source_points,
+        target_points,
+        initial_guess,
+        /*max_iterations=*/50,
+        /*convergence_epsilon=*/1e-6,
+        /*correspondence_distance=*/2.0
+    );
+
+    printTransform(result.transform, "ICP Estimated Transform");
+    std::cout << "Expected rotation: 45 degrees, translation ~ [0, 0]\n";
+    std::cout << "ICP converged: " << (result.converged ? "true" : "false")
+              << ", iterations: " << result.iterations
+              << ", final_error: " << result.final_error
+              << ", correspondences: " << result.correspondence_count << "\n";
+}
+
 int main() {
     std::cout << "======================================\n";
     std::cout << "  ICP Transform Estimation Tests\n";
@@ -156,6 +207,7 @@ int main() {
     testPureRotation();
     testCombinedTransform();
     testWeightedCorrespondences();
+    testICPPureRotationAlignment();
     
     std::cout << "\n=== All tests complete ===\n\n";
     return 0;
