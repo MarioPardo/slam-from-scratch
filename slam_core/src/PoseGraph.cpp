@@ -1,6 +1,9 @@
 #include "PoseGraph.h"
 #include "icp_matcher.h"
 #include "lidar_processor.h"
+#include "pose_graph_optimizer.h"
+#include <iostream>
+#include "math.h"
 
 namespace slam{
 
@@ -33,18 +36,26 @@ bool PoseGraph:: tryAddKeyframe(const Pose2D& pose, const LidarScan& scan, doubl
     if(!nodes.empty())
     {
         Transform2D rel_trans = slam::computePoseDelta(nodes.back().pose, pose);
-        Edge newEdge = {nodes.back().id, newNode.id, MOVEMENT, rel_trans};
+        Edge newEdge = {nodes.back().id, newNode.id, MOVEMENT, rel_trans, Eigen::Vector3d(0.5, 0.5, 0.1).asDiagonal()};
         edges.push_back(newEdge);
     }
 
     nodes.push_back(newNode);
 
     //added node, now let's check for loop closures
-    std::vector<Edge> loop_closure_edgesthis = this->detectLoopClosures(nodes.back());
-    
-    for(const Edge& edge : loop_closure_edgesthis)
+    std::vector<Edge> loop_closure_edges= this->detectLoopClosures(nodes.back());
+    for(const Edge& edge : loop_closure_edges)
     {
         edges.push_back(edge);
+    }
+
+    //if loop closure found, try optimizing graph
+    if(!loop_closure_edges.empty())
+    {
+        std::cout<<"Loop Closure found, Optimizing!" <<std::endl;
+        bool success = PoseGraphOptimizer::optimize(this->nodes, this->edges);
+        if(success)
+            std::<<cout<<"Pose Graph Optimized!" <<std::endl;
     }
 
     return true;
@@ -73,14 +84,15 @@ std::vector<Edge> PoseGraph::detectLoopClosures(const Node& queryNode)
         //valid candiate, let's run ICP and check results
         Transform2D initial_guess = computePoseDelta(candidateNode.pose, queryNode.pose);
 
-        ICPResult icpresult = alignPointClouds(scanToPointCloud(queryNode.lidar_scan),
-                            scanToPointCloud(candidateNode.lidar_scan),
+        ICPResult icpresult = alignPointClouds(scanToPointCloud(candidateNode.lidar_scan),
+                            scanToPointCloud(queryNode.lidar_scan),
                             initial_guess, 80, 1e-6,0.4);
 
         //Add edge if loop closure found
         if(icpresult.converged && icpresult.final_error <= this->loopClosure_ICPMaxError && icpresult.correspondence_count >= this->loopClosure_ICPMinCorrespondences)
         {
-            Edge loopClosureEdge = {queryNode.id, candidateNode.id, LOOP_CLOSURE, icpresult.transform};
+            float diagConfidenceValue = 1/std::max(1e-6, icpresult.final_error);
+            Edge loopClosureEdge = {candidateNode.id, queryNode.id, LOOP_CLOSURE, icpresult.transform, Eigen::Vector3d(diagConfidenceValue, diagConfidenceValue, diagConfidenceValue).asDiagonal()};
             loopClosureEdges.push_back(loopClosureEdge);
         }
     }

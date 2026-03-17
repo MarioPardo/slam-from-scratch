@@ -3,7 +3,7 @@
 
 #include "types.h"
 #include <vector>
-#include <Eigen/Dense>
+#include <gtsam/3rdparty/Eigen/Eigen/Dense>
 
 namespace slam {
 

@@ -252,9 +252,9 @@ int main(int /*argc*/, char* /*argv*/[]) {
                             prev_pointcloud_keyframe,
                             curr_point_cloud,
                             odom_delta,         // initial guess
-                            80,
+                            100,
                             1e-6,
-                            0.4
+                            0.2
                         );
 
                         // ICP returns rotation in neg angle (not sure why lol)

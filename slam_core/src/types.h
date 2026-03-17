@@ -2,8 +2,8 @@
 #define SLAM_TYPES_H
 
 #include <vector>
-#include <Eigen/Dense>
-#include <Eigen/SVD>
+#include <gtsam/3rdparty/Eigen/Eigen/Dense>
+#include <gtsam/3rdparty/Eigen/Eigen/SVD>
 
 namespace slam {
 
@@ -98,6 +98,7 @@ struct Edge{
     int to_id;
     EdgeType edgeType;
     Transform2D transform;
+    Eigen::Matrix3d information = Eigen::Matrix3d::Identity();
 };
 
 

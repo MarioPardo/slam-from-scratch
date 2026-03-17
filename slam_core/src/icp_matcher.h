@@ -2,7 +2,7 @@
 #define ICP_MATCHER_H
 
 #include "types.h"
-#include <Eigen/Dense>
+#include <gtsam/3rdparty/Eigen/Eigen/Dense>
 #include <vector>
 
 namespace slam {
