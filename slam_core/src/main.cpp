@@ -187,6 +187,10 @@ int main(int /*argc*/, char* /*argv*/[]) {
         //Set up sensor processors
         slam::OdometryProcessor odometry(0.033, 0.16);
         slam::PoseGraph pose_graph;
+
+        // Raw occupancy grid (non-optimized), 0.1 m resolution, static 10x10 m map
+        // World coverage: x in [-5, 5], y in [-5, 5] so world (0,0) is at grid center
+        slam::OccupancyGrid raw_grid(0.1, 100, 100, -5.0, -5.0);
         
         // Odom trajectory
         std::vector<slam::Pose2D> odom_trajectory; //keeping for now during development
@@ -207,8 +211,8 @@ int main(int /*argc*/, char* /*argv*/[]) {
         
         // Message callback: odom map + ICP trajectory side-by-side
         auto messageCallback = [&publisher, &odometry, &odom_trajectory, &icp_trajectory,
-                                 &message_count, &prev_pointcloud_keyframe, &prev_odompose_keyframe,
-                                 &keyframe_icp_pose, &first_scan, &pose_graph]
+                     &message_count, &prev_pointcloud_keyframe, &prev_odompose_keyframe,
+                     &keyframe_icp_pose, &first_scan, &pose_graph, &raw_grid]
                                 (const std::string& /*topic*/, const std::string& message)
         {
             message_count++;
@@ -273,6 +277,12 @@ int main(int /*argc*/, char* /*argv*/[]) {
                     first_scan = false;
                 }
 
+                // Update raw (non-optimized) occupancy grid using current ICP pose
+                if (!scan.ranges.empty())
+                {
+                    raw_grid.updateWithScan(scan, curr_icp_pose);
+                }
+
                 //Record both trajectories
                 odom_trajectory.push_back(curr_odom_pose);
                 icp_trajectory.push_back(curr_icp_pose);
@@ -292,6 +302,37 @@ int main(int /*argc*/, char* /*argv*/[]) {
                     odom_trajectory, icp_trajectory, world_lidar_points, {},
                     pose_graph.getNodes(), pose_graph.getEdges());
                 publisher.publishMessage("visualization", viz_message);
+
+                // Publish raw occupancy grid probabilities on a separate topic
+                {
+                    int grid_w = raw_grid.getWidth();
+                    int grid_h = raw_grid.getHeight();
+                    double res = raw_grid.getResolution();
+
+                    std::ostringstream grid_stream;
+                    grid_stream << "{\"width\":" << grid_w
+                                << ",\"height\":" << grid_h
+                                << ",\"resolution\":" << res
+                                << ",\"origin_x\":-5.0"
+                                << ",\"origin_y\":-5.0"
+                                << ",\"cells\":[";
+
+                    for (int y = 0; y < grid_h; ++y)
+                    {
+                        if (y > 0) grid_stream << ",";
+                        grid_stream << "[";
+                        for (int x = 0; x < grid_w; ++x)
+                        {
+                            if (x > 0) grid_stream << ",";
+                            grid_stream << raw_grid.getProbability(x, y);
+                        }
+                        grid_stream << "]";
+                    }
+
+                    grid_stream << "]}";
+
+                    publisher.publishMessage("grid_raw", grid_stream.str());
+                }
 
             } catch (const std::exception& e) {
                 std::cerr << "[Main] Error: " << e.what() << std::endl;

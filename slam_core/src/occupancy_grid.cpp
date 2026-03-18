@@ -12,6 +12,14 @@ OccupancyGrid::OccupancyGrid(double resolution, int width, int height,
 }
 
 void OccupancyGrid::updateWithScan(const LidarScan& scan, const Pose2D& robot_pose) {
+    if (scan.count < 2 || scan.ranges.empty()) {
+        return;
+    }
+
+    int ray_count = std::min(scan.count, static_cast<int>(scan.ranges.size()));
+    if (ray_count < 2) {
+        return;
+    }
     
     //find where robot is in grid
     int robot_grid_x, robot_grid_y;
@@ -24,14 +32,17 @@ void OccupancyGrid::updateWithScan(const LidarScan& scan, const Pose2D& robot_po
     double cos_theta = std::cos(robot_pose.theta);
     double sin_theta = std::sin(robot_pose.theta);
     
-    for (int i = 0; i < scan.count; ++i) 
+    double angle_increment = (scan.angle_max - scan.angle_min) / (ray_count - 1);
+
+    for (int i = 0; i < ray_count; ++i) 
     {
         double range = scan.ranges[i];
         
         if (range < scan.range_min || range > scan.range_max ||  std::isnan(range) || std::isinf(range)) 
             continue;
         
-        double angle = scan.angle_min + i * (scan.angle_max - scan.angle_min) / (scan.count - 1);
+        // Webots LiDAR ordering: ranges[0] is leftmost (angle_max), ranges[last] is rightmost (angle_min)
+        double angle = scan.angle_max - i * angle_increment;
         
         //compute scan point coords in from robot POV
         double x_robot = range * std::cos(angle);

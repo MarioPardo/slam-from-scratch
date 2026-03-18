@@ -34,6 +34,26 @@ accelerometer.enable(TIME_STEP)
 compass = robot.getDevice("compass")
 compass.enable(TIME_STEP)
 
+# Optional ground-truth position sensor (if present in robot model)
+gps = None
+try:
+    gps = robot.getDevice("gps")
+    gps.enable(TIME_STEP)
+    print("[Python] GPS enabled for ground-truth position logging")
+except Exception:
+    gps = None
+    print("[Python] GPS device not found; falling back to Robot node position if available")
+
+# Fallback: direct node position (may not be available for non-supervisor controllers)
+robot_node = None
+if gps is None:
+    try:
+        robot_node = robot.getSelf()
+    except Exception:
+        robot_node = None
+
+POSITION_PRINT_EVERY_STEPS = 10
+
 # Lidar Setup
 lidar = robot.getLidar("lidar")
 lidar.enable(TIME_STEP)
@@ -75,6 +95,30 @@ while robot.step(TIME_STEP) != -1:
         "timestamp": robot.getTime(),
         "step_count": step_count
     }
+
+    # Ground-truth position printout for map bound calibration
+    if step_count % POSITION_PRINT_EVERY_STEPS == 0:
+        gt_position = None
+
+        if gps is not None:
+            gt_position = gps.getValues()  # [x, y, z]
+        elif robot_node is not None:
+            gt_position = robot_node.getPosition()  # [x, y, z]
+
+        if gt_position is not None and len(gt_position) >= 3:
+            x_w = gt_position[0]
+            y_w = gt_position[1]
+            z_w = gt_position[2]
+            # For 2D map plane in Webots, use (x, z)
+            print(
+                f"[GT_POS] t={robot.getTime():.2f}s step={step_count} "
+                f"world_xyz=({x_w:.3f}, {y_w:.3f}, {z_w:.3f}) map_xz=({x_w:.3f}, {z_w:.3f})"
+            )
+        else:
+            print(
+                f"[GT_POS] t={robot.getTime():.2f}s step={step_count} "
+                "position unavailable (no gps / no robot node access)"
+            )
     
     # Odometry data
     compass_values = compass.getValues()
