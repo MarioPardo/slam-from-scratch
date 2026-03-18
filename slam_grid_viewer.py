@@ -15,11 +15,14 @@ import zmq
 
 
 WINDOW_WIDTH = 1000
-WINDOW_HEIGHT = 1000
+WINDOW_HEIGHT = 760
 MARGIN = 30
-STATIC_ZOOM = 0.90
+PANEL_GAP = 24
+STATIC_ZOOM = 1.00
 BG_COLOR = (0, 0, 0)
 GRID_LINE_COLOR = (40, 40, 40)
+PANEL_BORDER_COLOR = (90, 90, 90)
+TEXT_COLOR = (220, 220, 220)
 
 
 def prob_to_color(p: float) -> Tuple[int, int, int]:
@@ -30,6 +33,53 @@ def prob_to_color(p: float) -> Tuple[int, int, int]:
     p = max(0.0, min(1.0, p))
     value = int(255 * p)
     return (value, value, value)
+
+
+def draw_grid_panel(
+    screen: pygame.Surface,
+    font: pygame.font.Font,
+    title: str,
+    left: int,
+    top: int,
+    panel_size: int,
+    width: int,
+    height: int,
+    cells,
+) -> None:
+    pygame.draw.rect(screen, PANEL_BORDER_COLOR, (left, top, panel_size, panel_size), 1)
+    title_surf = font.render(title, True, TEXT_COLOR)
+    screen.blit(title_surf, (left, top - 22))
+
+    if width <= 0 or height <= 0:
+        return
+
+    cell_size = int(min(panel_size / width, panel_size / height) * STATIC_ZOOM)
+    if cell_size <= 0:
+        cell_size = 1
+
+    map_w = width * cell_size
+    map_h = height * cell_size
+    x0 = left + (panel_size - map_w) // 2
+    y0 = top + (panel_size - map_h) // 2
+
+    for gy in range(height):
+        if gy >= len(cells):
+            break
+        row = cells[gy]
+        for gx in range(width):
+            if gx >= len(row):
+                break
+            color = prob_to_color(float(row[gx]))
+            sx = x0 + gx * cell_size
+            sy = y0 + (height - gy - 1) * cell_size
+            pygame.draw.rect(screen, color, (sx, sy, cell_size, cell_size))
+
+    for gx in range(0, width + 1, 10):
+        x = x0 + gx * cell_size
+        pygame.draw.line(screen, GRID_LINE_COLOR, (x, y0), (x, y0 + map_h), 1)
+    for gy in range(0, height + 1, 10):
+        y = y0 + gy * cell_size
+        pygame.draw.line(screen, GRID_LINE_COLOR, (x0, y), (x0 + map_w, y), 1)
 
 
 def main() -> None:
@@ -47,8 +97,9 @@ def main() -> None:
 
     pygame.init()
     screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
-    pygame.display.set_caption("SLAM Occupancy Grid (raw)")
+    pygame.display.set_caption("SLAM Occupancy Grid: Raw vs Optimized")
     clock = pygame.time.Clock()
+    font = pygame.font.Font(None, 28)
 
     latest_grid = None
 
@@ -87,44 +138,40 @@ def main() -> None:
         if latest_grid is not None:
             width = latest_grid.get("width", 0)
             height = latest_grid.get("height", 0)
-            resolution = float(latest_grid.get("resolution", 0.1))
-            origin_x = float(latest_grid.get("origin_x", 0.0))
-            origin_y = float(latest_grid.get("origin_y", 0.0))
-            cells = latest_grid.get("cells", [])
+            raw_cells = latest_grid.get("cells", [])
+            optimized_cells = latest_grid.get("optimized_cells", raw_cells)
 
-            # Compute cell size so that full 20x20 m fits with margins
-            if width > 0 and height > 0:
-                cell_size_x = (WINDOW_WIDTH - 2 * MARGIN) / width
-                cell_size_y = (WINDOW_HEIGHT - 2 * MARGIN) / height
-                cell_size = int(min(cell_size_x, cell_size_y))
-                cell_size = int(cell_size * STATIC_ZOOM)
-                if cell_size <= 0:
-                    cell_size = 1
+            panel_size = min(
+                (WINDOW_WIDTH - (2 * MARGIN) - PANEL_GAP) // 2,
+                WINDOW_HEIGHT - (2 * MARGIN),
+            )
+            left_panel_x = MARGIN
+            right_panel_x = MARGIN + panel_size + PANEL_GAP
+            panel_y = (WINDOW_HEIGHT - panel_size) // 2
 
-                # Draw occupancy cells
-                for gy in range(height):
-                    if gy >= len(cells):
-                        break
-                    row = cells[gy]
-                    for gx in range(width):
-                        if gx >= len(row):
-                            break
-                        p = float(row[gx])
-                        color = prob_to_color(p)
-                        # origin (0,0) at bottom-left visually
-                        sx = MARGIN + gx * cell_size
-                        sy = WINDOW_HEIGHT - MARGIN - (gy + 1) * cell_size
-                        pygame.draw.rect(screen, color, (sx, sy, cell_size, cell_size))
+            draw_grid_panel(
+                screen,
+                font,
+                "Raw (non-optimized)",
+                left_panel_x,
+                panel_y,
+                panel_size,
+                width,
+                height,
+                raw_cells,
+            )
 
-                # Optional coarse grid lines only (every 10 cells = 1 meter)
-                for gx in range(0, width + 1, 10):
-                    x = MARGIN + gx * cell_size
-                    pygame.draw.line(screen, GRID_LINE_COLOR, (x, MARGIN), (x, WINDOW_HEIGHT - MARGIN), 1)
-                for gy in range(0, height + 1, 10):
-                    y = WINDOW_HEIGHT - MARGIN - gy * cell_size
-                    pygame.draw.line(screen, GRID_LINE_COLOR, (MARGIN, y), (WINDOW_WIDTH - MARGIN, y), 1)
-
-                # Static display: no center-axis emphasis
+            draw_grid_panel(
+                screen,
+                font,
+                "Pose-graph optimized",
+                right_panel_x,
+                panel_y,
+                panel_size,
+                width,
+                height,
+                optimized_cells,
+            )
 
         pygame.display.flip()
         clock.tick(20)

@@ -43,12 +43,12 @@ Transform2D estimateTransform(const std::vector<CorrespondencePair>& corresponde
     Eigen::Matrix2d U = svd.matrixU();
     Eigen::Matrix2d V = svd.matrixV();
 
-    // Standard Procrustes: H = sum(source * target^T) -> R = V * U^T
-    Eigen::Matrix2d RotationMatrix = V * U.transpose();
-
+    //Get Results
+    Eigen::Matrix2d RotationMatrix = V*U.transpose();
+    
     // Ensure we have a proper rotation (det = 1) not a reflection (det = -1)
     if (RotationMatrix.determinant() < 0) {
-        // Flip the sign of the second column of V (2D case)
+        // Flip the sign of the second column of V
         V(0, 1) = -V(0, 1);
         V(1, 1) = -V(1, 1);
         RotationMatrix = V * U.transpose();
@@ -165,22 +165,28 @@ ICPResult alignPointClouds(
 }
 
 Transform2D computePoseDelta(const Pose2D& from, const Pose2D& to) {
-    Eigen::Vector2d t_from(from.x, from.y);
-    Eigen::Vector2d t_to(to.x, to.y);
-
-    Eigen::Matrix2d R_from;
-    R_from << std::cos(from.theta), -std::sin(from.theta),
-              std::sin(from.theta),  std::cos(from.theta);
-
-    Eigen::Matrix2d R_to;
-    R_to << std::cos(to.theta), -std::sin(to.theta),
-            std::sin(to.theta),  std::cos(to.theta);
-
-    // Relative transform that maps points in 'from' robot frame to 'to' robot frame:
-    Eigen::Matrix2d R_rel = R_to.transpose() * R_from;
-    Eigen::Vector2d t_rel = R_to.transpose() * (t_from - t_to);
-
-    return Transform2D(R_rel, t_rel);
+    double dx = to.x - from.x;
+    double dy = to.y - from.y;
+    double dtheta = to.theta - from.theta;
+    
+    // Rotation from 'from' to 'to'
+    Eigen::Matrix2d R;
+    R << std::cos(dtheta), -std::sin(dtheta),
+         std::sin(dtheta),  std::cos(dtheta);
+    
+    // Translation in GLOBAL frame
+    Eigen::Vector2d t_global(dx, dy);
+    
+    // Transform translation to LOCAL frame of 'from' pose
+    double cos_from = std::cos(from.theta);
+    double sin_from = std::sin(from.theta);
+    Eigen::Matrix2d R_from_inv;
+    R_from_inv << cos_from, sin_from,
+                 -sin_from, cos_from;
+    
+    Eigen::Vector2d t_local = R_from_inv * t_global;
+    
+    return Transform2D(R, t_local);
 }
 
 } // namespace slam

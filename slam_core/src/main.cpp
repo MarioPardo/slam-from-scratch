@@ -191,6 +191,8 @@ int main(int /*argc*/, char* /*argv*/[]) {
         // Raw occupancy grid (non-optimized), 0.1 m resolution, static 10x10 m map
         // World coverage: x in [-5, 5], y in [-5, 5] so world (0,0) is at grid center
         slam::OccupancyGrid raw_grid(0.1, 100, 100, -5.0, -5.0);
+        // Optimized occupancy grid rebuilt from pose-graph keyframes
+        slam::OccupancyGrid optimized_grid(0.1, 100, 100, -5.0, -5.0);
         
         // Odom trajectory
         std::vector<slam::Pose2D> odom_trajectory; //keeping for now during development
@@ -211,8 +213,8 @@ int main(int /*argc*/, char* /*argv*/[]) {
         
         // Message callback: odom map + ICP trajectory side-by-side
         auto messageCallback = [&publisher, &odometry, &odom_trajectory, &icp_trajectory,
-                     &message_count, &prev_pointcloud_keyframe, &prev_odompose_keyframe,
-                     &keyframe_icp_pose, &first_scan, &pose_graph, &raw_grid]
+                                 &message_count, &prev_pointcloud_keyframe, &prev_odompose_keyframe,
+                                 &keyframe_icp_pose, &first_scan, &pose_graph, &raw_grid, &optimized_grid]
                                 (const std::string& /*topic*/, const std::string& message)
         {
             message_count++;
@@ -242,8 +244,10 @@ int main(int /*argc*/, char* /*argv*/[]) {
                 {
                     if (is_turning) //if turning, ICP struggles so we use odom to compute pose delta
                     {
-                        // During turns, trust odometry directly for ICP pose
-                        curr_icp_pose = curr_odom_pose;
+                        // Integrate frame-to-frame odom delta onto previous ICP pose
+                        slam::Transform2D odom_delta = computePoseDelta(odom_trajectory.back(), curr_odom_pose);
+                        curr_icp_pose = icp_trajectory.back().transform(odom_delta);
+                        //curr_icp_pose.theta = odom.compass_heading;
                     }
                     else
                     {
@@ -293,17 +297,29 @@ int main(int /*argc*/, char* /*argv*/[]) {
                     {
                         prev_pointcloud_keyframe = curr_point_cloud;
                         prev_odompose_keyframe   = curr_odom_pose;
-                        keyframe_icp_pose              = curr_icp_pose;
+                        keyframe_icp_pose         = curr_icp_pose;
                     }
-                        
+
+                // Rebuild optimized occupancy grid from current pose-graph nodes
+                std::vector<slam::Node> graph_nodes = pose_graph.getNodes();
+                optimized_grid = slam::OccupancyGrid(0.1, 100, 100, -5.0, -5.0);
+                for (const slam::Node& node : graph_nodes)
+                {
+                    if (!node.lidar_scan.ranges.empty())
+                    {
+                        optimized_grid.updateWithScan(node.lidar_scan, node.pose);
+                    }
+                }
+
+                std::vector<slam::Edge> graph_edges = pose_graph.getEdges();
 
                 // Publish: odom map + both trajectories + pose graph
                 std::string viz_message = createVisualizationMessage(
                     odom_trajectory, icp_trajectory, world_lidar_points, {},
-                    pose_graph.getNodes(), pose_graph.getEdges());
+                    graph_nodes, graph_edges);
                 publisher.publishMessage("visualization", viz_message);
 
-                // Publish raw occupancy grid probabilities on a separate topic
+                // Publish occupancy grid probabilities on a separate topic
                 {
                     int grid_w = raw_grid.getWidth();
                     int grid_h = raw_grid.getHeight();
@@ -325,6 +341,20 @@ int main(int /*argc*/, char* /*argv*/[]) {
                         {
                             if (x > 0) grid_stream << ",";
                             grid_stream << raw_grid.getProbability(x, y);
+                        }
+                        grid_stream << "]";
+                    }
+
+                    grid_stream << "],\"optimized_cells\":[";
+
+                    for (int y = 0; y < grid_h; ++y)
+                    {
+                        if (y > 0) grid_stream << ",";
+                        grid_stream << "[";
+                        for (int x = 0; x < grid_w; ++x)
+                        {
+                            if (x > 0) grid_stream << ",";
+                            grid_stream << optimized_grid.getProbability(x, y);
                         }
                         grid_stream << "]";
                     }

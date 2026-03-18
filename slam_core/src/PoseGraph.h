@@ -13,10 +13,10 @@ class PoseGraph{
     double angleThreshold = 0.06;  // ~4 deg
 
     //loop closure
-    double loopClosure_Radius = 0.5; //1m
+    double loopClosure_Radius = 0.2; //0.2
     int recentNodeExclusion = 10;
     double loopClosure_ICPMaxError = 0.05;
-    int loopClosure_ICPMinCorrespondences = 20;
+    int loopClosure_ICPMinCorrespondences = 60;
 
     int nodeID = 0;
 

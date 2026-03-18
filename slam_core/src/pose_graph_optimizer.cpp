@@ -60,7 +60,7 @@ bool PoseGraphOptimizer::optimize(std::vector<Node>& nodes, const std::vector<Ed
         gtsam::Values result = optimizer.optimize();
 
         double final_error = graph.error(result);
-        constexpr double kErrorThreshold = 1e-2; // Tunable error threshold
+        constexpr double kErrorThreshold = 0.5; // Tunable error threshold
         if (!std::isfinite(final_error) || final_error > kErrorThreshold) {
             std::cerr << "[PoseGraphOptimizer] Optimization failed: final error = " << final_error << std::endl;
             return false;
