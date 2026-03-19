@@ -9,11 +9,11 @@ namespace slam {
 
 class PoseGraph{
 
-    double distThreshold  = 0.2;   // 20 cm
-    double angleThreshold = 0.06;  // ~4 deg
+    double minDistNewKeyframe  = 0.2;   // 20 cm
+    double minAngleNewKeyframe = 0.06;  // ~4 deg
 
     //loop closure
-    double loopClosure_Radius = 0.2; //0.2
+    double maxDistLoopClosure = 0.2; //0.2
     int recentNodeExclusion = 10;
     double loopClosure_ICPMaxError = 0.05;
     int loopClosure_ICPMinCorrespondences = 60;
@@ -31,7 +31,7 @@ class PoseGraph{
     std::vector<slam::Edge> edges;
 
     public:
-        bool tryAddKeyframe(const Pose2D& pose, const LidarScan& scan, double timestamp);
+        bool tryAddKeyframe(const Pose2D& pose, const LidarScan& scan, double timestamp, bool* optimization_happened = nullptr);
         std::vector<slam::Node> getNodes() const {return nodes;}
         std::vector<slam::Edge> getEdges() const {return edges;}    
 

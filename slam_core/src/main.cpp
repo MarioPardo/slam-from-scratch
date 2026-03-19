@@ -267,14 +267,14 @@ int main(int /*argc*/, char* /*argv*/[]) {
 
                 slam::Pose2D curr_icp_pose = curr_odom_pose; 
 
-                if (!first_scan && !prev_pointcloud_keyframe.empty() && !curr_point_cloud.empty())
+                // Option B: always propagate from previous ICP pose using frame-to-frame odom,
+                // then apply ICP correction when available and valid.
+                if (!first_scan && !odom_trajectory.empty() && !icp_trajectory.empty())
                 {
-                    if (is_turning) //if turning, ICP struggles so we use odom to compute pose delta
-                    {
-                        slam::Transform2D odom_delta = computePoseDelta(odom_trajectory.back(), curr_odom_pose);
-                        curr_icp_pose = icp_trajectory.back().transform(odom_delta);
-                    }
-                    else
+                    slam::Transform2D odom_ff_delta = computePoseDelta(odom_trajectory.back(), curr_odom_pose);
+                    curr_icp_pose = icp_trajectory.back().transform(odom_ff_delta);
+
+                    if (!is_turning && !prev_pointcloud_keyframe.empty() && !curr_point_cloud.empty())
                     {
                         slam::Transform2D odom_delta = computePoseDelta(prev_odompose_keyframe, curr_odom_pose);
 
@@ -296,9 +296,9 @@ int main(int /*argc*/, char* /*argv*/[]) {
                                           std::sin(fixed_angle),  std::cos(fixed_angle);
                         slam::Transform2D fixed_transform(fixed_rotation, icp.transform.translation);
 
-                        //TODO gating
-
-                        curr_icp_pose = keyframe_icp_pose.transform(fixed_transform);
+                        // Only use ICP correction if converged, else keep propagated pose.
+                        if(icp.converged)
+                            curr_icp_pose = keyframe_icp_pose.transform(fixed_transform);
                     }
                 }
 
@@ -309,7 +309,7 @@ int main(int /*argc*/, char* /*argv*/[]) {
                 // Update world map using icp pose
                 if (!scan.ranges.empty())
                 {
-                    world_lidar_points   = slam::transformToWorld(scan, curr_icp_pose);
+                    world_lidar_points = slam::transformToWorld(scan, curr_icp_pose);
                     raw_grid.updateWithScan(scan, curr_icp_pose); //I think I shold use world_cloud_points and not have to do conversion inside updateWithScan
                 }
 
@@ -318,24 +318,30 @@ int main(int /*argc*/, char* /*argv*/[]) {
                 icp_trajectory.push_back(curr_icp_pose);
 
                 // Pose graph keyframing
+                bool optimization_happened = false;
+                bool keyframe_added = false;
                 if (!scan.ranges.empty())
-                    if (pose_graph.tryAddKeyframe(curr_icp_pose, scan, odom.timestamp))
+                    if (pose_graph.tryAddKeyframe(curr_icp_pose, scan, odom.timestamp, &optimization_happened))
                     {
+                        keyframe_added = true;
                         prev_pointcloud_keyframe = curr_point_cloud;
                         prev_odompose_keyframe   = curr_odom_pose;
                         keyframe_icp_pose         = curr_icp_pose;
 
                     }
 
-                // TODO only do this when pose graph has new optimization
-                // Rebuild optimized occupancy grid
+                // Rebuild optimized occupancy grid whenever graph nodes change,
+                // and also when optimization updates node poses.
                 std::vector<slam::Node> graph_nodes = pose_graph.getNodes();
-                optimized_grid = slam::OccupancyGrid(0.05, 200, 200, -5.0, -5.0);
-                for (const slam::Node& node : graph_nodes)
+                if (keyframe_added || optimization_happened)
                 {
-                    if (!node.lidar_scan.ranges.empty())
+                    optimized_grid = slam::OccupancyGrid(0.05, 200, 200, -5.0, -5.0);
+                    for (const slam::Node& node : graph_nodes)
                     {
-                        optimized_grid.updateWithScan(node.lidar_scan, node.pose); //TODO for each node project scan with new pose
+                        if (!node.lidar_scan.ranges.empty())
+                        {
+                            optimized_grid.updateWithScan(node.lidar_scan, node.pose); //TODO for each node project scan with new pose
+                        }
                     }
                 }
 

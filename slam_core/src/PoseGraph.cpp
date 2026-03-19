@@ -55,11 +55,13 @@ bool PoseGraph::shouldAddKeyframe(const Pose2D& pose)
     if(dtheta > M_PI) dtheta -= 2*M_PI;
     if(dtheta < -M_PI) dtheta += 2*M_PI;
 
-    return (dist > distThreshold || abs(dtheta) > angleThreshold);  
+    return (dist > minDistNewKeyframe || abs(dtheta) > minAngleNewKeyframe);  
 }
 
-bool PoseGraph:: tryAddKeyframe(const Pose2D& pose, const LidarScan& scan, double timestamp)
+bool PoseGraph:: tryAddKeyframe(const Pose2D& pose, const LidarScan& scan, double timestamp, bool* optimization_happened)
 {
+    if (optimization_happened) *optimization_happened = false;
+
     if(!shouldAddKeyframe(pose))
         return false;
 
@@ -89,8 +91,10 @@ bool PoseGraph:: tryAddKeyframe(const Pose2D& pose, const LidarScan& scan, doubl
     {
         std::cout<<"Loop Closure found, Optimizing!" <<std::endl;
         bool success = PoseGraphOptimizer::optimize(this->nodes, this->edges);
-        if(success)
+        if(success) {
             std::cout<<"Pose Graph Optimized!" <<std::endl;
+            if (optimization_happened) *optimization_happened = true;
+        }
     }
 
     return true;
@@ -120,7 +124,7 @@ std::vector<Edge> PoseGraph::detectLoopClosures(const Node& queryNode)
 
         float dist= std::hypot(candidateNode.pose.x - queryNode.pose.x, candidateNode.pose.y - queryNode.pose.y);
 
-        if(dist > loopClosure_Radius)
+        if(dist > maxDistLoopClosure)
             continue;
 
         //valid candiate, let's run ICP and check results
@@ -145,13 +149,18 @@ std::vector<Edge> PoseGraph::detectLoopClosures(const Node& queryNode)
         //Add edge if loop closure found
         if(icpresult.converged && icpresult.final_error <= this->loopClosure_ICPMaxError && icpresult.correspondence_count >= this->loopClosure_ICPMinCorrespondences)
         {
+
+            std::cout<<" LC Edge found! !" <<std::endl;
+
             //reject node if outlier
             Transform2D predicted = computePoseDelta(candidateNode.pose, queryNode.pose);
             double trans_res = (predicted.translation - icpresult.transform.translation).norm();
             double rot_res = wrappedAbsAngleDiff(angleOf(predicted.rotation), angleOf(icpresult.transform.rotation));
 
-            if (trans_res > kLoopHardRejectTransResidual || rot_res > kLoopHardRejectRotResidual) 
-                continue;
+           // if (trans_res > kLoopHardRejectTransResidual || rot_res > kLoopHardRejectRotResidual) 
+             //   continue;
+
+            std::cout<<" Loop Closure Edge good!, Optimizing!" <<std::endl;
             
 
             // clamp information so we don't get too high of certainty
@@ -167,6 +176,7 @@ std::vector<Edge> PoseGraph::detectLoopClosures(const Node& queryNode)
             //keep track of best candidate node yet
             double score = trans_res + kLoopBestScoreRotWeight * rot_res;
             Edge candidateEdge = {candidateNode.id, queryNode.id, LOOP_CLOSURE, icpresult.transform, loop_info_diag.asDiagonal()};
+            
             if (!hasBestLoop || score < bestScore) {
                 hasBestLoop = true;
                 bestScore = score;
