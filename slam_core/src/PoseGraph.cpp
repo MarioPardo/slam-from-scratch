@@ -5,8 +5,40 @@
 #include <iostream>
 #include "math.h"
 #include <algorithm>
+#include <cstdlib>
+#include <limits>
 
 namespace slam{
+
+namespace {
+bool pgChainDiagEnabled() {
+    static bool enabled = (std::getenv("SLAM_PG_CHAIN_DIAG") != nullptr);
+    return enabled;
+}
+
+    double kMovementSigmaX = 0.5;
+    double kMovementSigmaY = 0.5;
+    double kMovementSigmaTheta = 0.1;
+    double kLoopToMovementInfoRatioCap = 3.0;
+    double kLoopHardRejectTransResidual = 0.25;
+    double kLoopHardRejectRotResidual = 0.20;
+    double kLoopBestScoreRotWeight = 0.5;
+
+
+double angleOf(const Eigen::Matrix2d& R) {
+    return std::atan2(R(1, 0), R(0, 0));
+}
+
+double wrappedAbsAngleDiff(double a, double b) {
+    double d = std::fmod(std::fabs(a - b) + M_PI, 2 * M_PI) - M_PI;
+    return std::fabs(d);
+}
+
+Eigen::Vector3d movementInfoDiag() {
+    Eigen::Vector3d sigma(kMovementSigmaX, kMovementSigmaY, kMovementSigmaTheta);
+    return (sigma.array().inverse().square()).matrix();
+}
+}
 
 bool PoseGraph::shouldAddKeyframe(const Pose2D& pose)
 {
@@ -37,10 +69,10 @@ bool PoseGraph:: tryAddKeyframe(const Pose2D& pose, const LidarScan& scan, doubl
     if(!nodes.empty())
     {
         Transform2D rel_trans = slam::computePoseDelta(nodes.back().pose, pose);
-        Eigen::Vector3d sigma(0.5, 0.5, 0.1);
-        Eigen::Vector3d info_diag = (sigma.array().inverse().square()).matrix(); //std info matrix
+        Eigen::Vector3d info_diag = movementInfoDiag();
         Edge newEdge = {nodes.back().id, newNode.id, MOVEMENT, rel_trans, info_diag.asDiagonal()};
         edges.push_back(newEdge);
+
     }
 
     nodes.push_back(newNode);
@@ -70,6 +102,13 @@ std::vector<Edge> PoseGraph::detectLoopClosures(const Node& queryNode)
     //iterate through all nodes/ ignore most recent 10
     std::vector<Edge> loopClosureEdges = {};
 
+    //keep score for best edge
+    bool hasBestLoop = false;
+    Edge bestLoopEdge;
+    double bestScore = std::numeric_limits<double>::infinity();
+    double bestTransRes = 0.0;
+    double bestRotRes = 0.0;
+
     if(nodes.size() <= recentNodeExclusion)
         return {};
 
@@ -89,21 +128,61 @@ std::vector<Edge> PoseGraph::detectLoopClosures(const Node& queryNode)
 
         ICPResult icpresult = alignPointClouds(scanToPointCloud(candidateNode.lidar_scan),
                             scanToPointCloud(queryNode.lidar_scan),
-                            initial_guess, 100, 1e-6,0.4);
+                            initial_guess, 100, 1e-6,0.2);
+
+
+        //"angle hack" just like we do in main
+        double raw_angle   = std::atan2(icpresult.transform.rotation(1, 0), icpresult.transform.rotation(0, 0));
+        double fixed_angle = -raw_angle;
+        Eigen::Matrix2d fixed_rotation;
+        fixed_rotation << std::cos(fixed_angle), -std::sin(fixed_angle),
+                            std::sin(fixed_angle),  std::cos(fixed_angle);
+        slam::Transform2D fixed_transform(fixed_rotation, icpresult.transform.translation);
+        icpresult.transform = fixed_transform;
+        
+
 
         //Add edge if loop closure found
         if(icpresult.converged && icpresult.final_error <= this->loopClosure_ICPMaxError && icpresult.correspondence_count >= this->loopClosure_ICPMinCorrespondences)
         {
+            //reject node if outlier
+            Transform2D predicted = computePoseDelta(candidateNode.pose, queryNode.pose);
+            double trans_res = (predicted.translation - icpresult.transform.translation).norm();
+            double rot_res = wrappedAbsAngleDiff(angleOf(predicted.rotation), angleOf(icpresult.transform.rotation));
+
+            if (trans_res > kLoopHardRejectTransResidual || rot_res > kLoopHardRejectRotResidual) 
+                continue;
+            
+
             // clamp information so we don't get too high of certainty
             double sigma = std::max(this->loopClosure_minSigma, (double)icpresult.final_error);
-            double info = 1.0 / (sigma * sigma);
-            if(info > this->loopClosure_maxInformation) info = this->loopClosure_maxInformation;
+            double scalar_info = 1.0 / (sigma * sigma);
+            if(scalar_info > this->loopClosure_maxInformation) scalar_info = this->loopClosure_maxInformation;
 
-            float diagConfidenceValue = static_cast<float>(info);
-            Edge loopClosureEdge = {candidateNode.id, queryNode.id, LOOP_CLOSURE, icpresult.transform, Eigen::Vector3d(diagConfidenceValue, diagConfidenceValue, diagConfidenceValue).asDiagonal()};
-            loopClosureEdges.push_back(loopClosureEdge);
+            Eigen::Vector3d loop_info_diag(scalar_info, scalar_info, scalar_info);
+            Eigen::Vector3d movement_info_diag = movementInfoDiag();
+            Eigen::Vector3d max_allowed_info_diag = movement_info_diag * kLoopToMovementInfoRatioCap;
+            loop_info_diag = loop_info_diag.cwiseMin(max_allowed_info_diag);
+
+            //keep track of best candidate node yet
+            double score = trans_res + kLoopBestScoreRotWeight * rot_res;
+            Edge candidateEdge = {candidateNode.id, queryNode.id, LOOP_CLOSURE, icpresult.transform, loop_info_diag.asDiagonal()};
+            if (!hasBestLoop || score < bestScore) {
+                hasBestLoop = true;
+                bestScore = score;
+                bestLoopEdge = candidateEdge;
+                bestTransRes = trans_res;
+                bestRotRes = rot_res;
+            }
         }
+
     }
+
+    if (hasBestLoop) 
+        loopClosureEdges.push_back(bestLoopEdge);
+  
+    
+
 
     return loopClosureEdges;
 }

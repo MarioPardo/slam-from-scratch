@@ -12,9 +12,32 @@
 #include <cmath>
 #include <vector>
 #include <limits>
+#include <cstdlib>
 
 // Global flag for clean shutdown
 volatile sig_atomic_t running = 1;
+
+namespace {
+bool mainChainDiagEnabled() {
+    static bool enabled = (std::getenv("SLAM_MAIN_CHAIN_DIAG") != nullptr);
+    return enabled;
+}
+
+bool icpAngleHackDiagEnabled() {
+    static bool enabled = (std::getenv("SLAM_ICP_ANGLE_HACK_DIAG") != nullptr);
+    return enabled;
+}
+
+double angleOf(const Eigen::Matrix2d& R) {
+    return std::atan2(R(1, 0), R(0, 0));
+}
+
+double wrappedAngleDiff(double a, double b) {
+    double d = std::fmod((a - b) + M_PI, 2 * M_PI);
+    if (d < 0) d += 2 * M_PI;
+    return d - M_PI;
+}
+}
 
 void signalHandler(int signal) {
     std::cout << "\n[Main] Caught signal " << signal << ", shutting down..." << std::endl;
@@ -193,9 +216,8 @@ int main(int /*argc*/, char* /*argv*/[]) {
         slam::OdometryProcessor odometry(0.033, 0.16);
         slam::PoseGraph pose_graph;
 
-        // Raw occupancy grid 
+        // ccupancy grid 
         slam::OccupancyGrid raw_grid(0.05, 200, 200, -5.0, -5.0);
-        // Optimized occupancy grid
         slam::OccupancyGrid optimized_grid(0.05, 200, 200, -5.0, -5.0);
         
         // Odom trajectory
@@ -204,7 +226,7 @@ int main(int /*argc*/, char* /*argv*/[]) {
         
         // ICP trajectory.
         std::vector<slam::Pose2D> icp_trajectory;
-        slam::Pose2D keyframe_icp_pose        = {0.0, 0.0, 0.0};  // frozen at last keyframe
+        slam::Pose2D keyframe_icp_pose        = {0.0, 0.0, 0.0}; 
         std::vector<Eigen::Vector2d> prev_pointcloud_keyframe;
         
         bool first_scan = true;
@@ -224,6 +246,7 @@ int main(int /*argc*/, char* /*argv*/[]) {
             message_count++;
             
             try {
+
                 //Odometry
                 slam::OdometryData odom = parseOdometryData(message);
                 slam::Pose2D curr_odom_pose = odometry.update(odom);
@@ -234,24 +257,22 @@ int main(int /*argc*/, char* /*argv*/[]) {
                 std::vector<Eigen::Vector2d> curr_point_cloud;
 
                 if (!scan.ranges.empty()) {
-                    world_lidar_points   = slam::transformToWorld(scan, curr_odom_pose);
+                    //world_lidar_points   = slam::transformToWorld(scan, curr_odom_pose);
                     curr_point_cloud     = slam::scanToPointCloud(scan);  // robot frame, for ICP
                 }
 
                 // ICP gating: skip ICP during turns, use odometry instead
-                const double GYRO_TURN_THRESHOLD = 0.2; // rad/s
+                const double GYRO_TURN_THRESHOLD = 0.1; // rad/s
                 const bool is_turning = std::abs(odom.gyro_z) > GYRO_TURN_THRESHOLD;
 
-                slam::Pose2D curr_icp_pose = curr_odom_pose; // fallback
+                slam::Pose2D curr_icp_pose = curr_odom_pose; 
 
                 if (!first_scan && !prev_pointcloud_keyframe.empty() && !curr_point_cloud.empty())
                 {
                     if (is_turning) //if turning, ICP struggles so we use odom to compute pose delta
                     {
-                        // Integrate frame-to-frame odom delta onto previous ICP pose
                         slam::Transform2D odom_delta = computePoseDelta(odom_trajectory.back(), curr_odom_pose);
                         curr_icp_pose = icp_trajectory.back().transform(odom_delta);
-                        //curr_icp_pose.theta = odom.compass_heading;
                     }
                     else
                     {
@@ -275,20 +296,21 @@ int main(int /*argc*/, char* /*argv*/[]) {
                                           std::sin(fixed_angle),  std::cos(fixed_angle);
                         slam::Transform2D fixed_transform(fixed_rotation, icp.transform.translation);
 
+                        //TODO gating
+
                         curr_icp_pose = keyframe_icp_pose.transform(fixed_transform);
                     }
                 }
 
                 //Update states
                 if (!curr_point_cloud.empty())
-                {
                     first_scan = false;
-                }
-
-                // Update raw (non-optimized) occupancy grid using current ICP pose
+                
+                // Update world map using icp pose
                 if (!scan.ranges.empty())
                 {
-                    raw_grid.updateWithScan(scan, curr_icp_pose);
+                    world_lidar_points   = slam::transformToWorld(scan, curr_icp_pose);
+                    raw_grid.updateWithScan(scan, curr_icp_pose); //I think I shold use world_cloud_points and not have to do conversion inside updateWithScan
                 }
 
                 //Record both trajectories
@@ -302,16 +324,18 @@ int main(int /*argc*/, char* /*argv*/[]) {
                         prev_pointcloud_keyframe = curr_point_cloud;
                         prev_odompose_keyframe   = curr_odom_pose;
                         keyframe_icp_pose         = curr_icp_pose;
+
                     }
 
-                // Rebuild optimized occupancy grid from current pose-graph nodes
+                // TODO only do this when pose graph has new optimization
+                // Rebuild optimized occupancy grid
                 std::vector<slam::Node> graph_nodes = pose_graph.getNodes();
                 optimized_grid = slam::OccupancyGrid(0.05, 200, 200, -5.0, -5.0);
                 for (const slam::Node& node : graph_nodes)
                 {
                     if (!node.lidar_scan.ranges.empty())
                     {
-                        optimized_grid.updateWithScan(node.lidar_scan, node.pose);
+                        optimized_grid.updateWithScan(node.lidar_scan, node.pose); //TODO for each node project scan with new pose
                     }
                 }
 
@@ -322,8 +346,6 @@ int main(int /*argc*/, char* /*argv*/[]) {
                     odom_trajectory, icp_trajectory, world_lidar_points, {},
                     graph_nodes, graph_edges);
                 publisher.publishMessage("visualization", viz_message);
-
-                // Publish occupancy grid probabilities on a separate topic
                 {
                     int grid_w = raw_grid.getWidth();
                     int grid_h = raw_grid.getHeight();

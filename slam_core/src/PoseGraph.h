@@ -22,6 +22,9 @@ class PoseGraph{
     double loopClosure_minSigma = 0.02; // minimum assumed sigma (m) for loop closures
     double loopClosure_maxInformation = 400.0; //sigma 1/root(400) = 5cm max certainty
 
+    //loop closure outlier rejection
+
+
     int nodeID = 0;
 
     std::vector<slam::Node> nodes;

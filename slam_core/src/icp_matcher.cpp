@@ -1,8 +1,21 @@
 #include "icp_matcher.h"
 #include <iostream>
 #include <limits>
+#include <cstdlib>
+#include <cmath>
 
 namespace slam {
+
+namespace {
+bool icpDiagEnabled() {
+    static bool enabled = (std::getenv("SLAM_ICP_DIAG") != nullptr);
+    return enabled;
+}
+
+double angleOf(const Eigen::Matrix2d& R) {
+    return std::atan2(R(1, 0), R(0, 0));
+}
+}
 
 Transform2D estimateTransform(const std::vector<CorrespondencePair>& correspondences) 
 {
@@ -122,6 +135,16 @@ ICPResult alignPointClouds(
     result.converged = false;
     result.correspondence_count = 0;
 
+    if (icpDiagEnabled()) {
+        std::cout << "[ICP-CHAIN] start src_n=" << source.size()
+                  << " tgt_n=" << target.size()
+                  << " init_dx=" << initial_guess.translation.x()
+                  << " init_dy=" << initial_guess.translation.y()
+                  << " init_dth=" << angleOf(initial_guess.rotation)
+                  << " max_iter=" << max_iterations
+                  << " corr_dist=" << correspondence_distance << std::endl;
+    }
+
     for (int iter = 0; iter < max_iterations; ++iter)
     {
         //1: Apply current transform
@@ -130,8 +153,12 @@ ICPResult alignPointClouds(
         //2: find correspondences
         std::vector<CorrespondencePair> correspondences = findCorrespondencesPointToPoint(transformedSource, target, correspondence_distance);
         result.correspondence_count = correspondences.size();
-        if (correspondences.empty()) 
+        if (correspondences.empty()) {
+            if (icpDiagEnabled()) {
+                std::cout << "[ICP-CHAIN] iter=" << iter << " no correspondences" << std::endl;
+            }
             break;
+        }
 
         //3: Estimate correction
         Transform2D correction = estimateTransform(correspondences);
@@ -140,10 +167,11 @@ ICPResult alignPointClouds(
         result.transform.rotation = correction.rotation * result.transform.rotation;
         result.transform.translation = correction.rotation * result.transform.translation + correction.translation;
 
-        //5: Compute error
+        //5: Compute post-correction error
         double total_error = 0.0;
         for (const CorrespondencePair& pair : correspondences) {
-            Eigen::Vector2d diff = pair.source - pair.target;
+            Eigen::Vector2d corrected_source = correction.rotation * pair.source + correction.translation;
+            Eigen::Vector2d diff = corrected_source - pair.target;
             total_error += diff.squaredNorm(); 
         }
         result.final_error = total_error / correspondences.size();
@@ -154,6 +182,19 @@ ICPResult alignPointClouds(
         double transform_change = translation_change + rotation_change;
 
         result.iterations = iter + 1;
+
+        if (icpDiagEnabled() && (iter == 0 || (iter + 1) % 10 == 0 || transform_change < convergence_epsilon)) {
+            std::cout << "[ICP-CHAIN] iter=" << (iter + 1)
+                      << " corr_n=" << correspondences.size()
+                      << " corr_dx=" << correction.translation.x()
+                      << " corr_dy=" << correction.translation.y()
+                      << " corr_dth=" << angleOf(correction.rotation)
+                      << " tf_dx=" << result.transform.translation.x()
+                      << " tf_dy=" << result.transform.translation.y()
+                      << " tf_dth=" << angleOf(result.transform.rotation)
+                      << " post_mse=" << result.final_error
+                      << " d_change=" << transform_change << std::endl;
+        }
 
         if (transform_change < convergence_epsilon) {
             result.converged = true;

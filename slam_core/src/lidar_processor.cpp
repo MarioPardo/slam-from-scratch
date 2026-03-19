@@ -43,7 +43,7 @@ std::vector<Point2D> transformToWorld(const LidarScan& scan, const Pose2D& robot
         
         // Webots LiDAR: ranges[0] is leftmost (angle_max), ranges[last] is rightmost (angle_min)
         double angle = scan.angle_max - i * angle_increment;
-        // No M_PI correction here - let transformPoint handle coordinate frame
+
         Point2D world_point = transformPoint(range, angle, robot_pose);
         world_points.push_back(world_point);
     }
