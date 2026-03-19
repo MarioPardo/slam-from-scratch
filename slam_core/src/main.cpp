@@ -151,14 +151,19 @@ std::string createVisualizationMessage(
         if (i > 0) viz_data << ",";
         viz_data << "{\"id\":" << graph_nodes[i].id
                  << ",\"x\":"  << graph_nodes[i].pose.x
-                 << ",\"y\":"  << graph_nodes[i].pose.y << "}";
+                 << ",\"y\":"  << graph_nodes[i].pose.y
+                 << ",\"theta\":"<< graph_nodes[i].pose.theta << "}";
     }
     viz_data << "],\"edges\":[";
     for (size_t i = 0; i < graph_edges.size(); i++) {
         if (i > 0) viz_data << ",";
+        double mdx = graph_edges[i].transform.translation(0);
+        double mdy = graph_edges[i].transform.translation(1);
+        double mdth = std::atan2(graph_edges[i].transform.rotation(1,0), graph_edges[i].transform.rotation(0,0));
         viz_data << "{\"from\":" << graph_edges[i].from_id
                  << ",\"to\":"   << graph_edges[i].to_id
-                 << ",\"type\":" << (graph_edges[i].edgeType == slam::LOOP_CLOSURE ? 1 : 0) << "}";
+                 << ",\"type\":" << (graph_edges[i].edgeType == slam::LOOP_CLOSURE ? 1 : 0)
+                 << ",\"meas\":{\"dx\":"<<mdx<<",\"dy\":"<<mdy<<",\"dth\":"<<mdth<<"}}";
     }
     viz_data << "]}}";
     

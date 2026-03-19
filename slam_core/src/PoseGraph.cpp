@@ -4,6 +4,7 @@
 #include "pose_graph_optimizer.h"
 #include <iostream>
 #include "math.h"
+#include <algorithm>
 
 namespace slam{
 
@@ -93,7 +94,12 @@ std::vector<Edge> PoseGraph::detectLoopClosures(const Node& queryNode)
         //Add edge if loop closure found
         if(icpresult.converged && icpresult.final_error <= this->loopClosure_ICPMaxError && icpresult.correspondence_count >= this->loopClosure_ICPMinCorrespondences)
         {
-            float diagConfidenceValue = 1/std::max(1e-6, icpresult.final_error);
+            // clamp information so we don't get too high of certainty
+            double sigma = std::max(this->loopClosure_minSigma, (double)icpresult.final_error);
+            double info = 1.0 / (sigma * sigma);
+            if(info > this->loopClosure_maxInformation) info = this->loopClosure_maxInformation;
+
+            float diagConfidenceValue = static_cast<float>(info);
             Edge loopClosureEdge = {candidateNode.id, queryNode.id, LOOP_CLOSURE, icpresult.transform, Eigen::Vector3d(diagConfidenceValue, diagConfidenceValue, diagConfidenceValue).asDiagonal()};
             loopClosureEdges.push_back(loopClosureEdge);
         }

@@ -17,6 +17,10 @@ class PoseGraph{
     int recentNodeExclusion = 10;
     double loopClosure_ICPMaxError = 0.05;
     int loopClosure_ICPMinCorrespondences = 60;
+    
+    //capping loop closure info
+    double loopClosure_minSigma = 0.02; // minimum assumed sigma (m) for loop closures
+    double loopClosure_maxInformation = 400.0; //sigma 1/root(400) = 5cm max certainty
 
     int nodeID = 0;
 

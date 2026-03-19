@@ -41,6 +41,7 @@ class SLAMViewer:
         self.C_GRAPH_EDGE         = (255, 20,  147)  # bright pink  – sequential
         self.C_LOOP_CLOSURE_EDGE  = (0,   255, 255)   # cyan         – loop closure
         self.C_GRAPH_NODE  = (255, 130, 200)  # lighter pink for dots
+        self.C_MEAS_EDGE   = (255, 255, 0)    # yellow for reported measurement endpoint
 
         # Camera
         self.origin_x        = width  // 2
@@ -60,8 +61,8 @@ class SLAMViewer:
         self.all_lidar_points = []  # [(x,y), ...] half-density, world frame
 
         # Pose graph
-        self.pose_graph_nodes = []  # [(id, x, y), ...]
-        self.pose_graph_edges = []  # [(from_id, to_id, type), ...]  type: 0=sequential, 1=loop closure
+        self.pose_graph_nodes = []  # [(id, x, y, theta), ...]
+        self.pose_graph_edges = []  # [{'from':id,'to':id,'type':int,'meas':{dx,dy,dth}}, ...]
 
         # ── Persistent off-screen surfaces ──────────────────────────────
         # grid_surface  – opaque background, rebuilt on zoom/pan
@@ -127,14 +128,22 @@ class SLAMViewer:
     def _rebuild_graph_surface(self):
         """Full redraw of pose graph onto graph_surface (infrequent)."""
         self.graph_surface.fill((0, 0, 0, 0))
-        node_pos = {nid: (x, y) for nid, x, y in self.pose_graph_nodes}
-        for from_id, to_id, etype in self.pose_graph_edges:
-            color = self.C_LOOP_CLOSURE_EDGE if etype == 1 else self.C_GRAPH_EDGE
-            if from_id in node_pos and to_id in node_pos:
-                pygame.draw.line(self.graph_surface, color,
-                                 self.w2s(*node_pos[from_id]),
-                                 self.w2s(*node_pos[to_id]), 2)
-        for _, x, y in self.pose_graph_nodes:
+        node_pos = {nid: (x, y, theta) for nid, x, y, theta in self.pose_graph_nodes}
+        for edge in self.pose_graph_edges:
+            # Draw ONLY the reported measurement transform: from_node ⊕ meas -> measured endpoint
+            from_id = edge.get('from'); meas = edge.get('meas') if isinstance(edge, dict) else None
+            if meas and from_id in node_pos:
+                fx, fy, ftheta = node_pos[from_id]
+                dx = meas.get('dx', 0.0); dy = meas.get('dy', 0.0)
+                cos_t = math.cos(ftheta); sin_t = math.sin(ftheta)
+                gx = fx + (cos_t*dx - sin_t*dy)
+                gy = fy + (sin_t*dx + cos_t*dy)
+                color = self.C_LOOP_CLOSURE_EDGE if edge.get('type', 0) == 1 else self.C_GRAPH_EDGE
+                # draw measured transform as the primary edge (thin)
+                pygame.draw.line(self.graph_surface, self.C_MEAS_EDGE, self.w2s(fx, fy), self.w2s(gx, gy), 2)
+                pygame.draw.circle(self.graph_surface, self.C_MEAS_EDGE, self.w2s(gx, gy), 3)
+        # draw node dots at their current poses
+        for _, x, y, _ in self.pose_graph_nodes:
             pygame.draw.circle(self.graph_surface, self.C_GRAPH_NODE, self.w2s(x, y), 4)
 
     # ─────────────────────────────────────────
@@ -163,22 +172,29 @@ class SLAMViewer:
     # ─────────────────────────────────────────
     def _update_graph(self, graph_data):
         """Incrementally paint any new keyframe nodes/edges onto graph_surface."""
-        new_nodes = [(n['id'], n['x'], n['y']) for n in graph_data.get('nodes', [])]
-        new_edges = [(e['from'], e['to'], e.get('type', 0)) for e in graph_data.get('edges', [])]
+        new_nodes = [(n['id'], n['x'], n['y'], n.get('theta', 0.0)) for n in graph_data.get('nodes', [])]
+        new_edges = []
+        for e in graph_data.get('edges', []):
+            new_edges.append({'from': e['from'], 'to': e['to'], 'type': e.get('type', 0), 'meas': e.get('meas')})
 
         if len(new_nodes) > len(self.pose_graph_nodes):
-            node_pos = {nid: (x, y) for nid, x, y in new_nodes}
-            # Paint only newly added edges
+            node_pos = {nid: (x, y, theta) for nid, x, y, theta in new_nodes}
+            # Paint only newly added edges using reported measurements
             for i in range(len(self.pose_graph_edges), len(new_edges)):
-                from_id, to_id, etype = new_edges[i]
-                color = self.C_LOOP_CLOSURE_EDGE if etype == 1 else self.C_GRAPH_EDGE
-                if from_id in node_pos and to_id in node_pos:
-                    pygame.draw.line(self.graph_surface, color,
-                                     self.w2s(*node_pos[from_id]),
-                                     self.w2s(*node_pos[to_id]), 2)
+                edge = new_edges[i]
+                from_id = edge['from']
+                meas = edge.get('meas')
+                if meas and from_id in node_pos:
+                    fx, fy, ftheta = node_pos[from_id]
+                    dx = meas.get('dx', 0.0); dy = meas.get('dy', 0.0)
+                    cos_t = math.cos(ftheta); sin_t = math.sin(ftheta)
+                    gx = fx + (cos_t*dx - sin_t*dy)
+                    gy = fy + (sin_t*dx + cos_t*dy)
+                    pygame.draw.line(self.graph_surface, self.C_MEAS_EDGE, self.w2s(fx, fy), self.w2s(gx, gy), 2)
+                    pygame.draw.circle(self.graph_surface, self.C_MEAS_EDGE, self.w2s(gx, gy), 3)
             # Paint only newly added node dots
             for i in range(len(self.pose_graph_nodes), len(new_nodes)):
-                _, x, y = new_nodes[i]
+                _, x, y, _ = new_nodes[i]
                 pygame.draw.circle(self.graph_surface, self.C_GRAPH_NODE, self.w2s(x, y), 4)
 
         self.pose_graph_nodes = new_nodes
