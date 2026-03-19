@@ -4,15 +4,14 @@ EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/project
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/floors/protos/RectangleArena.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/apartment_structure/protos/Wall.proto"
-EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/balls/protos/FifaSoccerBall.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/robotis/turtlebot/protos/TurtleBot3Burger.proto"
 
 WorldInfo {
   basicTimeStep 16
 }
 Viewpoint {
-  orientation 0.5101854676600455 0.31204068124336987 -0.8014620401726301 2.230051951334149
-  position 1.305259946932809 2.768398411303326 9.1389637341377
+  orientation 0.5107073296056375 0.3119214351107856 -0.8011760367144706 2.231443576536822
+  position 2.0852963510130604 4.75110619381579 10.126717414012198
 }
 TexturedBackground {
 }
@@ -21,7 +20,7 @@ TexturedBackgroundLight {
 RectangleArena {
   translation -0.49052 0.361797 8.5613e-15
   rotation 0 0 -1 0.44283
-  floorSize 7 6
+  floorSize 5 5
   wallHeight 0.3
 }
 Wall {
@@ -53,14 +52,10 @@ Wall {
   size 0.3 0.3 0.8
 }
 Wall {
-  translation -3.31698 0.198891 0.0436649
+  translation -2.8176 0.171743 0.0436649
   rotation 0 0 -1 1.62511
   name "wall(1)"
   size 0.1 0.3 0.8
-}
-FifaSoccerBall {
-  translation 0.9951610152814218 -3.516797445699054 0.11216253600000854
-  rotation -0.8943234976923632 -0.4256655016468049 0.13782003549220156 1.7016302117769309
 }
 TurtleBot3Burger {
   hidden position_0_0 1100.406325069597
@@ -68,18 +63,10 @@ TurtleBot3Burger {
   hidden position_0_2 6748.129346096529
   hidden position2_0_2 -0.33680463779718756
   hidden position3_0_2 107.15402455280896
-  hidden linearVelocity_0 2.5601317690764066e-16 1.1067120397974588e-14 -1.2219061621214342e-14
-  hidden angularVelocity_0 -3.4610844371086224e-13 1.5369086164680664e-14 4.194400672732659e-15
   hidden rotation_2 0 -1 0 2.2197850581863983
-  hidden linearVelocity_2 -8.089002967882398e-10 5.260630227017244e-11 -9.7784357463101e-16
-  hidden angularVelocity_2 1.3885562155373114e-12 2.6703330528166584e-11 -3.231294842920773e-16
-  hidden rotation_3 -0.9893392147654354 1.8673591959763901e-06 0.14562938619600344 3.1415898773015343
-  hidden linearVelocity_3 8.089011956274201e-10 -5.2583438034451415e-11 3.5594145070577705e-16
-  hidden angularVelocity_3 -2.0815280890237483e-12 -2.667832694154198e-11 3.830417124434257e-15
-  hidden rotation_4 -0.5965522602679966 0.7112393656436505 -0.37183862834294396 2.7357028665595404
-  hidden linearVelocity_4 2.436695190289799e-15 6.501845880416235e-16 -8.078215462929391e-14
-  hidden angularVelocity_4 -1.6254435822298098e-13 6.091738469197637e-13 4.964725005188396e-28
-  translation -1.8357821505587955 0.2694014457663667 -0.00010490557811181425
+  hidden rotation_3 -0.9893392147654354 1.867359195967838e-06 0.14562938619600352 3.1415898773015343
+  hidden rotation_4 -0.5965522602679966 0.7112393656436505 -0.37183862834294407 2.7357028665595404
+  translation -0.561728 0.597425 -0.00100732
   rotation -0.0011005057419850393 -0.0010312611515026304 -0.9999988626931279 1.6357262150045102
   controller "TurtleBotGoForward"
   extensionSlot [

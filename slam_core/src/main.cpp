@@ -188,11 +188,10 @@ int main(int /*argc*/, char* /*argv*/[]) {
         slam::OdometryProcessor odometry(0.033, 0.16);
         slam::PoseGraph pose_graph;
 
-        // Raw occupancy grid (non-optimized), 0.1 m resolution, static 10x10 m map
-        // World coverage: x in [-5, 5], y in [-5, 5] so world (0,0) is at grid center
-        slam::OccupancyGrid raw_grid(0.1, 100, 100, -5.0, -5.0);
-        // Optimized occupancy grid rebuilt from pose-graph keyframes
-        slam::OccupancyGrid optimized_grid(0.1, 100, 100, -5.0, -5.0);
+        // Raw occupancy grid 
+        slam::OccupancyGrid raw_grid(0.05, 200, 200, -5.0, -5.0);
+        // Optimized occupancy grid
+        slam::OccupancyGrid optimized_grid(0.05, 200, 200, -5.0, -5.0);
         
         // Odom trajectory
         std::vector<slam::Pose2D> odom_trajectory; //keeping for now during development
@@ -302,7 +301,7 @@ int main(int /*argc*/, char* /*argv*/[]) {
 
                 // Rebuild optimized occupancy grid from current pose-graph nodes
                 std::vector<slam::Node> graph_nodes = pose_graph.getNodes();
-                optimized_grid = slam::OccupancyGrid(0.1, 100, 100, -5.0, -5.0);
+                optimized_grid = slam::OccupancyGrid(0.05, 200, 200, -5.0, -5.0);
                 for (const slam::Node& node : graph_nodes)
                 {
                     if (!node.lidar_scan.ranges.empty())

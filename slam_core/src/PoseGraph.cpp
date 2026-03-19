@@ -36,7 +36,9 @@ bool PoseGraph:: tryAddKeyframe(const Pose2D& pose, const LidarScan& scan, doubl
     if(!nodes.empty())
     {
         Transform2D rel_trans = slam::computePoseDelta(nodes.back().pose, pose);
-        Edge newEdge = {nodes.back().id, newNode.id, MOVEMENT, rel_trans, Eigen::Vector3d(0.5, 0.5, 0.1).asDiagonal()};
+        Eigen::Vector3d sigma(0.5, 0.5, 0.1);
+        Eigen::Vector3d info_diag = (sigma.array().inverse().square()).matrix(); //std info matrix
+        Edge newEdge = {nodes.back().id, newNode.id, MOVEMENT, rel_trans, info_diag.asDiagonal()};
         edges.push_back(newEdge);
     }
 
