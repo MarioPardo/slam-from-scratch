@@ -18,24 +18,10 @@
 volatile sig_atomic_t running = 1;
 
 namespace {
-bool mainChainDiagEnabled() {
-    static bool enabled = (std::getenv("SLAM_MAIN_CHAIN_DIAG") != nullptr);
-    return enabled;
-}
-
-bool icpAngleHackDiagEnabled() {
-    static bool enabled = (std::getenv("SLAM_ICP_ANGLE_HACK_DIAG") != nullptr);
-    return enabled;
-}
-
-double angleOf(const Eigen::Matrix2d& R) {
-    return std::atan2(R(1, 0), R(0, 0));
-}
-
-double wrappedAngleDiff(double a, double b) {
-    double d = std::fmod((a - b) + M_PI, 2 * M_PI);
-    if (d < 0) d += 2 * M_PI;
-    return d - M_PI;
+double normalizeAngle(double a) {
+    a = std::fmod(a + M_PI, 2 * M_PI);
+    if (a < 0) a += 2 * M_PI;
+    return a - M_PI;
 }
 }
 
@@ -117,6 +103,23 @@ slam::OdometryData parseOdometryData(const std::string& message) {
     return odom;
 }
 
+struct GroundTruth {
+    double x = 0, y = 0, heading = 0;
+    bool valid = false;
+};
+
+GroundTruth parseGroundTruth(const std::string& message) {
+    GroundTruth gt;
+    size_t pos = message.find("\"ground_truth\"");
+    if (pos == std::string::npos) return gt;
+    std::string sub = message.substr(pos);
+    gt.x = extractDouble(sub, "gt_x");
+    gt.y = extractDouble(sub, "gt_y");
+    gt.heading = extractDouble(sub, "heading");
+    gt.valid = true;
+    return gt;
+}
+
 slam::LidarScan parseLidarScan(const std::string& message, double timestamp) {
     slam::LidarScan scan;
     
@@ -140,8 +143,9 @@ std::string createVisualizationMessage(
     const std::vector<slam::Point2D>& lidar_points,
     const std::vector<slam::LineSegment>& extracted_lines,
     const std::vector<slam::Node>& graph_nodes,
-    const std::vector<slam::Edge>& graph_edges) {
-    
+    const std::vector<slam::Edge>& graph_edges,
+    const slam::Pose2D* gt_pose = nullptr) {
+
     std::ostringstream viz_data;
 
     // Send only the latest pose per frame — the viewer accumulates history.
@@ -156,6 +160,10 @@ std::string createVisualizationMessage(
         const auto& ip = icp_trajectory.back();
         viz_data << "\"icp_pose\":{\"x\":" << ip.x << ",\"y\":" << ip.y
                  << ",\"theta\":" << (-ip.theta - M_PI/2.0) << "},";
+    }
+    if (gt_pose) {
+        viz_data << "\"gt_pose\":{\"x\":" << gt_pose->x << ",\"y\":" << gt_pose->y
+                 << ",\"theta\":" << gt_pose->theta << "},";
     }
 
     viz_data << "\"lidar_points\":[";
@@ -233,6 +241,10 @@ int main(int /*argc*/, char* /*argv*/[]) {
         std::vector<Eigen::Vector2d> prev_pointcloud_keyframe;
         
         bool first_scan = true;
+
+        // Ground truth tracking
+        GroundTruth gt_origin;
+        bool gt_origin_set = false;
         
         subscriber.subscribe("robot_state");
         std::cout << "[Main] Waiting for messages... (Press Ctrl+C to exit)" << std::endl;
@@ -243,7 +255,8 @@ int main(int /*argc*/, char* /*argv*/[]) {
         // Message callback: odom map + ICP trajectory side-by-side
         auto messageCallback = [&publisher, &odometry, &odom_trajectory, &icp_trajectory,
                                  &message_count, &prev_pointcloud_keyframe, &prev_odompose_keyframe,
-                                 &keyframe_icp_pose, &first_scan, &pose_graph, &raw_grid, &optimized_grid]
+                                 &keyframe_icp_pose, &first_scan, &pose_graph, &raw_grid, &optimized_grid,
+                                 &gt_origin, &gt_origin_set]
                                 (const std::string& /*topic*/, const std::string& message)
         {
             message_count++;
@@ -259,10 +272,9 @@ int main(int /*argc*/, char* /*argv*/[]) {
                 std::vector<slam::Point2D> world_lidar_points;
                 std::vector<Eigen::Vector2d> curr_point_cloud;
 
-                if (!scan.ranges.empty()) {
-                    //world_lidar_points   = slam::transformToWorld(scan, curr_odom_pose);
+                if (!scan.ranges.empty()) 
                     curr_point_cloud     = slam::scanToPointCloud(scan);  // robot frame, for ICP
-                }
+            
 
                 // ICP gating: skip ICP during turns, use odometry instead
                 const double GYRO_TURN_THRESHOLD = 0.1; // rad/s
@@ -270,13 +282,13 @@ int main(int /*argc*/, char* /*argv*/[]) {
 
                 slam::Pose2D curr_icp_pose = curr_odom_pose; 
 
-                // Option B: always propagate from previous ICP pose using frame-to-frame odom,
-                // then apply ICP correction when available and valid.
                 if (!first_scan && !odom_trajectory.empty() && !icp_trajectory.empty())
                 {
+                    //Default to using odom for ICP
                     slam::Transform2D odom_ff_delta = computePoseDelta(odom_trajectory.back(), curr_odom_pose);
                     curr_icp_pose = icp_trajectory.back().transform(odom_ff_delta);
 
+                    //if can use ICP, use it
                     if (!is_turning && !prev_pointcloud_keyframe.empty() && !curr_point_cloud.empty())
                     {
                         slam::Transform2D odom_delta = computePoseDelta(prev_odompose_keyframe, curr_odom_pose);
@@ -314,32 +326,55 @@ int main(int /*argc*/, char* /*argv*/[]) {
                 {
                     world_lidar_points = slam::transformToWorld(scan, curr_icp_pose);
                     raw_grid.updateWithScan(scan, curr_odom_pose); //I think I shold use world_cloud_points and not have to do conversion inside updateWithScan
-                    //TODO possibly change raw grid to be updated by ODOM
+
                 }
 
                 //Record both trajectories
                 odom_trajectory.push_back(curr_odom_pose);
                 icp_trajectory.push_back(curr_icp_pose);
 
+                // Ground truth: convert GPS world coords into SLAM frame
+                GroundTruth gt = parseGroundTruth(message);
+                slam::Pose2D gt_slam_pose;
+                bool gt_available = false;
+                if (gt.valid) {
+                    if (!gt_origin_set) {
+                        gt_origin = gt;
+                        gt_origin_set = true;
+                        std::cout << "[GT] Origin: GPS(" << gt.x << ", " << gt.y
+                                  << ")  heading=" << gt.heading << std::endl;
+                    }
+                    double dx = gt.x - gt_origin.x;
+                    double dy = gt.y - gt_origin.y;
+                    double h0 = gt_origin.heading;
+                    gt_slam_pose.x     =  std::cos(h0)*dx + std::sin(h0)*dy;
+                    gt_slam_pose.y     = -std::sin(h0)*dx + std::cos(h0)*dy;
+                    gt_slam_pose.theta = normalizeAngle(gt.heading - gt_origin.heading);
+                    gt_available = true;
+                }
+
+                // Normalize ICP theta to [-pi, pi]
+                curr_icp_pose.theta = normalizeAngle(curr_icp_pose.theta);
+
                 // Pose graph keyframing
                 bool optimization_happened = false;
                 bool keyframe_added = false;
+                slam::Transform2D odom_rel_for_graph = computePoseDelta(prev_odompose_keyframe, curr_odom_pose);
                 if (!scan.ranges.empty())
-                    if (pose_graph.tryAddKeyframe(curr_icp_pose, scan, odom.timestamp, &optimization_happened))
+                    if (pose_graph.tryAddKeyframe(curr_icp_pose, scan, odom.timestamp, odom_rel_for_graph, &optimization_happened))
                     {
                         keyframe_added = true;
                         prev_pointcloud_keyframe = curr_point_cloud;
                         prev_odompose_keyframe   = curr_odom_pose;
                         keyframe_icp_pose        = curr_icp_pose;
 
+                        //Make ICP track the latest optimized pose
                         if (optimization_happened)
                         {
                             slam::Pose2D optimized_pose = pose_graph.getLastNodePose();
                             keyframe_icp_pose     = optimized_pose;
                             icp_trajectory.back() = optimized_pose;
-                            std::cout << "[Main] Synced ICP tracking to optimized pose: ("
-                                      << optimized_pose.x << ", " << optimized_pose.y
-                                      << ", " << optimized_pose.theta << ")" << std::endl;
+            
                         }
                     }
 
@@ -359,10 +394,11 @@ int main(int /*argc*/, char* /*argv*/[]) {
 
                 std::vector<slam::Edge> graph_edges = pose_graph.getEdges();
 
-                // Publish: odom map + both trajectories + pose graph
+                // Publish: odom map + both trajectories + pose graph + ground truth
                 std::string viz_message = createVisualizationMessage(
                     odom_trajectory, icp_trajectory, world_lidar_points, {},
-                    graph_nodes, graph_edges);
+                    graph_nodes, graph_edges,
+                    gt_available ? &gt_slam_pose : nullptr);
                 publisher.publishMessage("visualization", viz_message);
                 {
                     int grid_w = raw_grid.getWidth();

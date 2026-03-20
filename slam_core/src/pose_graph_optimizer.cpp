@@ -20,7 +20,7 @@ bool PoseGraphOptimizer::optimize(std::vector<Node>& nodes, const std::vector<Ed
     gtsam::NonlinearFactorGraph graph;
     gtsam::Values initial;
 
-    for (const Node& node : nodes) 
+    for (const Node& node : nodes) //first node as strong anchor
     {
         double x = node.pose.x;
         double y = node.pose.y;
@@ -41,57 +41,6 @@ bool PoseGraphOptimizer::optimize(std::vector<Node>& nodes, const std::vector<Ed
         graph.add(gtsam::PriorFactor<gtsam::Pose2>(node0.id, prior_pose, prior_noise));
     }
 
-    // --- Diagnostic: compare stored edge measurements to predicted from current poses
-    {
-        double sum_trans_res = 0.0;
-        double sum_rot_res = 0.0;
-        double max_trans_res = 0.0;
-        double max_rot_res = 0.0;
-        int count = 0;
-
-        for (const Edge& edge : edges) {
-            // find corresponding nodes
-            auto it_from = std::find_if(nodes.begin(), nodes.end(), [&](const Node& n){ return n.id == edge.from_id; });
-            auto it_to   = std::find_if(nodes.begin(), nodes.end(), [&](const Node& n){ return n.id == edge.to_id; });
-            if (it_from == nodes.end() || it_to == nodes.end()) continue;
-
-            Transform2D predicted = computePoseDelta(it_from->pose, it_to->pose);
-
-            // stored measurement
-            const Transform2D& meas = edge.transform;
-
-            // translation residual
-            Eigen::Vector2d dt = predicted.translation - meas.translation;
-            double trans_res = dt.norm();
-
-            // rotation residual (angle difference)
-            double ang_pred = std::atan2(predicted.rotation(1,0), predicted.rotation(0,0));
-            double ang_meas = std::atan2(meas.rotation(1,0), meas.rotation(0,0));
-            double rot_res = std::fmod(std::fabs(ang_pred - ang_meas) + M_PI, 2*M_PI) - M_PI;
-            rot_res = std::fabs(rot_res);
-
-            sum_trans_res += trans_res;
-            sum_rot_res += rot_res;
-            max_trans_res = std::max(max_trans_res, trans_res);
-            max_rot_res = std::max(max_rot_res, rot_res);
-            ++count;
-
-            if (trans_res > 0.2 || rot_res > 0.3) {
-                std::cout << "[PG-DIAG] Edge " << edge.from_id << "->" << edge.to_id
-                          << " | meas dx,dy,dth = (" << meas.translation.x() << "," << meas.translation.y() << "," << ang_meas
-                          << ") predicted = (" << predicted.translation.x() << "," << predicted.translation.y() << "," << ang_pred
-                          << ") trans_res=" << trans_res << " rot_res=" << rot_res << std::endl;
-            }
-        }
-
-        if (count > 0) {
-            std::cout << "[PG-DIAG] edges=" << count
-                      << " avg_trans_res=" << (sum_trans_res/count)
-                      << " max_trans_res=" << max_trans_res
-                      << " avg_rot_res=" << (sum_rot_res/count)
-                      << " max_rot_res=" << max_rot_res << std::endl;
-        }
-    }
 
     //  Add a BetweenFactor<Pose2> per edge
     for (const Edge& edge : edges) {
@@ -114,7 +63,8 @@ bool PoseGraphOptimizer::optimize(std::vector<Node>& nodes, const std::vector<Ed
 
         double final_error = graph.error(result);
         constexpr double kErrorThreshold = 0.5; // Tunable error threshold
-        if (!std::isfinite(final_error) || final_error > kErrorThreshold) {
+        if (!std::isfinite(final_error) || final_error > kErrorThreshold) 
+        {
             std::cerr << "[PoseGraphOptimizer] Optimization failed: final error = " << final_error << std::endl;
             return false;
         }

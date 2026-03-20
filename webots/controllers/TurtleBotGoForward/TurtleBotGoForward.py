@@ -108,21 +108,21 @@ while robot.step(TIME_STEP) != -1:
         "step_count": step_count
     }
 
-    # Ground truth from GPS + compass (Webots x/z = 2D map plane)
-    gt_x, gt_z, gt_heading = 0.0, 0.0, 0.0
+    # Ground truth from GPS + compass 
+    gt_x, gt_y = 0.0, 0.0
     if gps is not None:
         gps_vals = gps.getValues()
-        gt_x, gt_z = gps_vals[0], gps_vals[2]
+        gt_x, gt_y = gps_vals[0], gps_vals[1] 
     elif robot_node is not None:
         pos = robot_node.getPosition()
-        gt_x, gt_z = pos[0], pos[2]
+        gt_x, gt_y = pos[0], pos[1]
 
     compass_values = compass.getValues()
     gt_heading = math.atan2(compass_values[0], compass_values[1])
 
     ground_truth = {
-        "x": gt_x,
-        "z": gt_z,
+        "gt_x": gt_x,
+        "gt_y": gt_y,
         "heading": gt_heading
     }
 
@@ -156,7 +156,7 @@ while robot.step(TIME_STEP) != -1:
     }
     
     # Send robot state every X timesteps
-    if step_count % 2 == 0:
+    if step_count % 4 == 0:
         publisher.publish_robot_state(header, odometry, lidar_data, ground_truth)
         print(f"[Python] Sent robot state at step {step_count}")
     

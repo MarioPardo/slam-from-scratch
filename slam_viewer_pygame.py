@@ -24,7 +24,7 @@ class SLAMViewer:
         self.height  = height
         self.scale   = scale
         self.screen  = pygame.display.set_mode((width, height))
-        pygame.display.set_caption("SLAM Viewer — Odometry (Blue)  ICP/SLAM (Green)")
+        pygame.display.set_caption("SLAM Viewer — Odometry (Blue)  ICP/SLAM (Green)  GT (White)")
 
         # Colors
         self.C_BG          = (0,   0,   0)
@@ -42,6 +42,7 @@ class SLAMViewer:
         self.C_LOOP_CLOSURE_EDGE  = (0,   255, 255)   # cyan         – loop closure
         self.C_GRAPH_NODE  = (255, 130, 200)  # lighter pink for dots
         self.C_MEAS_EDGE   = (255, 255, 0)    # yellow for reported measurement endpoint
+        self.C_GT          = (255, 255, 255)   # white for ground truth trajectory
 
         # Camera
         self.origin_x        = width  // 2
@@ -53,6 +54,7 @@ class SLAMViewer:
         # Live data (latest message only)
         self.odom_trajectory = []   # [(x,y), ...]
         self.icp_trajectory  = []
+        self.gt_trajectory   = []   # [(x,y), ...] ground truth in SLAM frame
         self.odom_poses      = []   # [(x,y,theta), ...]
         self.icp_poses       = []
         self.current_scan    = []   # [(x,y), ...] world frame
@@ -120,10 +122,11 @@ class SLAMViewer:
         self._paint_connected(self.map_surface, self.all_lidar_points, self.C_MAP)
 
     def _rebuild_traj_surface(self):
-        """Full redraw of both trajectories onto traj_surface (infrequent)."""
+        """Full redraw of all trajectories onto traj_surface (infrequent)."""
         self.traj_surface.fill((0, 0, 0, 0))
         self._paint_polyline(self.traj_surface, self.odom_trajectory, self.C_ODOM, 2)
         self._paint_polyline(self.traj_surface, self.icp_trajectory,  self.C_ICP,  3)
+        self._paint_polyline(self.traj_surface, self.gt_trajectory,   self.C_GT,   2)
 
     def _rebuild_graph_surface(self):
         """Full redraw of pose graph onto graph_surface (infrequent)."""
@@ -217,7 +220,7 @@ class SLAMViewer:
         self.pose_graph_nodes = new_nodes
         self.pose_graph_edges = new_edges
 
-    def update_data(self, odom_pose, icp_pose, lidar_points, pose_graph):
+    def update_data(self, odom_pose, icp_pose, lidar_points, pose_graph, gt_pose=None):
         self.message_count += 1
 
         # Accumulate trajectory history from single-pose deltas
@@ -236,6 +239,13 @@ class SLAMViewer:
                                  self.w2s(*self.icp_trajectory[-1]), self.w2s(*pt), 3)
             self.icp_trajectory.append(pt)
             self.icp_poses = [(icp_pose['x'], icp_pose['y'], icp_pose.get('theta', 0))]
+
+        if gt_pose:
+            pt = (gt_pose['x'], gt_pose['y'])
+            if len(self.gt_trajectory) >= 2:
+                pygame.draw.line(self.traj_surface, self.C_GT,
+                                 self.w2s(*self.gt_trajectory[-1]), self.w2s(*pt), 2)
+            self.gt_trajectory.append(pt)
 
         self.current_scan = [(p['x'], p['y']) for p in lidar_points]
 
@@ -410,6 +420,7 @@ def main():
                 latest_data.get('icp_pose',     None),
                 latest_data.get('lidar_points', []),
                 latest_data.get('pose_graph',   {'nodes': [], 'edges': []}),
+                latest_data.get('gt_pose',      None),
             )
 
         viewer.render(frame)

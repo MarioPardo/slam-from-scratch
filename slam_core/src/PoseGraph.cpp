@@ -16,9 +16,13 @@ bool pgChainDiagEnabled() {
     return enabled;
 }
 
-    double kMovementSigmaX = 0.5;
-    double kMovementSigmaY = 0.5;
-    double kMovementSigmaTheta = 0.1;
+    double kMovementSigmaX = 0.08;
+    double kMovementSigmaY = 0.08;
+    double kMovementSigmaTheta = 0.05;
+    double kMovementSigmaMaxXY = 0.8;
+    double kMovementSigmaMaxTheta = 0.7;
+    double kMovementTransResidualScale = 2.0;
+    double kMovementRotResidualScale = 1.5;
     double kLoopToMovementInfoRatioCap = 3.0;
     double kLoopHardRejectTransResidual = 0.25;
     double kLoopHardRejectRotResidual = 0.5;
@@ -36,6 +40,18 @@ double wrappedAbsAngleDiff(double a, double b) {
 
 Eigen::Vector3d movementInfoDiag() {
     Eigen::Vector3d sigma(kMovementSigmaX, kMovementSigmaY, kMovementSigmaTheta);
+    return (sigma.array().inverse().square()).matrix();
+}
+
+Eigen::Vector3d movementInfoDiagFromResidual(const Transform2D& icp_rel, const Transform2D& odom_rel) {
+    double trans_res = (icp_rel.translation - odom_rel.translation).norm();
+    double rot_res = wrappedAbsAngleDiff(angleOf(icp_rel.rotation), angleOf(odom_rel.rotation));
+
+    double sigma_x = std::clamp(kMovementSigmaX + kMovementTransResidualScale * trans_res,kMovementSigmaX,kMovementSigmaMaxXY);
+    double sigma_y = std::clamp(kMovementSigmaY + kMovementTransResidualScale * trans_res,kMovementSigmaY,kMovementSigmaMaxXY);
+    double sigma_theta = std::clamp(kMovementSigmaTheta + kMovementRotResidualScale * rot_res,kMovementSigmaTheta,kMovementSigmaMaxTheta);
+
+    Eigen::Vector3d sigma(sigma_x, sigma_y, sigma_theta);
     return (sigma.array().inverse().square()).matrix();
 }
 }
@@ -58,7 +74,7 @@ bool PoseGraph::shouldAddKeyframe(const Pose2D& pose)
     return (dist > minDistNewKeyframe || abs(dtheta) > minAngleNewKeyframe);  
 }
 
-bool PoseGraph:: tryAddKeyframe(const Pose2D& pose, const LidarScan& scan, double timestamp, bool* optimization_happened)
+bool PoseGraph:: tryAddKeyframe(const Pose2D& pose, const LidarScan& scan, double timestamp, const Transform2D& odom_rel_transform, bool* optimization_happened)
 {
     if (optimization_happened) *optimization_happened = false;
 
@@ -71,29 +87,37 @@ bool PoseGraph:: tryAddKeyframe(const Pose2D& pose, const LidarScan& scan, doubl
     if(!nodes.empty())
     {
         Transform2D rel_trans = slam::computePoseDelta(nodes.back().pose, pose);
-        Eigen::Vector3d info_diag = movementInfoDiag();
+        Eigen::Vector3d info_diag = movementInfoDiagFromResidual(rel_trans, odom_rel_transform);
         Edge newEdge = {nodes.back().id, newNode.id, MOVEMENT, rel_trans, info_diag.asDiagonal()};
         edges.push_back(newEdge);
 
     }
 
     nodes.push_back(newNode);
+    keyframesSinceLastLoopClosure++;
+    keyframesSinceLastOptimization++;
 
-    //added node, now let's check for loop closures
-    std::vector<Edge> loop_closure_edges= this->detectLoopClosures(nodes.back());
+    std::vector<Edge> loop_closure_edges;
+    if (keyframesSinceLastLoopClosure >= minKeyframesBetweenLoopClosures)
+        loop_closure_edges = this->detectLoopClosures(nodes.back());
+    
     for(const Edge& edge : loop_closure_edges)
     {
         edges.push_back(edge);
     }
 
-    //if loop closure found, try optimizing graph
-    if(!loop_closure_edges.empty())
+    if (!loop_closure_edges.empty()) 
+        keyframesSinceLastLoopClosure = 0;
+
+    //if loop closure found and optimization cooldown passed, try optimizing graph
+    if(!loop_closure_edges.empty() && keyframesSinceLastOptimization >= minKeyframesBetweenOptimizations)
     {
         std::cout<<"Loop Closure found, Optimizing!" <<std::endl;
         bool success = PoseGraphOptimizer::optimize(this->nodes, this->edges);
         if(success) {
             refreshOptimizedProjectedScans();
             std::cout<<"Pose Graph Optimized!" <<std::endl;
+            keyframesSinceLastOptimization = 0;
             if (optimization_happened) *optimization_happened = true;
         }
     }
@@ -117,8 +141,10 @@ std::vector<Edge> PoseGraph::detectLoopClosures(const Node& queryNode)
     if(nodes.size() <= recentNodeExclusion)
         return {};
 
-    
-    //ok for now, must be optimized (kd trees etc) when dealing with more data
+    //use only the closest candidates
+    std::vector<std::pair<int, double>> candidates;
+    candidates.reserve(nodes.size());
+
     for(int i = 0; i < nodes.size() - recentNodeExclusion; i++)
     {
         Node& candidateNode = nodes[i];
@@ -127,6 +153,24 @@ std::vector<Edge> PoseGraph::detectLoopClosures(const Node& queryNode)
 
         if(dist > maxDistLoopClosure)
             continue;
+
+        candidates.push_back({i, dist});
+    }
+
+    std::sort(candidates.begin(), candidates.end(),
+              [](const std::pair<int, double>& a, const std::pair<int, double>& b) {
+                  return a.second < b.second;
+              });
+
+    //trim candidates
+    if (candidates.size() > (maxLoopClosureCandidates)) 
+        candidates.resize(maxLoopClosureCandidates);
+    
+
+    // run ICP only on nearest loop-closure candidates
+    for(const auto& candidate : candidates)
+    {
+        Node& candidateNode = nodes[candidate.first];
 
         //valid candiate, let's run ICP and check results
         Transform2D initial_guess = computePoseDelta(candidateNode.pose, queryNode.pose);
@@ -160,7 +204,6 @@ std::vector<Edge> PoseGraph::detectLoopClosures(const Node& queryNode)
             std::cout<<" LC Edge found! !" <<std::endl;
 
             // clamp information so we don't get too high of certainty
-            //
             double sigma = std::max(this->loopClosure_minSigma, (double)icpresult.final_error);
             double scalar_info = 1.0 / (sigma * sigma);
             if(scalar_info > this->loopClosure_maxInformation) scalar_info = this->loopClosure_maxInformation;
@@ -192,6 +235,8 @@ std::vector<Edge> PoseGraph::detectLoopClosures(const Node& queryNode)
                 bestTransRes = trans_res;
                 bestRotRes = rot_res;
             }
+
+            break;
         }
 
     }

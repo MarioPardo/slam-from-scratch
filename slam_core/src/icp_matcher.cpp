@@ -135,19 +135,10 @@ ICPResult alignPointClouds(
     result.converged = false;
     result.correspondence_count = 0;
 
-    if (icpDiagEnabled()) {
-        std::cout << "[ICP-CHAIN] start src_n=" << source.size()
-                  << " tgt_n=" << target.size()
-                  << " init_dx=" << initial_guess.translation.x()
-                  << " init_dy=" << initial_guess.translation.y()
-                  << " init_dth=" << angleOf(initial_guess.rotation)
-                  << " max_iter=" << max_iterations
-                  << " corr_dist=" << correspondence_distance << std::endl;
-    }
 
     for (int iter = 0; iter < max_iterations; ++iter)
     {
-        //1: Apply current transform
+        // Apply current transform
         std::vector<Eigen::Vector2d> transformedSource = transformPointCloud(source, result.transform);        
 
         //2: find correspondences
@@ -160,14 +151,14 @@ ICPResult alignPointClouds(
             break;
         }
 
-        //3: Estimate correction
+        // Estimate correction
         Transform2D correction = estimateTransform(correspondences);
 
-        //4: Update transform
+        // Update transform
         result.transform.rotation = correction.rotation * result.transform.rotation;
         result.transform.translation = correction.rotation * result.transform.translation + correction.translation;
 
-        //5: Compute post-correction error
+        // Compute post-correction error
         double total_error = 0.0;
         for (const CorrespondencePair& pair : correspondences) {
             Eigen::Vector2d corrected_source = correction.rotation * pair.source + correction.translation;
@@ -176,25 +167,12 @@ ICPResult alignPointClouds(
         }
         result.final_error = total_error / correspondences.size();
 
-        //6: Check convergence based on transformation change
+        //Check convergence based on transformation change
         double translation_change = correction.translation.norm();
         double rotation_change = std::abs(std::atan2(correction.rotation(1, 0), correction.rotation(0, 0))); //extracts rotation angle
         double transform_change = translation_change + rotation_change;
 
         result.iterations = iter + 1;
-
-        if (icpDiagEnabled() && (iter == 0 || (iter + 1) % 10 == 0 || transform_change < convergence_epsilon)) {
-            std::cout << "[ICP-CHAIN] iter=" << (iter + 1)
-                      << " corr_n=" << correspondences.size()
-                      << " corr_dx=" << correction.translation.x()
-                      << " corr_dy=" << correction.translation.y()
-                      << " corr_dth=" << angleOf(correction.rotation)
-                      << " tf_dx=" << result.transform.translation.x()
-                      << " tf_dy=" << result.transform.translation.y()
-                      << " tf_dth=" << angleOf(result.transform.rotation)
-                      << " post_mse=" << result.final_error
-                      << " d_change=" << transform_change << std::endl;
-        }
 
         if (transform_change < convergence_epsilon) {
             result.converged = true;
