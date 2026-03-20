@@ -47,6 +47,7 @@ set(SOURCES
     src/occupancy_grid.cpp
     src/icp_matcher.cpp
     src/feature_extractor.cpp
+    src/messaging_helper.cpp
     src/PoseGraph.cpp
     src/pose_graph_optimizer.cpp
 )
@@ -58,6 +59,7 @@ set(HEADERS
     src/lidar_processor.h
     src/icp_matcher.h
     src/feature_extractor.h
+    src/messaging_helper.h
     src/types.h
     src/PoseGraph.h
     src/pose_graph_optimizer.h
