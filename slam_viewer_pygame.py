@@ -221,7 +221,15 @@ class SLAMViewer:
         self.pose_graph_nodes = new_nodes
         self.pose_graph_edges = new_edges
 
-    def update_data(self, odom_pose, icp_pose, lidar_points, pose_graph, gt_pose=None):
+    def reset_map(self, full_map_points):
+        """Wipe the accumulated map and repaint from optimized projected scans."""
+        self.all_lidar_points = []
+        self.map_surface.fill((0, 0, 0, 0))
+        pts = [(p['x'], p['y']) for p in full_map_points]
+        self._paint_connected(self.map_surface, pts, self.C_MAP)
+        self.all_lidar_points.extend(pts)
+
+    def update_data(self, odom_pose, icp_pose, lidar_points, pose_graph, gt_pose=None, map_update=False):
         self.message_count += 1
 
         # Accumulate trajectory history from single-pose deltas
@@ -250,13 +258,14 @@ class SLAMViewer:
 
         self.current_scan = [(p['x'], p['y']) for p in lidar_points]
 
-        # Paint only NEW half-density map points onto map_surface (O(n_new) not O(n_total))
-        new_pts = self.current_scan[::2]
-        if new_pts:
-            join = ([self.all_lidar_points[-1]] + new_pts
-                    if self.all_lidar_points else new_pts)
-            self._paint_connected(self.map_surface, join, self.C_MAP)
-            self.all_lidar_points.extend(new_pts)
+        # Only accumulate map points on keyframe scans — avoids smear from ICP drift
+        if map_update:
+            new_pts = self.current_scan[::2]
+            if new_pts:
+                join = ([self.all_lidar_points[-1]] + new_pts
+                        if self.all_lidar_points else new_pts)
+                self._paint_connected(self.map_surface, join, self.C_MAP)
+                self.all_lidar_points.extend(new_pts)
 
         self._update_graph(pose_graph)
 
@@ -478,12 +487,15 @@ def main():
                 break
 
         if latest_data is not None:
+            if latest_data.get('clear_map', False):
+                viewer.reset_map(latest_data.get('full_map_points', []))
             viewer.update_data(
                 latest_data.get('odom_pose',    None),
                 latest_data.get('icp_pose',     None),
                 latest_data.get('lidar_points', []),
                 latest_data.get('pose_graph',   {'nodes': [], 'edges': []}),
                 latest_data.get('gt_pose',      None),
+                latest_data.get('map_update',   False),
             )
 
         viewer.render(frame)

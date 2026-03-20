@@ -116,7 +116,10 @@ std::string createVisualizationMessage(
     const std::vector<slam::LineSegment>& extracted_lines,
     const std::vector<slam::Node>& graph_nodes,
     const std::vector<slam::Edge>& graph_edges,
-    const slam::Pose2D* gt_pose) {
+    const slam::Pose2D* gt_pose,
+    bool clear_map,
+    const std::vector<slam::Point2D>& full_map_points,
+    bool map_update) {
 
     std::ostringstream viz_data;
 
@@ -170,7 +173,20 @@ std::string createVisualizationMessage(
                  << ",\"type\":" << (graph_edges[i].edgeType == slam::LOOP_CLOSURE ? 1 : 0)
                  << ",\"meas\":{\"dx\":"<<mdx<<",\"dy\":"<<mdy<<",\"dth\":"<<mdth<<"}}";
     }
-    viz_data << "]}}";
+    viz_data << "]},\"clear_map\":" << (clear_map ? "true" : "false")
+             << ",\"map_update\":" << (map_update ? "true" : "false");
+
+    if (clear_map) {
+        viz_data << ",\"full_map_points\":[";
+        for (size_t i = 0; i < full_map_points.size(); i++) {
+            if (i > 0) viz_data << ",";
+            viz_data << "{\"x\":" << full_map_points[i].x
+                     << ",\"y\":" << full_map_points[i].y << "}";
+        }
+        viz_data << "]";
+    }
+
+    viz_data << "}";
 
     return viz_data.str();
 }

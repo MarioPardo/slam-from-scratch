@@ -6,6 +6,7 @@
 #include "messaging_helper.h"
 #include "types.h"
 #include "PoseGraph.h"
+#include "scan_capture.h"
 #include <iostream>
 #include <csignal>
 #include <sstream>
@@ -61,6 +62,9 @@ int main(int /*argc*/, char* /*argv*/[]) {
         std::vector<Eigen::Vector2d> prev_pointcloud_keyframe;
 
         bool first_scan = true;
+        const int grid_publish_every_n_messages = 4;
+        std::vector<slam::Point2D> pending_full_map_points;
+        int clear_map_frames_remaining = 0;
 
         // Ground truth tracking
         GroundTruth gt_origin;
@@ -74,7 +78,8 @@ int main(int /*argc*/, char* /*argv*/[]) {
         auto messageCallback = [&publisher, &odometry, &odom_trajectory, &icp_trajectory,
                                  &message_count, &prev_pointcloud_keyframe, &prev_odompose_keyframe,
                                  &keyframe_icp_pose, &first_scan, &pose_graph, &raw_grid, &optimized_grid,
-                                 &gt_origin, &gt_origin_set]
+                                 &gt_origin, &gt_origin_set,
+                                 &pending_full_map_points, &clear_map_frames_remaining]
                                 (const std::string& /*topic*/, const std::string& message)
         {
             message_count++;
@@ -175,22 +180,32 @@ int main(int /*argc*/, char* /*argv*/[]) {
 
                 // Pose graph keyframing
                 bool optimization_happened = false;
+                bool keyframe_added = false;
                 slam::Transform2D odom_rel_for_graph = computePoseDelta(prev_odompose_keyframe, curr_odom_pose);
                 if (!scan.ranges.empty())
-                    if (pose_graph.tryAddKeyframe(curr_icp_pose, scan, odom.timestamp, odom_rel_for_graph, &optimization_happened))
-                    {
-                        prev_pointcloud_keyframe = curr_point_cloud;
-                        prev_odompose_keyframe   = curr_odom_pose;
-                        keyframe_icp_pose        = curr_icp_pose;
+                    keyframe_added = pose_graph.tryAddKeyframe(curr_icp_pose, scan, odom.timestamp, odom_rel_for_graph, &optimization_happened);
 
-                        //Make ICP track the latest optimized pose
-                        if (optimization_happened)
-                        {
-                            slam::Pose2D optimized_pose = pose_graph.getLastNodePose();
-                            keyframe_icp_pose     = optimized_pose;
-                            icp_trajectory.back() = optimized_pose;
-                        }
+                if (keyframe_added)
+                {
+                    // Capture scan pair before prev is overwritten (gated by SLAM_CAPTURE_DIR)
+                    static int capture_idx = 0;
+                    static const char* cap_dir = std::getenv("SLAM_CAPTURE_DIR");
+                    if (cap_dir && !prev_pointcloud_keyframe.empty())
+                        slam::saveScanPair(prev_pointcloud_keyframe, curr_point_cloud,
+                            std::string(cap_dir) + "/pair_" + std::to_string(capture_idx++) + ".json");
+
+                    prev_pointcloud_keyframe = curr_point_cloud;
+                    prev_odompose_keyframe   = curr_odom_pose;
+                    keyframe_icp_pose        = curr_icp_pose;
+
+                    //Make ICP track the latest optimized pose
+                    if (optimization_happened)
+                    {
+                        slam::Pose2D optimized_pose = pose_graph.getLastNodePose();
+                        keyframe_icp_pose     = optimized_pose;
+                        icp_trajectory.back() = optimized_pose;
                     }
+                }
 
                 // Rebuild optimized occupancy grid only when optimization has corrected poses.
                 std::vector<slam::Node> graph_nodes = pose_graph.getNodes();
@@ -208,13 +223,29 @@ int main(int /*argc*/, char* /*argv*/[]) {
 
                 std::vector<slam::Edge> graph_edges = pose_graph.getEdges();
 
+                // When optimization fires, cache the full optimized map and broadcast
+                // it for several frames so CONFLATE can't silently drop the clear signal.
+                if (optimization_happened) {
+                    pending_full_map_points.clear();
+                    for (const auto& scan_pts : pose_graph.getOptimizedProjectedScansWorld())
+                        for (const auto& pt : scan_pts)
+                            pending_full_map_points.push_back(pt);
+                    clear_map_frames_remaining = 10;
+                }
+
+                bool send_clear = (clear_map_frames_remaining > 0);
+                if (clear_map_frames_remaining > 0) --clear_map_frames_remaining;
+
                 // Publish visualization + grid data
                 std::string viz_message = createVisualizationMessage(
                     odom_trajectory, icp_trajectory, world_lidar_points, {},
                     graph_nodes, graph_edges,
-                    gt_available ? &gt_slam_pose : nullptr);
+                    gt_available ? &gt_slam_pose : nullptr,
+                    send_clear,
+                    send_clear ? pending_full_map_points : std::vector<slam::Point2D>{},
+                    keyframe_added);
                 publisher.publishMessage("visualization", viz_message);
-                {
+                if ((message_count % grid_publish_every_n_messages) == 0 || optimization_happened) {
                     int grid_w = raw_grid.getWidth();
                     int grid_h = raw_grid.getHeight();
                     double res = raw_grid.getResolution();

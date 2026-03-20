@@ -9,7 +9,7 @@ namespace slam {
 
 class PoseGraph{
 
-    double minDistNewKeyframe  = 0.2;   // 20 cm
+    double minDistNewKeyframe  = 0.15;   // 20 cm
     double minAngleNewKeyframe = 0.06;  // ~4 deg
 
     //loop closure

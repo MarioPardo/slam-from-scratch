@@ -22,7 +22,9 @@ slam::OdometryData parseOdometryData(const std::string& message);
 slam::LidarScan parseLidarScan(const std::string& message, double timestamp);
 GroundTruth parseGroundTruth(const std::string& message);
 
-// Outgoing visualization message
+// Outgoing visualization message.
+// When clear_map=true, full_map_points is emitted so the viewer can wipe and
+// repaint the entire map from the optimized keyframe projections.
 std::string createVisualizationMessage(
     const std::vector<slam::Pose2D>& odom_trajectory,
     const std::vector<slam::Pose2D>& icp_trajectory,
@@ -30,6 +32,9 @@ std::string createVisualizationMessage(
     const std::vector<slam::LineSegment>& extracted_lines,
     const std::vector<slam::Node>& graph_nodes,
     const std::vector<slam::Edge>& graph_edges,
-    const slam::Pose2D* gt_pose = nullptr);
+    const slam::Pose2D* gt_pose = nullptr,
+    bool clear_map = false,
+    const std::vector<slam::Point2D>& full_map_points = {},
+    bool map_update = false);
 
 #endif // SLAM_MESSAGING_HELPER_H

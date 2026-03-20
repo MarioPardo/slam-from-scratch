@@ -137,6 +137,20 @@ target_include_directories(test_scan_conversion
     ${EIGEN_FROM_GTSAM_INCLUDE_DIR}
 )
 
+add_executable(test_icp_vs_reference
+    tests/test_icp_vs_reference.cpp
+    src/icp_matcher.cpp
+)
+
+target_link_libraries(test_icp_vs_reference PRIVATE)
+
+target_include_directories(test_icp_vs_reference
+    PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${GTSAM_INCLUDE_DIR}
+    ${EIGEN_FROM_GTSAM_INCLUDE_DIR}
+)
+
 # Print configuration
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 message(STATUS "C++ standard: ${CMAKE_CXX_STANDARD}")

@@ -9,6 +9,7 @@ namespace slam {
 ZMQSubscriber::ZMQSubscriber(const std::string& address)
     : context_(1), socket_(context_, zmq::socket_type::sub), address_(address) 
     {
+    socket_.set(zmq::sockopt::conflate, 1);
     
     socket_.connect(address_);
     std::cout << "[ZMQSubscriber] Connected to " << address_ << std::endl;
