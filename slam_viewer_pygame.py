@@ -10,11 +10,13 @@ import json
 import math
 import sys
 import argparse
+import os
 
 # 5 cm² gap threshold for connecting consecutive scan points
 MAP_GAP_SQ    = 0.05 * 0.05
 # Frames between stat text re-renders
 STATS_REFRESH = 15
+SHOW_ODOM_TRAJECTORY = True
 
 
 class SLAMViewer:
@@ -51,6 +53,7 @@ class SLAMViewer:
         self.camera_offset_x = 0
         self.camera_offset_y = 0
         self.auto_center     = True
+        self.show_odom_trajectory = SHOW_ODOM_TRAJECTORY
 
         # Live data (latest message only)
         self.odom_trajectory = []   # [(x,y), ...]
@@ -125,7 +128,8 @@ class SLAMViewer:
     def _rebuild_traj_surface(self):
         """Full redraw of all trajectories onto traj_surface (infrequent)."""
         self.traj_surface.fill((0, 0, 0, 0))
-        self._paint_polyline(self.traj_surface, self.odom_trajectory, self.C_ODOM, 2)
+        if self.show_odom_trajectory:
+            self._paint_polyline(self.traj_surface, self.odom_trajectory, self.C_ODOM, 2)
         self._paint_polyline(self.traj_surface, self.icp_trajectory,  self.C_ICP,  3)
         self._paint_polyline(self.traj_surface, self.gt_trajectory,   self.C_GT,   2)
 
@@ -134,18 +138,13 @@ class SLAMViewer:
         self.graph_surface.fill((0, 0, 0, 0))
         node_pos = {nid: (x, y, theta) for nid, x, y, theta in self.pose_graph_nodes}
         for edge in self.pose_graph_edges:
-            # Draw ONLY the reported measurement transform: from_node ⊕ meas -> measured endpoint
-            from_id = edge.get('from'); meas = edge.get('meas') if isinstance(edge, dict) else None
-            if meas and from_id in node_pos:
-                fx, fy, ftheta = node_pos[from_id]
-                dx = meas.get('dx', 0.0); dy = meas.get('dy', 0.0)
-                cos_t = math.cos(ftheta); sin_t = math.sin(ftheta)
-                gx = fx + (cos_t*dx - sin_t*dy)
-                gy = fy + (sin_t*dx + cos_t*dy)
+            from_id = edge.get('from')
+            to_id = edge.get('to')
+            if from_id in node_pos and to_id in node_pos:
+                fx, fy, _ = node_pos[from_id]
+                tx, ty, _ = node_pos[to_id]
                 color = self.C_LOOP_CLOSURE_EDGE if edge.get('type', 0) == 1 else self.C_GRAPH_EDGE
-                # draw measured transform as the primary edge (thin)
-                pygame.draw.line(self.graph_surface, self.C_MEAS_EDGE, self.w2s(fx, fy), self.w2s(gx, gy), 2)
-                pygame.draw.circle(self.graph_surface, self.C_MEAS_EDGE, self.w2s(gx, gy), 3)
+                pygame.draw.line(self.graph_surface, color, self.w2s(fx, fy), self.w2s(tx, ty), 2)
         # draw node dots at their current poses
         for _, x, y, _ in self.pose_graph_nodes:
             pygame.draw.circle(self.graph_surface, self.C_GRAPH_NODE, self.w2s(x, y), 4)
@@ -200,19 +199,16 @@ class SLAMViewer:
 
         if len(new_nodes) > len(self.pose_graph_nodes):
             node_pos = {nid: (x, y, theta) for nid, x, y, theta in new_nodes}
-            # Paint only newly added edges using reported measurements
+            # Paint only newly added edges using node endpoints
             for i in range(len(self.pose_graph_edges), len(new_edges)):
                 edge = new_edges[i]
                 from_id = edge['from']
-                meas = edge.get('meas')
-                if meas and from_id in node_pos:
-                    fx, fy, ftheta = node_pos[from_id]
-                    dx = meas.get('dx', 0.0); dy = meas.get('dy', 0.0)
-                    cos_t = math.cos(ftheta); sin_t = math.sin(ftheta)
-                    gx = fx + (cos_t*dx - sin_t*dy)
-                    gy = fy + (sin_t*dx + cos_t*dy)
-                    pygame.draw.line(self.graph_surface, self.C_MEAS_EDGE, self.w2s(fx, fy), self.w2s(gx, gy), 2)
-                    pygame.draw.circle(self.graph_surface, self.C_MEAS_EDGE, self.w2s(gx, gy), 3)
+                to_id = edge['to']
+                if from_id in node_pos and to_id in node_pos:
+                    fx, fy, _ = node_pos[from_id]
+                    tx, ty, _ = node_pos[to_id]
+                    color = self.C_LOOP_CLOSURE_EDGE if edge.get('type', 0) == 1 else self.C_GRAPH_EDGE
+                    pygame.draw.line(self.graph_surface, color, self.w2s(fx, fy), self.w2s(tx, ty), 2)
             # Paint only newly added node dots
             for i in range(len(self.pose_graph_nodes), len(new_nodes)):
                 _, x, y, _ = new_nodes[i]
@@ -235,7 +231,7 @@ class SLAMViewer:
         # Accumulate trajectory history from single-pose deltas
         if odom_pose:
             pt = (odom_pose['x'], odom_pose['y'])
-            if len(self.odom_trajectory) >= 2:
+            if self.show_odom_trajectory and len(self.odom_trajectory) >= 2:
                 pygame.draw.line(self.traj_surface, self.C_ODOM,
                                  self.w2s(*self.odom_trajectory[-1]), self.w2s(*pt), 2)
             self.odom_trajectory.append(pt)
@@ -284,14 +280,9 @@ class SLAMViewer:
     # ─────────────────────────────────────────
     #  Render  (called every frame)
     # ─────────────────────────────────────────
-    def _draw_robot_axes(self, x, y, theta, length, cx, cy, thick):
-        ox, oy = self.w2s(x, y)
-        ex, ey = self.w2s(x + length * math.cos(theta),
-                          y + length * math.sin(theta))
-        lx, ly = self.w2s(x + length * math.cos(theta + math.pi/2),
-                          y + length * math.sin(theta + math.pi/2))
-        pygame.draw.line(self.screen, cx, (ox, oy), (ex, ey), thick)
-        pygame.draw.line(self.screen, cy, (ox, oy), (lx, ly), thick)
+    def _draw_latest_dot(self, trajectory, color):
+        if trajectory:
+            pygame.draw.circle(self.screen, color, self.w2s(*trajectory[-1]), 4)
 
     def _refresh_stats(self):
         ref = self.icp_trajectory or self.odom_trajectory
@@ -333,13 +324,10 @@ class SLAMViewer:
         # Current scan: live red ring, redrawn each frame (~180 pts)
         self._paint_connected(self.screen, self.current_scan, self.C_SCAN)
 
-        # Robot axes
-        if self.odom_poses:
-            x, y, th = self.odom_poses[-1]
-            self._draw_robot_axes(x, y, th, 0.3,  self.C_AXIS_X_ODOM, self.C_AXIS_Y_ODOM, 2)
-        if self.icp_poses:
-            x, y, th = self.icp_poses[-1]
-            self._draw_robot_axes(x, y, th, 0.35, self.C_AXIS_X_ICP,  self.C_AXIS_Y_ICP,  3)
+        if self.show_odom_trajectory:
+            self._draw_latest_dot(self.odom_trajectory, self.C_ODOM)
+        self._draw_latest_dot(self.icp_trajectory, self.C_ICP)
+        self._draw_latest_dot(self.gt_trajectory, self.C_GT)
 
         # Stats overlay (re-rendered every STATS_REFRESH frames)
         if frame % STATS_REFRESH == 0:
@@ -436,6 +424,61 @@ def save_trajectory_image(icp_trajectory, gt_trajectory, filename="slam_output.p
     print(f"[save] Trajectory image written to: {filename}")
 
 
+def save_localization_error_bars(
+    icp_trajectory,
+    gt_trajectory,
+    filename="slam_error_over_time.png",
+    map_width_m=2.5,
+    map_height_m=2.5,
+    sample_every_frames=5,
+    rotation_samples=None,
+):
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    if sample_every_frames <= 0:
+        sample_every_frames = 1
+
+    paired_count = min(len(icp_trajectory), len(gt_trajectory))
+    if paired_count == 0:
+        print("[save] No paired GT/ICP samples available for error bar graph")
+        return
+
+    diagonal_m = math.hypot(map_width_m, map_height_m)
+    if diagonal_m <= 1e-9:
+        print("[save] Invalid map dimensions for error normalization")
+        return
+
+    frame_indices = []
+    normalized_errors = []
+    rotation_bucket = []
+
+    for i in range(0, paired_count, sample_every_frames):
+        ix, iy = icp_trajectory[i]
+        gx, gy = gt_trajectory[i]
+        err_m = math.hypot(ix - gx, iy - gy)
+        frame_indices.append(i)
+        normalized_errors.append(err_m / diagonal_m)
+
+        if rotation_samples is not None and i < len(rotation_samples):
+            rotation_bucket.append(rotation_samples[i])
+        else:
+            rotation_bucket.append(None)
+
+    fig, ax = plt.subplots(figsize=(12, 5), facecolor="white")
+    ax.set_facecolor("white")
+    ax.bar(frame_indices, normalized_errors, width=max(1, sample_every_frames * 0.8), color="steelblue")
+    ax.set_xlabel("Frame Index")
+    ax.set_ylabel("Normalized XY Error (error / map diagonal)")
+    ax.set_title("Localization Error Over Time (sampled every 5 frames)")
+    ax.grid(True, axis="y", color="#cccccc", linewidth=0.5)
+    fig.tight_layout()
+    fig.savefig(filename, dpi=150)
+    plt.close(fig)
+    print(f"[save] Error bar graph written to: {filename}")
+
+
 # ─────────────────────────────────────────────
 #  Entry point
 # ─────────────────────────────────────────────
@@ -511,6 +554,17 @@ def main():
             viewer.icp_trajectory,
             viewer.gt_trajectory,
             filename=args.save,
+        )
+        base, ext = os.path.splitext(args.save)
+        error_file = f"{base}_error_bars{ext or '.png'}"
+        save_localization_error_bars(
+            viewer.icp_trajectory,
+            viewer.gt_trajectory,
+            filename=error_file,
+            map_width_m=5.0,
+            map_height_m=5.0,
+            sample_every_frames=5,
+            rotation_samples=None,
         )
 
     sys.exit(0)

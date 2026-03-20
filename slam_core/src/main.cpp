@@ -193,9 +193,21 @@ int main(int /*argc*/, char* /*argv*/[]) {
                     //Make ICP track the latest optimized pose
                     if (optimization_happened)
                     {
+                        slam::Pose2D pre_opt_pose = curr_icp_pose;
                         slam::Pose2D optimized_pose = pose_graph.getLastNodePose();
                         keyframe_icp_pose     = optimized_pose;
                         icp_trajectory.back() = optimized_pose;
+
+                        if (gt_available) {
+                            double pre_err = std::hypot(pre_opt_pose.x - gt_slam_pose.x,
+                                                        pre_opt_pose.y - gt_slam_pose.y);
+                            double post_err = std::hypot(optimized_pose.x - gt_slam_pose.x,
+                                                         optimized_pose.y - gt_slam_pose.y);
+                            std::cout << "[Metrics] Optimization error removed: "
+                                      << (pre_err - post_err)
+                                      << " m (pre=" << pre_err
+                                      << " m, post=" << post_err << " m)" << std::endl;
+                        }
                     }
                 }
 

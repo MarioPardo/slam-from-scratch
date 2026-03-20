@@ -9,8 +9,8 @@ namespace slam {
 
 class PoseGraph{
 
-    double minDistNewKeyframe  = 0.15;   // 20 cm
-    double minAngleNewKeyframe = 0.06;  // ~4 deg
+    double minDistNewKeyframe  = 0.15;   // 15 cm
+    double minAngleNewKeyframe = 0.2;  // ~20 deg
 
     //loop closure
     double maxDistLoopClosure = 0.2;
@@ -29,7 +29,7 @@ class PoseGraph{
 
 
     int nodeID = 0;
-    int keyframesSinceLastLoopClosure = 3;
+    int keyframesSinceLastLoopClosure = 5;
     int keyframesSinceLastOptimization = 10;
 
     std::vector<slam::Node> nodes;

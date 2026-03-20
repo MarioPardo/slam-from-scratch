@@ -8,12 +8,12 @@ import math
 import random
 
 # Encoder noise 
-ENCODER_NOISE_STD = 0.03  # radians
+ENCODER_NOISE_STD = 0.02  # radians
 
 #Wheel slip 
 SLIP_PROBABILITY     = 0.05   # chance per step  (0 = off, 0.01 = ~1% per step)
-SLIP_MAGNITUDE_MEAN  = 0.2     # mean extra encoder rotation per slip event (rad)
-SLIP_MAGNITUDE_STD   = 0.15    # std of slip magnitude (rad)
+SLIP_MAGNITUDE_MEAN  = 0.1     # mean extra encoder rotation per slip event (rad)
+SLIP_MAGNITUDE_STD   = 0.1    # std of slip magnitude (rad)
 
 TIME_STEP = 64
 MAX_SPEED = 6.28
@@ -92,9 +92,9 @@ while robot.step(TIME_STEP) != -1:
         linear_speed = -MAX_SPEED 
 
     if key == ord('A') or key == ord('a'):
-        angular_speed = MAX_SPEED 
+        angular_speed = MAX_SPEED*0.5 
     elif key == ord('D') or key == ord('d'):
-        angular_speed = -MAX_SPEED 
+        angular_speed = -MAX_SPEED*0.5 
 
     leftMotor.setVelocity(linear_speed - angular_speed)
     rightMotor.setVelocity(linear_speed + angular_speed)
