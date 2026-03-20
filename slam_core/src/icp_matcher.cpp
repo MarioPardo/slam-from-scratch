@@ -144,12 +144,9 @@ ICPResult alignPointClouds(
         //2: find correspondences
         std::vector<CorrespondencePair> correspondences = findCorrespondencesPointToPoint(transformedSource, target, correspondence_distance);
         result.correspondence_count = correspondences.size();
-        if (correspondences.empty()) {
-            if (icpDiagEnabled()) {
-                std::cout << "[ICP-CHAIN] iter=" << iter << " no correspondences" << std::endl;
-            }
+        if (correspondences.empty()) 
             break;
-        }
+        
 
         // Estimate correction
         Transform2D correction = estimateTransform(correspondences);

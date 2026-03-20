@@ -130,8 +130,7 @@ while robot.step(TIME_STEP) != -1:
     if random.random() < SLIP_PROBABILITY:
         left_slip_offset  += abs(random.gauss(SLIP_MAGNITUDE_MEAN, SLIP_MAGNITUDE_STD))
         right_slip_offset += abs(random.gauss(SLIP_MAGNITUDE_MEAN, SLIP_MAGNITUDE_STD))
-        print(f"[SLIP] step={step_count} left_slip={left_slip_offset:.3f} right_slip={right_slip_offset:.3f}")
-
+        
     # Odometry data
     compass_heading = gt_heading
 
@@ -156,7 +155,7 @@ while robot.step(TIME_STEP) != -1:
     }
     
     # Send robot state every X timesteps
-    if step_count % 4 == 0:
+    if step_count % 1 == 0:
         publisher.publish_robot_state(header, odometry, lidar_data, ground_truth)
         print(f"[Python] Sent robot state at step {step_count}")
     

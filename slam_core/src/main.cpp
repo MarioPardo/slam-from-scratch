@@ -116,27 +116,27 @@ int main(int /*argc*/, char* /*argv*/[]) {
                     {
                         slam::Transform2D odom_delta = computePoseDelta(prev_odompose_keyframe, curr_odom_pose);
 
+                        // ICP finds Transform for source_scan to target_scan, which is the INVERSE of the
+                        // robot's forward motion. Give it the inverted odometry as initial guess.
+                        Eigen::Matrix2d Rinv_od = odom_delta.rotation.transpose();
+                        slam::Transform2D icp_initial(Rinv_od, -(Rinv_od * odom_delta.translation));
+
                         // Run ICP: align current scan onto previous keyframe scan
                         slam::ICPResult icp = alignPointClouds(
                             prev_pointcloud_keyframe,
                             curr_point_cloud,
-                            odom_delta,         // initial guess
+                            icp_initial,
                             100,
                             1e-6,
                             0.2
                         );
 
-                        // ICP returns rotation in neg angle (not sure why lol)
-                        double raw_angle   = std::atan2(icp.transform.rotation(1, 0), icp.transform.rotation(0, 0));
-                        double fixed_angle = -raw_angle;
-                        Eigen::Matrix2d fixed_rotation;
-                        fixed_rotation << std::cos(fixed_angle), -std::sin(fixed_angle),
-                                          std::sin(fixed_angle),  std::cos(fixed_angle);
-                        slam::Transform2D fixed_transform(fixed_rotation, icp.transform.translation);
-
-                        // Only use ICP correction if converged, else keep propagated pose.
-                        if(icp.converged)
-                            curr_icp_pose = keyframe_icp_pose.transform(fixed_transform);
+                        // Invert ICP result to recover the robot's forward motion, then apply.
+                        if(icp.converged) {
+                            Eigen::Matrix2d Rinv = icp.transform.rotation.transpose();
+                            slam::Transform2D forward(Rinv, -(Rinv * icp.transform.translation));
+                            curr_icp_pose = keyframe_icp_pose.transform(forward);
+                        }
                     }
                 }
 

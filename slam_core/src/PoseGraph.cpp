@@ -175,26 +175,17 @@ std::vector<Edge> PoseGraph::detectLoopClosures(const Node& queryNode)
         //valid candiate, let's run ICP and check results
         Transform2D initial_guess = computePoseDelta(candidateNode.pose, queryNode.pose);
 
-        // same angle hack as in main
-        double init_angle = angleOf(initial_guess.rotation);
-        Eigen::Matrix2d negated_rot;
-        negated_rot << std::cos(-init_angle), -std::sin(-init_angle),
-                       std::sin(-init_angle),  std::cos(-init_angle);
-        initial_guess.rotation = negated_rot;
+        // ICP needs the inverse of forward motion as initial guess (scan-to-scan convention)
+        Eigen::Matrix2d Rinv_ig = initial_guess.rotation.transpose();
+        Transform2D icp_initial(Rinv_ig, -(Rinv_ig * initial_guess.translation));
 
         ICPResult icpresult = alignPointClouds(scanToPointCloud(candidateNode.lidar_scan),
                             scanToPointCloud(queryNode.lidar_scan),
-                            initial_guess,80, 1e-6,0.3);
+                            icp_initial, 80, 1e-6, 0.3);
 
-
-        //"angle hack" just like we do in main
-        double raw_angle   = std::atan2(icpresult.transform.rotation(1, 0), icpresult.transform.rotation(0, 0));
-        double fixed_angle = -raw_angle;
-        Eigen::Matrix2d fixed_rotation;
-        fixed_rotation << std::cos(fixed_angle), -std::sin(fixed_angle),
-                            std::sin(fixed_angle),  std::cos(fixed_angle);
-        slam::Transform2D fixed_transform(fixed_rotation, icpresult.transform.translation);
-        icpresult.transform = fixed_transform;
+        // Invert ICP result to get forward motion (same convention as computePoseDelta / GTSAM)
+        Eigen::Matrix2d Rinv_icp = icpresult.transform.rotation.transpose();
+        icpresult.transform = Transform2D(Rinv_icp, -(Rinv_icp * icpresult.transform.translation));
         
 
 
