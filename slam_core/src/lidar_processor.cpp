@@ -80,4 +80,19 @@ std::vector<Eigen::Vector2d> scanToPointCloud(const LidarScan& scan) {
     return points;
 }
 
+std::vector<std::vector<Point2D>> projectNodeScansToWorld(const std::vector<Node>& nodes) {
+    std::vector<std::vector<Point2D>> projected;
+    projected.reserve(nodes.size());
+
+    for (const Node& node : nodes) {
+        if (node.lidar_scan.ranges.empty()) {
+            projected.emplace_back();
+            continue;
+        }
+        projected.push_back(transformToWorld(node.lidar_scan, node.pose));
+    }
+
+    return projected;
+}
+
 } // namespace slam

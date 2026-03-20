@@ -37,13 +37,15 @@ class RobotPublisher:
         """Publish sensor data to C++."""
         self.publish_message("data", {"value": data})
     
-    def publish_robot_state(self, header, odometry, lidar):
+    def publish_robot_state(self, header, odometry, lidar, ground_truth=None):
         """Publish comprehensive robot state."""
         robot_state = {
             "header": header,
             "odometry": odometry,
             "lidar": lidar
         }
+        if ground_truth is not None:
+            robot_state["ground_truth"] = ground_truth
         self.publish_message("robot_state", robot_state)
     
     def close(self):

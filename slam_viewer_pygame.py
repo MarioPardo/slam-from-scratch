@@ -24,7 +24,7 @@ class SLAMViewer:
         self.height  = height
         self.scale   = scale
         self.screen  = pygame.display.set_mode((width, height))
-        pygame.display.set_caption("SLAM Viewer - Odometry (Blue) vs ICP (Green)")
+        pygame.display.set_caption("SLAM Viewer — Odometry (Blue)  ICP/SLAM (Green)")
 
         # Colors
         self.C_BG          = (0,   0,   0)
@@ -177,6 +177,23 @@ class SLAMViewer:
         for e in graph_data.get('edges', []):
             new_edges.append({'from': e['from'], 'to': e['to'], 'type': e.get('type', 0), 'meas': e.get('meas')})
 
+        # Optimization can move existing node positions without changing node count.
+        # In that case we must redraw the full graph layer; incremental append is insufficient.
+        changed = (new_nodes != self.pose_graph_nodes or new_edges != self.pose_graph_edges)
+        if changed:
+            grew_only = (
+                len(new_nodes) >= len(self.pose_graph_nodes)
+                and len(new_edges) >= len(self.pose_graph_edges)
+                and new_nodes[:len(self.pose_graph_nodes)] == self.pose_graph_nodes
+                and new_edges[:len(self.pose_graph_edges)] == self.pose_graph_edges
+            )
+
+            if not grew_only:
+                self.pose_graph_nodes = new_nodes
+                self.pose_graph_edges = new_edges
+                self._rebuild_graph_surface()
+                return
+
         if len(new_nodes) > len(self.pose_graph_nodes):
             node_pos = {nid: (x, y, theta) for nid, x, y, theta in new_nodes}
             # Paint only newly added edges using reported measurements
@@ -200,14 +217,27 @@ class SLAMViewer:
         self.pose_graph_nodes = new_nodes
         self.pose_graph_edges = new_edges
 
-    def update_data(self, odom_traj, icp_traj, lidar_points, pose_graph):
+    def update_data(self, odom_pose, icp_pose, lidar_points, pose_graph):
         self.message_count += 1
 
-        self.odom_trajectory = [(p['x'], p['y']) for p in odom_traj]
-        self.icp_trajectory  = [(p['x'], p['y']) for p in icp_traj]
-        self.odom_poses      = [(p['x'], p['y'], p.get('theta', 0)) for p in odom_traj]
-        self.icp_poses       = [(p['x'], p['y'], p.get('theta', 0)) for p in icp_traj]
-        self.current_scan    = [(p['x'], p['y']) for p in lidar_points]
+        # Accumulate trajectory history from single-pose deltas
+        if odom_pose:
+            pt = (odom_pose['x'], odom_pose['y'])
+            if len(self.odom_trajectory) >= 2:
+                pygame.draw.line(self.traj_surface, self.C_ODOM,
+                                 self.w2s(*self.odom_trajectory[-1]), self.w2s(*pt), 2)
+            self.odom_trajectory.append(pt)
+            self.odom_poses = [(odom_pose['x'], odom_pose['y'], odom_pose.get('theta', 0))]
+
+        if icp_pose:
+            pt = (icp_pose['x'], icp_pose['y'])
+            if len(self.icp_trajectory) >= 2:
+                pygame.draw.line(self.traj_surface, self.C_ICP,
+                                 self.w2s(*self.icp_trajectory[-1]), self.w2s(*pt), 3)
+            self.icp_trajectory.append(pt)
+            self.icp_poses = [(icp_pose['x'], icp_pose['y'], icp_pose.get('theta', 0))]
+
+        self.current_scan = [(p['x'], p['y']) for p in lidar_points]
 
         # Paint only NEW half-density map points onto map_surface (O(n_new) not O(n_total))
         new_pts = self.current_scan[::2]
@@ -216,16 +246,6 @@ class SLAMViewer:
                     if self.all_lidar_points else new_pts)
             self._paint_connected(self.map_surface, join, self.C_MAP)
             self.all_lidar_points.extend(new_pts)
-
-        # Paint only the newest trajectory segment onto traj_surface
-        if len(self.odom_trajectory) >= 2:
-            pygame.draw.line(self.traj_surface, self.C_ODOM,
-                             self.w2s(*self.odom_trajectory[-2]),
-                             self.w2s(*self.odom_trajectory[-1]), 2)
-        if len(self.icp_trajectory) >= 2:
-            pygame.draw.line(self.traj_surface, self.C_ICP,
-                             self.w2s(*self.icp_trajectory[-2]),
-                             self.w2s(*self.icp_trajectory[-1]), 3)
 
         self._update_graph(pose_graph)
 
@@ -386,10 +406,10 @@ def main():
 
         if latest_data is not None:
             viewer.update_data(
-                latest_data.get('odom_trajectory', []),
-                latest_data.get('icp_trajectory',  []),
-                latest_data.get('lidar_points',     []),
-                latest_data.get('pose_graph',       {'nodes': [], 'edges': []}),
+                latest_data.get('odom_pose',    None),
+                latest_data.get('icp_pose',     None),
+                latest_data.get('lidar_points', []),
+                latest_data.get('pose_graph',   {'nodes': [], 'edges': []}),
             )
 
         viewer.render(frame)

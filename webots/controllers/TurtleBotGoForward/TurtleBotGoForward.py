@@ -5,6 +5,15 @@
 from controller import Robot, Motor
 from robot_comm import RobotPublisher, RobotSubscriber
 import math
+import random
+
+# Encoder noise 
+ENCODER_NOISE_STD = 0.03  # radians
+
+#Wheel slip 
+SLIP_PROBABILITY     = 0.05   # chance per step  (0 = off, 0.01 = ~1% per step)
+SLIP_MAGNITUDE_MEAN  = 0.2     # mean extra encoder rotation per slip event (rad)
+SLIP_MAGNITUDE_STD   = 0.15    # std of slip magnitude (rad)
 
 TIME_STEP = 64
 MAX_SPEED = 6.28
@@ -66,6 +75,9 @@ subscriber = RobotSubscriber()
 subscriber.subscribe("response")  # Subscribe to response topic
 
 step_count = 0
+# Accumulated slip offsets — grow permanently each time a slip fires
+left_slip_offset  = 0.0
+right_slip_offset = 0.0
 
 while robot.step(TIME_STEP) != -1:
     
@@ -96,37 +108,36 @@ while robot.step(TIME_STEP) != -1:
         "step_count": step_count
     }
 
-    # Ground-truth position printout for map bound calibration
-    if step_count % POSITION_PRINT_EVERY_STEPS == 0:
-        gt_position = None
+    # Ground truth from GPS + compass (Webots x/z = 2D map plane)
+    gt_x, gt_z, gt_heading = 0.0, 0.0, 0.0
+    if gps is not None:
+        gps_vals = gps.getValues()
+        gt_x, gt_z = gps_vals[0], gps_vals[2]
+    elif robot_node is not None:
+        pos = robot_node.getPosition()
+        gt_x, gt_z = pos[0], pos[2]
 
-        if gps is not None:
-            gt_position = gps.getValues()  # [x, y, z]
-        elif robot_node is not None:
-            gt_position = robot_node.getPosition()  # [x, y, z]
-
-        if gt_position is not None and len(gt_position) >= 3:
-            x_w = gt_position[0]
-            y_w = gt_position[1]
-            z_w = gt_position[2]
-            # For 2D map plane in Webots, use (x, z)
-            print(
-                f"[GT_POS] t={robot.getTime():.2f}s step={step_count} "
-                f"world_xyz=({x_w:.3f}, {y_w:.3f}, {z_w:.3f}) map_xz=({x_w:.3f}, {z_w:.3f})"
-            )
-        else:
-            print(
-                f"[GT_POS] t={robot.getTime():.2f}s step={step_count} "
-                "position unavailable (no gps / no robot node access)"
-            )
-    
-    # Odometry data
     compass_values = compass.getValues()
-    compass_heading = math.atan2(compass_values[0], compass_values[1])
-    
+    gt_heading = math.atan2(compass_values[0], compass_values[1])
+
+    ground_truth = {
+        "x": gt_x,
+        "z": gt_z,
+        "heading": gt_heading
+    }
+
+    # Wheel slip: randomly fire a slip event and grow the permanent offset
+    if random.random() < SLIP_PROBABILITY:
+        left_slip_offset  += abs(random.gauss(SLIP_MAGNITUDE_MEAN, SLIP_MAGNITUDE_STD))
+        right_slip_offset += abs(random.gauss(SLIP_MAGNITUDE_MEAN, SLIP_MAGNITUDE_STD))
+        print(f"[SLIP] step={step_count} left_slip={left_slip_offset:.3f} right_slip={right_slip_offset:.3f}")
+
+    # Odometry data
+    compass_heading = gt_heading
+
     odometry = {
-        "left_encoder": leftPosition.getValue(),
-        "right_encoder": rightPosition.getValue(),
+        "left_encoder":  leftPosition.getValue()  + left_slip_offset  + random.gauss(0, ENCODER_NOISE_STD),
+        "right_encoder": rightPosition.getValue() + right_slip_offset + random.gauss(0, ENCODER_NOISE_STD),
         "imu_gyro_z": gyro.getValues()[2],  # Z-axis angular velocity
         "imu_accel": list(accelerometer.getValues()),  # [x, y, z]
         "compass_heading": compass_heading  # Absolute heading in radians
@@ -146,7 +157,7 @@ while robot.step(TIME_STEP) != -1:
     
     # Send robot state every X timesteps
     if step_count % 2 == 0:
-        publisher.publish_robot_state(header, odometry, lidar_data)
+        publisher.publish_robot_state(header, odometry, lidar_data, ground_truth)
         print(f"[Python] Sent robot state at step {step_count}")
     
     # Check for responses from C++ (non-blocking)

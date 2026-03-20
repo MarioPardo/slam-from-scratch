@@ -143,19 +143,22 @@ std::string createVisualizationMessage(
     const std::vector<slam::Edge>& graph_edges) {
     
     std::ostringstream viz_data;
-    viz_data << "{\"odom_trajectory\": [";
-    for (size_t i = 0; i < odom_trajectory.size(); i++) {
-        if (i > 0) viz_data << ",";
-        viz_data << "{\"x\":" << odom_trajectory[i].x << ",\"y\":" << odom_trajectory[i].y 
-                 << ",\"theta\":" << odom_trajectory[i].theta << "}";  // Use raw theta (flipped from before)
+
+    // Send only the latest pose per frame — the viewer accumulates history.
+    // Sending full trajectory arrays caused the message to grow indefinitely.
+    viz_data << "{";
+    if (!odom_trajectory.empty()) {
+        const auto& op = odom_trajectory.back();
+        viz_data << "\"odom_pose\":{\"x\":" << op.x << ",\"y\":" << op.y
+                 << ",\"theta\":" << op.theta << "},";
     }
-    viz_data << "],\"icp_trajectory\":[";
-    for (size_t i = 0; i < icp_trajectory.size(); i++) {
-        if (i > 0) viz_data << ",";
-        viz_data << "{\"x\":" << icp_trajectory[i].x << ",\"y\":" << icp_trajectory[i].y 
-                 << ",\"theta\":" << (-icp_trajectory[i].theta - M_PI/2.0) << "}";  // Negate and rotate 90deg CW
+    if (!icp_trajectory.empty()) {
+        const auto& ip = icp_trajectory.back();
+        viz_data << "\"icp_pose\":{\"x\":" << ip.x << ",\"y\":" << ip.y
+                 << ",\"theta\":" << (-ip.theta - M_PI/2.0) << "},";
     }
-    viz_data << "],\"lidar_points\":[";
+
+    viz_data << "\"lidar_points\":[";
     for (size_t i = 0; i < lidar_points.size(); i++) {
         if (i > 0) viz_data << ",";
         viz_data << "{\"x\":" << lidar_points[i].x 
@@ -189,7 +192,7 @@ std::string createVisualizationMessage(
                  << ",\"meas\":{\"dx\":"<<mdx<<",\"dy\":"<<mdy<<",\"dth\":"<<mdth<<"}}";
     }
     viz_data << "]}}";
-    
+
     return viz_data.str();
 }
 
@@ -217,8 +220,8 @@ int main(int /*argc*/, char* /*argv*/[]) {
         slam::PoseGraph pose_graph;
 
         // ccupancy grid 
-        slam::OccupancyGrid raw_grid(0.05, 200, 200, -5.0, -5.0);
-        slam::OccupancyGrid optimized_grid(0.05, 200, 200, -5.0, -5.0);
+        slam::OccupancyGrid raw_grid(0.025, 200, 200, -2.5, -2.5);
+        slam::OccupancyGrid optimized_grid(0.025, 200, 200, -2.5, -2.5);
         
         // Odom trajectory
         std::vector<slam::Pose2D> odom_trajectory; //keeping for now during development
@@ -310,7 +313,8 @@ int main(int /*argc*/, char* /*argv*/[]) {
                 if (!scan.ranges.empty())
                 {
                     world_lidar_points = slam::transformToWorld(scan, curr_icp_pose);
-                    raw_grid.updateWithScan(scan, curr_icp_pose); //I think I shold use world_cloud_points and not have to do conversion inside updateWithScan
+                    raw_grid.updateWithScan(scan, curr_odom_pose); //I think I shold use world_cloud_points and not have to do conversion inside updateWithScan
+                    //TODO possibly change raw grid to be updated by ODOM
                 }
 
                 //Record both trajectories
@@ -326,16 +330,24 @@ int main(int /*argc*/, char* /*argv*/[]) {
                         keyframe_added = true;
                         prev_pointcloud_keyframe = curr_point_cloud;
                         prev_odompose_keyframe   = curr_odom_pose;
-                        keyframe_icp_pose         = curr_icp_pose;
+                        keyframe_icp_pose        = curr_icp_pose;
 
+                        if (optimization_happened)
+                        {
+                            slam::Pose2D optimized_pose = pose_graph.getLastNodePose();
+                            keyframe_icp_pose     = optimized_pose;
+                            icp_trajectory.back() = optimized_pose;
+                            std::cout << "[Main] Synced ICP tracking to optimized pose: ("
+                                      << optimized_pose.x << ", " << optimized_pose.y
+                                      << ", " << optimized_pose.theta << ")" << std::endl;
+                        }
                     }
 
-                // Rebuild optimized occupancy grid whenever graph nodes change,
-                // and also when optimization updates node poses.
+                // Rebuild optimized occupancy grid only when optimization has corrected poses.
                 std::vector<slam::Node> graph_nodes = pose_graph.getNodes();
-                if (keyframe_added || optimization_happened)
+                if (optimization_happened)
                 {
-                    optimized_grid = slam::OccupancyGrid(0.05, 200, 200, -5.0, -5.0);
+                    optimized_grid = slam::OccupancyGrid(0.025, 200, 200, -2.5, -2.5);
                     for (const slam::Node& node : graph_nodes)
                     {
                         if (!node.lidar_scan.ranges.empty())
@@ -361,8 +373,8 @@ int main(int /*argc*/, char* /*argv*/[]) {
                     grid_stream << "{\"width\":" << grid_w
                                 << ",\"height\":" << grid_h
                                 << ",\"resolution\":" << res
-                                << ",\"origin_x\":-5.0"
-                                << ",\"origin_y\":-5.0"
+                                << ",\"origin_x\":" << raw_grid.getOriginX()
+                                << ",\"origin_y\":" << raw_grid.getOriginY()
                                 << ",\"cells\":[";
 
                     for (int y = 0; y < grid_h; ++y)

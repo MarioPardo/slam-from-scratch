@@ -9,6 +9,7 @@ namespace slam {
 
 std::vector<Point2D> transformToWorld(const LidarScan& scan, const Pose2D& robot_pose);
 std::vector<Eigen::Vector2d> scanToPointCloud(const LidarScan& scan);
+std::vector<std::vector<Point2D>> projectNodeScansToWorld(const std::vector<Node>& nodes);
 
 } // namespace slam
 

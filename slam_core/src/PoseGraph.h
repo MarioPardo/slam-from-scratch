@@ -29,15 +29,19 @@ class PoseGraph{
 
     std::vector<slam::Node> nodes;
     std::vector<slam::Edge> edges;
+    std::vector<std::vector<slam::Point2D>> optimized_projected_scans_world;
 
     public:
         bool tryAddKeyframe(const Pose2D& pose, const LidarScan& scan, double timestamp, bool* optimization_happened = nullptr);
         std::vector<slam::Node> getNodes() const {return nodes;}
-        std::vector<slam::Edge> getEdges() const {return edges;}    
+        std::vector<slam::Edge> getEdges() const {return edges;}
+        Pose2D getLastNodePose() const { return nodes.back().pose; }
+        const std::vector<std::vector<slam::Point2D>>& getOptimizedProjectedScansWorld() const { return optimized_projected_scans_world; }
 
     private:
         bool shouldAddKeyframe(const Pose2D& pose); //compare to latest keyframe and check if we pass angle or dist threshholds
         std::vector<Edge> detectLoopClosures(const Node& queryNode);
+        void refreshOptimizedProjectedScans();
 
     };
 

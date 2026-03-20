@@ -20,6 +20,8 @@ public:
     int getWidth() const { return width_; }
     int getHeight() const { return height_; }
     double getResolution() const { return resolution_; }
+    double getOriginX() const { return origin_x_; }
+    double getOriginY() const { return origin_y_; }
     
 private:
     void worldToGrid(double world_x, double world_y, int& grid_x, int& grid_y) const;

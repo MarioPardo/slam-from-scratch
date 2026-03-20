@@ -8,8 +8,8 @@
 namespace slam {
 
 struct CorrespondencePair {
-    Eigen::Vector2d source;  // Point from source scan (P)
-    Eigen::Vector2d target;  // Corresponding point from target scan (Q)
+    Eigen::Vector2d source; 
+    Eigen::Vector2d target;  
     double weight;           // Correspondence weight (1.0 for uniform)
     
     CorrespondencePair(const Eigen::Vector2d& src, const Eigen::Vector2d& tgt, double w = 1.0)

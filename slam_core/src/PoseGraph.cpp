@@ -21,7 +21,7 @@ bool pgChainDiagEnabled() {
     double kMovementSigmaTheta = 0.1;
     double kLoopToMovementInfoRatioCap = 3.0;
     double kLoopHardRejectTransResidual = 0.25;
-    double kLoopHardRejectRotResidual = 0.20;
+    double kLoopHardRejectRotResidual = 0.5;
     double kLoopBestScoreRotWeight = 0.5;
 
 
@@ -92,6 +92,7 @@ bool PoseGraph:: tryAddKeyframe(const Pose2D& pose, const LidarScan& scan, doubl
         std::cout<<"Loop Closure found, Optimizing!" <<std::endl;
         bool success = PoseGraphOptimizer::optimize(this->nodes, this->edges);
         if(success) {
+            refreshOptimizedProjectedScans();
             std::cout<<"Pose Graph Optimized!" <<std::endl;
             if (optimization_happened) *optimization_happened = true;
         }
@@ -130,9 +131,16 @@ std::vector<Edge> PoseGraph::detectLoopClosures(const Node& queryNode)
         //valid candiate, let's run ICP and check results
         Transform2D initial_guess = computePoseDelta(candidateNode.pose, queryNode.pose);
 
+        // same angle hack as in main
+        double init_angle = angleOf(initial_guess.rotation);
+        Eigen::Matrix2d negated_rot;
+        negated_rot << std::cos(-init_angle), -std::sin(-init_angle),
+                       std::sin(-init_angle),  std::cos(-init_angle);
+        initial_guess.rotation = negated_rot;
+
         ICPResult icpresult = alignPointClouds(scanToPointCloud(candidateNode.lidar_scan),
                             scanToPointCloud(queryNode.lidar_scan),
-                            initial_guess, 100, 1e-6,0.2);
+                            initial_guess,80, 1e-6,0.3);
 
 
         //"angle hack" just like we do in main
@@ -149,21 +157,10 @@ std::vector<Edge> PoseGraph::detectLoopClosures(const Node& queryNode)
         //Add edge if loop closure found
         if(icpresult.converged && icpresult.final_error <= this->loopClosure_ICPMaxError && icpresult.correspondence_count >= this->loopClosure_ICPMinCorrespondences)
         {
-
             std::cout<<" LC Edge found! !" <<std::endl;
 
-            //reject node if outlier
-            Transform2D predicted = computePoseDelta(candidateNode.pose, queryNode.pose);
-            double trans_res = (predicted.translation - icpresult.transform.translation).norm();
-            double rot_res = wrappedAbsAngleDiff(angleOf(predicted.rotation), angleOf(icpresult.transform.rotation));
-
-           // if (trans_res > kLoopHardRejectTransResidual || rot_res > kLoopHardRejectRotResidual) 
-             //   continue;
-
-            std::cout<<" Loop Closure Edge good!, Optimizing!" <<std::endl;
-            
-
             // clamp information so we don't get too high of certainty
+            //
             double sigma = std::max(this->loopClosure_minSigma, (double)icpresult.final_error);
             double scalar_info = 1.0 / (sigma * sigma);
             if(scalar_info > this->loopClosure_maxInformation) scalar_info = this->loopClosure_maxInformation;
@@ -173,11 +170,22 @@ std::vector<Edge> PoseGraph::detectLoopClosures(const Node& queryNode)
             Eigen::Vector3d max_allowed_info_diag = movement_info_diag * kLoopToMovementInfoRatioCap;
             loop_info_diag = loop_info_diag.cwiseMin(max_allowed_info_diag);
 
-            //keep track of best candidate node yet
+    
+            Transform2D predicted = computePoseDelta(candidateNode.pose, queryNode.pose);
+            double trans_res = (predicted.translation - icpresult.transform.translation).norm();
+            double rot_res = wrappedAbsAngleDiff(angleOf(predicted.rotation), angleOf(icpresult.transform.rotation));
+
+            if (rot_res > kLoopHardRejectRotResidual) {
+                std::cout << " LC Edge rejected (rotation mismatch): rot=" << rot_res << std::endl;
+                continue;
+            }
+
             double score = trans_res + kLoopBestScoreRotWeight * rot_res;
             Edge candidateEdge = {candidateNode.id, queryNode.id, LOOP_CLOSURE, icpresult.transform, loop_info_diag.asDiagonal()};
-            
-            if (!hasBestLoop || score < bestScore) {
+
+            //keep track of best loop closure
+            if (!hasBestLoop || score < bestScore) 
+            {
                 hasBestLoop = true;
                 bestScore = score;
                 bestLoopEdge = candidateEdge;
@@ -190,11 +198,17 @@ std::vector<Edge> PoseGraph::detectLoopClosures(const Node& queryNode)
 
     if (hasBestLoop) 
         loopClosureEdges.push_back(bestLoopEdge);
-  
-    
 
 
     return loopClosureEdges;
+}
+
+void PoseGraph::refreshOptimizedProjectedScans() {
+    optimized_projected_scans_world = projectNodeScansToWorld(nodes);
+    if (pgChainDiagEnabled()) {
+        std::cout << "[PG-CHAIN] refreshed optimized scan projections for "
+                  << optimized_projected_scans_world.size() << " nodes" << std::endl;
+    }
 }
 
 
