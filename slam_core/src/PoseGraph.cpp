@@ -175,17 +175,10 @@ std::vector<Edge> PoseGraph::detectLoopClosures(const Node& queryNode)
         //valid candiate, let's run ICP and check results
         Transform2D initial_guess = computePoseDelta(candidateNode.pose, queryNode.pose);
 
-        // ICP needs the inverse of forward motion as initial guess (scan-to-scan convention)
-        Eigen::Matrix2d Rinv_ig = initial_guess.rotation.transpose();
-        Transform2D icp_initial(Rinv_ig, -(Rinv_ig * initial_guess.translation));
-
-        ICPResult icpresult = alignPointClouds(scanToPointCloud(candidateNode.lidar_scan),
-                            scanToPointCloud(queryNode.lidar_scan),
-                            icp_initial, 80, 1e-6, 0.3);
-
-        // Invert ICP result to get forward motion (same convention as computePoseDelta / GTSAM)
-        Eigen::Matrix2d Rinv_icp = icpresult.transform.rotation.transpose();
-        icpresult.transform = Transform2D(Rinv_icp, -(Rinv_icp * icpresult.transform.translation));
+        // source=query(current), target=candidate(reference) → result is forward motion directly
+        ICPResult icpresult = alignPointClouds(scanToPointCloudRobotFrame(queryNode.lidar_scan),
+                            scanToPointCloudRobotFrame(candidateNode.lidar_scan),
+                            initial_guess, 80, 1e-6, 0.3);
         
 
 
@@ -240,7 +233,7 @@ std::vector<Edge> PoseGraph::detectLoopClosures(const Node& queryNode)
 }
 
 void PoseGraph::refreshOptimizedProjectedScans() {
-    optimized_projected_scans_world = projectNodeScansToWorld(nodes);
+    optimized_projected_scans_world = projectNodeScansToWorldFrame(nodes);
     if (pgChainDiagEnabled()) {
         std::cout << "[PG-CHAIN] refreshed optimized scan projections for "
                   << optimized_projected_scans_world.size() << " nodes" << std::endl;

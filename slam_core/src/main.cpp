@@ -96,7 +96,7 @@ int main(int /*argc*/, char* /*argv*/[]) {
                 std::vector<Eigen::Vector2d> curr_point_cloud;
 
                 if (!scan.ranges.empty())
-                    curr_point_cloud     = slam::scanToPointCloud(scan);  // robot frame, for ICP
+                    curr_point_cloud = slam::scanToPointCloudRobotFrame(scan);
 
 
                 // ICP gating: skip ICP during turns, use odometry instead
@@ -116,26 +116,18 @@ int main(int /*argc*/, char* /*argv*/[]) {
                     {
                         slam::Transform2D odom_delta = computePoseDelta(prev_odompose_keyframe, curr_odom_pose);
 
-                        // ICP finds Transform for source_scan to target_scan, which is the INVERSE of the
-                        // robot's forward motion. Give it the inverted odometry as initial guess.
-                        Eigen::Matrix2d Rinv_od = odom_delta.rotation.transpose();
-                        slam::Transform2D icp_initial(Rinv_od, -(Rinv_od * odom_delta.translation));
-
-                        // Run ICP: align current scan onto previous keyframe scan
+                        // Run ICP: source=current, target=previous → result is robot's forward motion directly
                         slam::ICPResult icp = alignPointClouds(
-                            prev_pointcloud_keyframe,
                             curr_point_cloud,
-                            icp_initial,
+                            prev_pointcloud_keyframe,
+                            odom_delta,
                             100,
                             1e-6,
                             0.2
                         );
 
-                        // Invert ICP result to recover the robot's forward motion, then apply.
                         if(icp.converged) {
-                            Eigen::Matrix2d Rinv = icp.transform.rotation.transpose();
-                            slam::Transform2D forward(Rinv, -(Rinv * icp.transform.translation));
-                            curr_icp_pose = keyframe_icp_pose.transform(forward);
+                            curr_icp_pose = keyframe_icp_pose.transform(icp.transform);
                         }
                     }
                 }
@@ -147,7 +139,7 @@ int main(int /*argc*/, char* /*argv*/[]) {
                 // Update world map using icp pose
                 if (!scan.ranges.empty())
                 {
-                    world_lidar_points = slam::transformToWorld(scan, curr_icp_pose);
+                    world_lidar_points = slam::transformToWorldFrame(scan, curr_icp_pose);
                     raw_grid.updateWithScan(scan, curr_odom_pose);
                 }
 

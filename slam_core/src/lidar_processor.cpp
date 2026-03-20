@@ -21,7 +21,7 @@ Point2D transformPoint(double range, double angle, const Pose2D& pose) {
 }
 
 //Transform LIDAR a whole lidar scan points from robot frame to world frame
-std::vector<Point2D> transformToWorld(const LidarScan& scan, const Pose2D& robot_pose) {
+std::vector<Point2D> transformToWorldFrame(const LidarScan& scan, const Pose2D& robot_pose) {
     std::vector<Point2D> world_points;
     world_points.reserve(scan.count);
     
@@ -52,7 +52,7 @@ std::vector<Point2D> transformToWorld(const LidarScan& scan, const Pose2D& robot
 }
 
 
-std::vector<Eigen::Vector2d> scanToPointCloud(const LidarScan& scan) {
+std::vector<Eigen::Vector2d> scanToPointCloudRobotFrame(const LidarScan& scan) {
     std::vector<Eigen::Vector2d> points;
 
     double angleIncrement = (scan.angle_max - scan.angle_min) / (scan.count - 1);
@@ -79,7 +79,7 @@ std::vector<Eigen::Vector2d> scanToPointCloud(const LidarScan& scan) {
     return points;
 }
 
-std::vector<std::vector<Point2D>> projectNodeScansToWorld(const std::vector<Node>& nodes) {
+std::vector<std::vector<Point2D>> projectNodeScansToWorldFrame(const std::vector<Node>& nodes) {
     std::vector<std::vector<Point2D>> projected;
     projected.reserve(nodes.size());
 
@@ -88,7 +88,7 @@ std::vector<std::vector<Point2D>> projectNodeScansToWorld(const std::vector<Node
             projected.emplace_back();
             continue;
         }
-        projected.push_back(transformToWorld(node.lidar_scan, node.pose));
+        projected.push_back(transformToWorldFrame(node.lidar_scan, node.pose));
     }
 
     return projected;

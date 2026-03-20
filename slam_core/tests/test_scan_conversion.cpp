@@ -18,7 +18,7 @@ void testSimpleScan() {
     scan.ranges = {1.0, 2.0, 1.5, 1.0};
     
 
-    auto points = slam::scanToPointCloud(scan);
+    auto points = slam::scanToPointCloudRobotFrame(scan);
     
     std::cout << "Input: 4 rays from -90° to +90°\n";
     std::cout << "Ranges: [1.0, 2.0, 1.5, 1.0]\n";
@@ -49,7 +49,7 @@ void testFilterInvalidRanges() {
     scan.ranges = {1.0, INFINITY, 2.0, NAN, 0.05, 10.0};
     
 
-    auto points = slam::scanToPointCloud(scan);
+    auto points = slam::scanToPointCloudRobotFrame(scan);
     
     std::cout << "Input: 6 rays with mixed valid/invalid ranges\n";
     std::cout << "Ranges: [1.0, INF, 2.0, NAN, 0.05(too close), 10.0(too far)]\n";
@@ -76,7 +76,7 @@ void testFullCircleScan() {
     }
     
 
-    auto points = slam::scanToPointCloud(scan);
+    auto points = slam::scanToPointCloudRobotFrame(scan);
     
     std::cout << "Input: 360 rays, full circle, all ranges = 2.0\n";
     std::cout << "Output: " << points.size() << " points\n";
