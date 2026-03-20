@@ -9,6 +9,7 @@ import zmq
 import json
 import math
 import sys
+import argparse
 
 # 5 cm² gap threshold for connecting consecutive scan points
 MAP_GAP_SQ    = 0.05 * 0.05
@@ -371,9 +372,71 @@ class SLAMViewer:
 
 
 # ─────────────────────────────────────────────
+#  Trajectory image export
+# ─────────────────────────────────────────────
+def save_trajectory_image(icp_trajectory, gt_trajectory, filename="slam_output.png"):
+    """
+    Render trajectories to a PNG using matplotlib.
+
+    Parameters
+    ----------
+    icp_trajectory : list of (x, y)  – ICP/SLAM path (pink)
+    gt_trajectory  : list of (x, y)  – ground truth path (black)
+    filename       : output PNG path
+    """
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    fig, ax = plt.subplots(figsize=(10, 10), facecolor="white")
+    ax.set_aspect("equal")
+    ax.set_facecolor("white")
+
+    def _plot_traj(traj, color, label, lw=1.5, zorder=2):
+        if len(traj) >= 2:
+            xs, ys = zip(*traj)
+            ax.plot(xs, ys, color=color, linewidth=lw, label=label, zorder=zorder)
+
+    _plot_traj(gt_trajectory,  "black",   "Ground Truth", lw=1.5, zorder=3)
+    _plot_traj(icp_trajectory, "hotpink", "ICP / SLAM",   lw=2.0, zorder=4)
+
+    for traj, color in ((gt_trajectory, "black"), (icp_trajectory, "hotpink")):
+        if traj:
+            ax.plot(traj[0][0], traj[0][1], "o", color=color, markersize=7, zorder=6)
+
+    # Fit axes tightly to all data with a small margin
+    all_x, all_y = [], []
+    for traj in (icp_trajectory, gt_trajectory):
+        if traj:
+            xs, ys = zip(*traj)
+            all_x.extend(xs);  all_y.extend(ys)
+    if all_x:
+        margin = max((max(all_x) - min(all_x)) * 0.05,
+                     (max(all_y) - min(all_y)) * 0.05, 0.5)
+        ax.set_xlim(min(all_x) - margin, max(all_x) + margin)
+        ax.set_ylim(min(all_y) - margin, max(all_y) + margin)
+
+    ax.set_xlabel("X (m)");  ax.set_ylabel("Y (m)")
+    ax.set_title("SLAM Trajectories")
+    ax.legend(loc="best", fontsize=9)
+    ax.grid(True, color="#cccccc", linewidth=0.5)
+
+    fig.tight_layout()
+    fig.savefig(filename, dpi=150)
+    plt.close(fig)
+    print(f"[save] Trajectory image written to: {filename}")
+
+
+# ─────────────────────────────────────────────
 #  Entry point
 # ─────────────────────────────────────────────
 def main():
+    parser = argparse.ArgumentParser(description="SLAM Pygame Viewer")
+    parser.add_argument("--save", metavar="FILE", nargs="?",
+                        const="slam_output.png", default=None,
+                        help="On exit, save a trajectory PNG (default: slam_output.png)")
+    args = parser.parse_args()
+
     print("=== SLAM Pygame Viewer (optimized) ===")
     print("Connecting to tcp://localhost:5556 ...")
 
@@ -430,6 +493,14 @@ def main():
     subscriber.close()
     context.term()
     pygame.quit()
+
+    if args.save:
+        save_trajectory_image(
+            viewer.icp_trajectory,
+            viewer.gt_trajectory,
+            filename=args.save,
+        )
+
     sys.exit(0)
 
 
