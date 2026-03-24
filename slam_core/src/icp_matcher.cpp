@@ -120,6 +120,69 @@ std::vector<CorrespondencePair> findCorrespondencesPointToPoint(
     return correspondences;
 }
 
+std::vector<CorrespondencePair> findCorrespondencesPointToPlane(
+    const std::vector<Eigen::Vector2d>& source,
+    const std::vector<Eigen::Vector2d>& target,
+    double max_distance)
+{
+    if (target.size() < 2) {
+        return findCorrespondencesPointToPoint(source, target, max_distance);
+    }
+
+    std::vector<CorrespondencePair> correspondences;
+    correspondences.reserve(source.size());
+
+    for (const Eigen::Vector2d& spoint : source)
+    {
+        float bestdistance = std::numeric_limits<float>::infinity();
+        float seconddistance = std::numeric_limits<float>::infinity();
+        int best_idx = -1;
+        int second_idx = -1;
+
+        for (size_t i = 0; i < target.size(); ++i)
+        {
+            float distance = static_cast<float>((spoint - target[i]).norm());
+            if (distance < bestdistance)
+            {
+                seconddistance = bestdistance;
+                second_idx = best_idx;
+                bestdistance = distance;
+                best_idx = static_cast<int>(i);
+            }
+            else if (distance < seconddistance)
+            {
+                seconddistance = distance;
+                second_idx = static_cast<int>(i);
+            }
+        }
+
+        if (best_idx < 0 || bestdistance >= max_distance)
+            continue;
+
+        Eigen::Vector2d nearest = target[best_idx];
+        Eigen::Vector2d projected = nearest;
+
+        if (second_idx >= 0)
+        {
+            Eigen::Vector2d tangent = target[second_idx] - nearest;
+            double tangent_norm = tangent.norm();
+            if (tangent_norm > 1e-9)
+            {
+                tangent /= tangent_norm;
+                Eigen::Vector2d normal(-tangent.y(), tangent.x());
+                double signed_dist = normal.dot(spoint - nearest);
+                projected = spoint - signed_dist * normal;
+            }
+        }
+
+        double weight = 1.0 - (bestdistance / static_cast<float>(max_distance));
+        if (weight < 0.0) weight = 0.0;
+        correspondences.emplace_back(spoint, projected, weight);
+    }
+
+    return correspondences;
+}
+
 ICPResult alignPointClouds(
     const std::vector<Eigen::Vector2d>& source,
     const std::vector<Eigen::Vector2d>& target,
@@ -141,12 +204,11 @@ ICPResult alignPointClouds(
         // Apply current transform
         std::vector<Eigen::Vector2d> transformedSource = transformPointCloud(source, result.transform);        
 
-        //2: find correspondences
-        std::vector<CorrespondencePair> correspondences = findCorrespondencesPointToPoint(transformedSource, target, correspondence_distance);
+        // find correspondences
+        std::vector<CorrespondencePair> correspondences = findCorrespondencesPointToPlane(transformedSource, target, correspondence_distance);
         result.correspondence_count = correspondences.size();
         if (correspondences.empty()) 
             break;
-        
 
         // Estimate correction
         Transform2D correction = estimateTransform(correspondences);

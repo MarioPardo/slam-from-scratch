@@ -27,7 +27,10 @@ std::vector<CorrespondencePair> findCorrespondencesPointToPoint(
     const std::vector<Eigen::Vector2d>& target,
     double max_distance);
 
-//TODO try point to plane (line) correspondence matching
+std::vector<CorrespondencePair> findCorrespondencesPointToPlane(
+    const std::vector<Eigen::Vector2d>& source,
+    const std::vector<Eigen::Vector2d>& target,
+    double max_distance);
 
 struct ICPResult {
     Transform2D transform;

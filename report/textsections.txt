@@ -1,0 +1,135 @@
+Abstract----
+
+Humans are able to navigate and understand new environments quickly and intuitively,
+combining sensory inputs with spatial memory to create an understanding their environment
+and their location with it. Replicating this in machines is a complicated task encompassing
+various areas of research and is a key challenge in developping autonomous robots and vehicles.
+Simulatenous Localization and Mapping (SLAM) is a class of algorithms dedicated to just this task, 
+allowing for systems to understand the environment in which they are, and where they are in it -especially critical 
+in scenarios where outside sources of information, such as GPS, are unavailable. 
+This project presents a C++ implementation of a Graph-Based SLAM backend developed from first principles. 
+The resulting system demonstrates reliable convergence in pose-graph optimization, validating that a ground-up implementation can manage the underlying mathematical complexity and high-performance requirements of modern robotics
+
+
+
+
+Main Body ----
+
+
+--Motivation 
+<P1: Why SLAM is needed>
+Robotic Systems sense the world and themselves through a variety of sensors, such as wheel encoders, gyroscopes, and lidar sensors. The two former are combined to 
+create odometry data, estimating the change in position and orientation (Pose), and the latter using laser reflections
+to sense the geometry of the world at a distance. In real world settings, odometry data carries noise from sensor readings and misalignments in these readings to 
+the actions they imply : for example, wheels slipping and bumps on road. This causes drift - an error in the calculated pose compared to the actual pose. As these pose estimates
+build on top of eachother, this drift quickly accumulates and leads to worsening estimates, and new sensor inputs conflict with these internal estimates, leading to catastrophic
+errors in localization and mapping. To illustrate the effects of an erroneous pose estimate, lidar data might say that there is a wall 3m direcly ahead, but out pose estimates estimates that we are at (3m, 1m) while in reality 
+we are at (2,0) - we now believe that there is a wall at (6,1) while in reality it's at (5,0).
+A Graph Based SLAM system makes a graph of poses and movements, and when it detects a loop closure - a place where it's been before - it uses this new datapoint at this repeated location to 
+update all it's previous poses and estimates of the world around, to "snap" it's trajectory and mapping into a corrected version.
+
+
+<P2: Why I chose to build it>
+Working with modern robotics tools we are given implemented and tested versions of these algorithms, nicely packed up and ready to use, but as black boxes where we input the sensor readings, and get out the mapping 
+and localizaion estimates. My intention with this project was to open this box, and gain rigorous experience in studying and understanding, then implmeenting, debugging, and testing a complex algorithm like this. 
+Developping a SLAM algorithm tested my knowledge in mathematics, specifically linear algebra and statistics and applying it to a complex, multi step, real world system using high performing C++ code.
+
+
+--Methodology
+This project was implemented using mainly C++ as the brains of the algorithm, with the open source robotics platform Webots as a front end to perform the robot and sensor simulation, completed with Python visualization tools to easily
+test and visualize the outputs of program. 
+Core technologies used:
+    * C++: Core of SLAM algorithm. 
+    I selected to use C++ as it continues to be the language of choice when writing high performing code. Personally, it was one of the first languages I was introduced to 
+    and I enjoy it's complexities and overhead. Writing the backed in C++ gave me an excellent opportunity to refine by abilities in C++, make use of it's powerful features, 
+    and make this project in a language that is made to support the intense requirements of robotics software. 
+        * Use of Eigen Library for Linear algebra
+        * GTSAM Library for Pose Graph Optimization
+        
+
+    *Webots: Robotics simulation
+    Webots is a simple yet powerful open source robotics simulations software. It provides simple and ready made sandboxes and robot models, like the Turtlebotburger3
+    that is used in this project, that contain the neessary setup for motion and sensor usage. 
+    Using these ready made tools allowed me to focus on the core SLAM implementation, and allows for easy scaling of the project, to add more sensors, change the arena, and more.
+
+    *Python: Communication from front end to backend, and visualization
+    Python was used for both sides of visualization - Webots for robot simulation, and on the backend for visualizing trajectories, occupancy grids, and the output of our SLAM system. 
+    This language was selected due to its easy of use and wide support across libraries.
+    
+    *ZeroMQTT: Communication protocol for between fron end, backend, and visualization
+    For communicating between front end, back end, and visualization tools, ZeroMQTT was selected as the communication protocol. 
+    It implements the PubSub architecture, which is perfect for our use case where the systems must communicate consistently both ways but don't necessarily need to be fully synchronized. 
+    The name "ZeroMQTT" comes from it need no (zero) broker or central server, so it is resilient to any one endpoint failing. 
+    And finally, it is easy to implement from both C++ and Python.
+
+<P1: Explanation of the logic flow of SLAM>
+A SLAM system starts with sensor inputs, and over time accumulates information to locate itself and map it's surroundings. 
+It is composed of a chain of subsystems, each varying complexities, points of failure, and depend on the step before it to produce meaningful results. 
+This loop repeats at each timestep, building on top of the information that was calculated by the last "round" 
+
+Simple Overview:
+We use our sensors to estimate our movement in the world. As we move along, we build our graph that tracks "keyframes" : where we were and how the world looked. 
+Once we make a loop and we notice "hey, I've been here before", we pass our graph through an optimizer which snaps everything into place, reducing the error and uncertainty
+that we accumulate as we go around the world with our unperfect sensors. 
+
+
+1) Sensor Data Aquisition 
+Various sensors in the robot acquire data acquire data at each timestep. 
+In our use case, we make use of:
+    * wheel encoders : measure the rotation of wheels. This gets processed into <b>odometry<b> data. 
+    * Lidar: a 360* scan of the environment using light. It uses the reflection of the projected beams to store the distance of this beam, at a certain angle
+        ** Insert Picture**
+
+This data is gathered in webots, and the raw data is sent to the C++ backend for processing. 
+
+2) Sensor Processing: Odometry and Point Cloud
+Once we've received the sensor data from the front end, we start processing the data
+
+Odometry: Using a known diameter of the wheels and width of wheelbase, we calculate the trajectory of the robot <b> according to wheel sensor data <b>
+<b>Noise<b> IN a real world setting wheel sensors are not perfect and introduce noise. Wether that be issues with the sensor itself, or where the sensor records movement
+that didn't lead to robot movement, such as the wheel slipping on a wet terrain. 
+This is important to include, as this is the noise that our SLAM system, using lidar data, will try to correct for
+
+Point Cloud: Using the lidar to map the world and robot's surroundings  
+    Point Cloud: Using simple trigonometry, for each beam from the lidar sensor, we are able to calculate where it lands, and therefore where surfaces are, from the robot's frame (POV)    
+    ** code snippet **
+    To World Frame: Now that we know how the world looks from the robot's POV, with the estimated current location of the robot, we are now able to project this point cloud into a static world frame
+                    and estimate where surfaces are on the map. 
+    **code snippet and or picture **
+
+3) ICP: Iterative Closest Point
+One of the main components of our SLAM system. This takes two point cloud readings (previous and current), and estimates how the robot has moved
+
+** show alignPointClouds() func signature
+    1) We take our source point cloud and transofmr it by our guess from odometry
+    2) We <b>find correspondences<b> : from the two clouds, which points are the same points, but transformed
+    3) Using these pairs, we <b>estimate the transformation<b> between them
+    4) Update our initial guess to correct for small errors founds in the last step
+    5) If the errors in this transformation fall below our treshold, we have succesfully found our transformation!
+
+3.1) Find correspondences
+    //TODO test point to plane and explain
+
+3.2) Given our pairs of correspondences, we now use linear algebra to estimate the transform - how the robot must have moved in order to have these pairs move in this manner
+//TODO overview of this function
+
+ICP told us how much the robot has moved since it last ran ICP
+
+<b> ICP struggles with Rotation <b> 
+Rotations make point clouds change drastically from little movement, so ICP by it's nature struggle to find good transformations when undergoing through large rotations. 
+Thus, we do some <b> gating <b>, where if we are rotating fast enough, we use the transformation estimated by odometry rather than running ICP. 
+This is a simple and effective fix we used, but could be improved. In a production SLAM system, better sensor fusion would be used, such as an <b> Extended Kalman Filter <b> 
+to intelligently use various sensor's informations when one cannot be fully relied on
+
+4) Keyframes and building the Graph
+Here we start building our graph, our record of where we've been and how the world has looked at each of these timesteps. 
+
+
+
+
+<P3: Description of report. Steps, intermediary achievements, problems, solutions, progress pictures>
+
+
+
+
+--Results

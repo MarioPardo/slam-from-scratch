@@ -116,7 +116,7 @@ int main(int /*argc*/, char* /*argv*/[]) {
                     {
                         slam::Transform2D odom_delta = computePoseDelta(prev_odompose_keyframe, curr_odom_pose);
 
-                        // Run ICP: source=current, target=previous → result is robot's forward motion directly
+                        // Run ICP
                         slam::ICPResult icp = alignPointClouds(
                             curr_point_cloud,
                             prev_pointcloud_keyframe,
@@ -155,8 +155,6 @@ int main(int /*argc*/, char* /*argv*/[]) {
                     if (!gt_origin_set) {
                         gt_origin = gt;
                         gt_origin_set = true;
-                        std::cout << "[GT] Origin: GPS(" << gt.x << ", " << gt.y
-                                  << ")  heading=" << gt.heading << std::endl;
                     }
                     double dx = gt.x - gt_origin.x;
                     double dy = gt.y - gt_origin.y;
