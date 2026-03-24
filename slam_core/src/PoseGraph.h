@@ -13,13 +13,13 @@ class PoseGraph{
     double minAngleNewKeyframe = 0.2;  // ~20 deg
 
     //loop closure
-    double maxDistLoopClosure = 0.2;
+    double maxDistLoopClosure = 0.3;
     int recentNodeExclusion = 10;
     int maxLoopClosureCandidates = 6;
     int minKeyframesBetweenLoopClosures = 3;
     int minKeyframesBetweenOptimizations = 10;
-    double loopClosure_ICPMaxError = 0.05;
-    int loopClosure_ICPMinCorrespondences = 60;
+    double loopClosure_ICPMaxError = 0.12;
+    int loopClosure_ICPMinCorrespondences = 35;
     
     //capping loop closure info
     double loopClosure_minSigma = 0.02; // minimum assumed sigma (m) for loop closures

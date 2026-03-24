@@ -133,11 +133,11 @@ int main(int /*argc*/, char* /*argv*/[]) {
                 }
 
                 //Update states
-                if (!curr_point_cloud.empty())
+                if (!curr_point_cloud.empty() && !is_turning)
                     first_scan = false;
 
-                // Update world map using icp pose
-                if (!scan.ranges.empty())
+                // Update world map using icp pose — skip distorted scans during rotation
+                if (!scan.ranges.empty() && !is_turning)
                 {
                     world_lidar_points = slam::transformToWorldFrame(scan, curr_icp_pose);
                     raw_grid.updateWithScan(scan, curr_odom_pose);
@@ -172,7 +172,7 @@ int main(int /*argc*/, char* /*argv*/[]) {
                 bool optimization_happened = false;
                 bool keyframe_added = false;
                 slam::Transform2D odom_rel_for_graph = computePoseDelta(prev_odompose_keyframe, curr_odom_pose);
-                if (!scan.ranges.empty())
+                if (!scan.ranges.empty() && !is_turning)
                     keyframe_added = pose_graph.tryAddKeyframe(curr_icp_pose, scan, odom.timestamp, odom_rel_for_graph, &optimization_happened);
 
                 if (keyframe_added)
