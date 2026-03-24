@@ -115,14 +115,37 @@ One of the main components of our SLAM system. This takes two point cloud readin
 
 ICP told us how much the robot has moved since it last ran ICP
 
-<b> ICP struggles with Rotation <b> 
+<b>Issues with Rotation <b> 
+ICP: 
 Rotations make point clouds change drastically from little movement, so ICP by it's nature struggle to find good transformations when undergoing through large rotations. 
 Thus, we do some <b> gating <b>, where if we are rotating fast enough, we use the transformation estimated by odometry rather than running ICP. 
 This is a simple and effective fix we used, but could be improved. In a production SLAM system, better sensor fusion would be used, such as an <b> Extended Kalman Filter <b> 
 to intelligently use various sensor's informations when one cannot be fully relied on
 
+Webots: 
+Even after introducing rotation gating for localization, we were still having big issues with map smear. 
+After countless hours of troubleshooting, I noticed with was an issue with Webots. While rotating, the lidar scan twitches back and forth, until finally once rotation is finished, 
+it snaps back into place. This means, we are getting very noisy and incorrect lidar data. 
+Thus, we only use lidar data when we are not rotating, when it is guaranteed to be correct.
+
 4) Keyframes and building the Graph
 Here we start building our graph, our record of where we've been and how the world has looked at each of these timesteps. 
+We add keyframes only once in a while, once we've moved some X distance, or rotated some Y degrees. 
+These are parameters we tune from trial and error
+
+Graph Nodes: Contain
+        * <b>Pose<b>: (estimated) location and angle
+        *Point cloud: how the world looked
+        * ID and Timestamp (for identification purposes)
+Edges: Given this new Node, the transform between our last node and now. How we must have moved to get here
+
+
+5) Loop Closure
+
+
+
+
+6) Graph Optimization 
 
 
 
