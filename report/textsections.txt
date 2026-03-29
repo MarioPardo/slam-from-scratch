@@ -85,6 +85,18 @@ This data is gathered in webots, and the raw data is sent to the C++ backend for
 2) Sensor Processing: Odometry and Point Cloud
 Once we've received the sensor data from the front end, we start processing the data
 
+Odometry: Using a known diameter of the wheels and width of wheelbase, we calculate the trajectory of the robot <b> according to wheel sensor data <b>
+<b>Noise<b> IN a real world setting wheel sensors are not perfect and introduce noise. Wether that be issues with the sensor itself, or where the sensor records movement
+that didn't lead to robot movement, such as the wheel slipping on a wet terrain. 
+This is important to include, as this is the noise that our SLAM system, using lidar data, will try to correct for
+
+Point Cloud: Using the lidar to map the world and robot's surroundings  
+    Point Cloud: Using simple trigonometry, for each beam from the lidar sensor, we are able to calculate where it lands, and therefore where surfaces are, from the robot's frame (POV)    
+    ** code snippet **
+    To World Frame: Now that we know how the world looks from the robot's POV, with the estimated current location of the robot, we are now able to project this point cloud into a static world frame
+                    and estimate where surfaces are on the map. 
+    **code snippet and or picture **
+
 3) ICP: Iterative Closest Point
 One of the main components of our SLAM system. This takes two point cloud readings (previous and current), and estimates how the robot has moved
 
@@ -103,18 +115,6 @@ One of the main components of our SLAM system. This takes two point cloud readin
 
 ICP told us how much the robot has moved since it last ran ICP
 
-<b>Issues with Rotation <b> 
-ICP: 
-Rotations make point clouds change drastically from little movement, so ICP by it's nature struggle to find good transformations when undergoing through large rotations. 
-Thus, we do some <b> gating <b>, where if we are rotating fast enough, we use the transformation estimated by odometry rather than running ICP. 
-This is a simple and effective fix we used, but could be improved. In a production SLAM system, better sensor fusion would be used, such as an <b> Extended Kalman Filter <b> 
-to intelligently use various sensor's informations when one cannot be fully relied on
-
-Webots: 
-Even after introducing rotation gating for localization, we were still having big issues with map smear. 
-After countless hours of troubleshooting, I noticed with was an issue with Webots. While rotating, the lidar scan twitches back and forth, until finally once rotation is finished, 
-it snaps back into place. This means, we are getting very noisy and incorrect lidar data. 
-Thus, we only use lidar data when we are not rotating, when it is guaranteed to be correct.
 
 4) Keyframes and building the Graph
 Here we start building our graph, our record of where we've been and how the world has looked at each of these timesteps. 
@@ -218,26 +218,56 @@ SLAM is a system with many components all relying on the last.
 To implement a system of this scale and complexity succesfully, it is necessary to have continued deliverables and integration tests to ensure that each addition 
 works well with what came before it, and accomplishes what is it supposed to. 
 
-Special attention was given to visualization tools 
+Special attention was given to visualization tools that allow us to see various stages of the system, see proof of our systems, and diagnose problems that cannot be spotted by data
 
 
-Odometry: Using a known diameter of the wheels and width of wheelbase, we calculate the trajectory of the robot <b> according to wheel sensor data <b>
-<b>Noise<b> IN a real world setting wheel sensors are not perfect and introduce noise. Wether that be issues with the sensor itself, or where the sensor records movement
-that didn't lead to robot movement, such as the wheel slipping on a wet terrain. 
-This is important to include, as this is the noise that our SLAM system, using lidar data, will try to correct for
+1) Arena, Robot setup
+The first step in our journey was to get our testing arena set up as well as a robot we could control
+A simple square areana was created that could easily be interpreted in our visualization tools, but had enough details and landmarks for ICP to set up. 
+For the robot, we selected the premade Turtlebotburger3, already equipped with all the sensors we needed. 
 
-Point Cloud: Using the lidar to map the world and robot's surroundings  
-    Point Cloud: Using simple trigonometry, for each beam from the lidar sensor, we are able to calculate where it lands, and therefore where surfaces are, from the robot's frame (POV)    
-    ** code snippet **
-    To World Frame: Now that we know how the world looks from the robot's POV, with the estimated current location of the robot, we are now able to project this point cloud into a static world frame
-                    and estimate where surfaces are on the map. 
-    **code snippet and or picture **
+We created a simple differential drive controller and tested that we could move around without issues. 
+** Add picture **
+
+2) Sensor readings, Visualizing what our robot sees
+Once we can control our robot reliably, we start gathering data.  Odometry and lidar. 
+
+To then visualize and use these sensor readinsg, we set up communication through ZeroMQTT. 
+
+It is crucial that we understand how our lidar data relates to our robot's pose, so we can strat interpreting the world from the robot's POV. 
+
+    **Picture **
+
+3) Interpreting Odometry and Lidar Data.
+
+our first reference point for our SLAM algorithm uses Odometry data, so we start estimating our robot's position using odomtry Data. 
+This is a crucial point where we see that we can accurately calculate the robot's trajectory. 
+We then implement Point cloud transoformatoin code so we can "see" from the robot's POV
+
+** picture **
+
+
+4) Now starts the first large component of SLAM : ICP
 
 
 
 
+<b>Issues with Rotation <b> 
+ICP: 
+Rotations make point clouds change drastically from little movement, so ICP by it's nature struggle to find good transformations when undergoing through large rotations. 
+Thus, we do some <b> gating <b>, where if we are rotating fast enough, we use the transformation estimated by odometry rather than running ICP. 
+This is a simple and effective fix we used, but could be improved. In a production SLAM system, better sensor fusion would be used, such as an <b> Extended Kalman Filter <b> 
+to intelligently use various sensor's informations when one cannot be fully relied on
 
 
+
+Challenges: 
+
+Webots: 
+Even after introducing rotation gating for localization, we were still having big issues with map smear. 
+After countless hours of troubleshooting, I noticed with was an issue with Webots. While rotating, the lidar scan twitches back and forth, until finally once rotation is finished, 
+it snaps back into place. This means, we are getting very noisy and incorrect lidar data. 
+Thus, we only use lidar data when we are not rotating, when it is guaranteed to be correct.
 
 
 
