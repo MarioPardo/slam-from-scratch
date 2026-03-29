@@ -62,7 +62,7 @@ Core technologies used:
     The name "ZeroMQTT" comes from it need no (zero) broker or central server, so it is resilient to any one endpoint failing. 
     And finally, it is easy to implement from both C++ and Python.
 
-<P1: Explanation of the logic flow of SLAM>
+<P1: Explanation of SLAM>
 A SLAM system starts with sensor inputs, and over time accumulates information to locate itself and map it's surroundings. 
 It is composed of a chain of subsystems, each varying complexities, points of failure, and depend on the step before it to produce meaningful results. 
 This loop repeats at each timestep, building on top of the information that was calculated by the last "round" 
@@ -84,18 +84,6 @@ This data is gathered in webots, and the raw data is sent to the C++ backend for
 
 2) Sensor Processing: Odometry and Point Cloud
 Once we've received the sensor data from the front end, we start processing the data
-
-Odometry: Using a known diameter of the wheels and width of wheelbase, we calculate the trajectory of the robot <b> according to wheel sensor data <b>
-<b>Noise<b> IN a real world setting wheel sensors are not perfect and introduce noise. Wether that be issues with the sensor itself, or where the sensor records movement
-that didn't lead to robot movement, such as the wheel slipping on a wet terrain. 
-This is important to include, as this is the noise that our SLAM system, using lidar data, will try to correct for
-
-Point Cloud: Using the lidar to map the world and robot's surroundings  
-    Point Cloud: Using simple trigonometry, for each beam from the lidar sensor, we are able to calculate where it lands, and therefore where surfaces are, from the robot's frame (POV)    
-    ** code snippet **
-    To World Frame: Now that we know how the world looks from the robot's POV, with the estimated current location of the robot, we are now able to project this point cloud into a static world frame
-                    and estimate where surfaces are on the map. 
-    **code snippet and or picture **
 
 3) ICP: Iterative Closest Point
 One of the main components of our SLAM system. This takes two point cloud readings (previous and current), and estimates how the robot has moved
@@ -137,20 +125,122 @@ Graph Nodes: Contain
         * <b>Pose<b>: (estimated) location and angle
         *Point cloud: how the world looked
         * ID and Timestamp (for identification purposes)
-Edges: Given this new Node, the transform between our last node and now. How we must have moved to get here
+      
 
+Edges: Given this new Node, the transform between our last node and now. How we must have moved to get here
+      * Information: how good is this measurement? We use the difference between the prediction from odometry vs ICP to measure this
 
 5) Loop Closure
+As we traverse the world and add keyframes, we compare our current position with old graph nodes to see if we've been here before. 
+Note that "here" isn't exact, we can be some distance away, just have to be close enough.
+If we have, we run ICP with old nodes and get the best match. This tells us if we can confidently say that we've made a full loop. 
+We add a new node to our graph, representing the current location, and then a special <b> loop closure edge<b> between this node, and the old node that we had a match with. 
+**add picture** 
 
+If we are unable to add a loop closure edge due to not finding any good matches, or ICP not converging, we continue like normal 
 
 
 
 6) Graph Optimization 
+Now that we've added a loop closure edge, we've made a full loop and are ready to optimize our graph.
+
+What is optimizing our graph? We find the arrangements of nodes that minimize the error of the graph that we pass into our optimizer. 
+Let's define this rigorously
+
+Let x be our state, our nodes. 
+Let Zi^ = real observations, the edges in our graph which is the movement between nodes as predicted by ICP
+Let Zi = predicted observation, which is simply taking the differnce in location from the stored position of our nodes   ** Add picture **
+
+We define our error e_i(x) = Zi - Zi^ :  the difference between our real and predicted robot movements
+We don't want a notion of positive vs negative error, only error, so we will get the squared error. 
+
+We will assume this error is normally distributed with mean 0. 
+We define our information matrix Omega. This is the weight of each measurement - how confident are we in this? 
+    - Here we use the information from our edge : how different our ICP measurement is vs odometry
+
+Then our weighted sum of squared error , ei(x) = ei(x)Omega*ei(x)
+
+Then, we want to find nodes X that minimize the sum of this squared error
+
+    Goal: X = argmin(x) sigma(ei(x)*Omega*ei(x))
+
+
+This is our system that we pass into our optimizer. 
+
+We use GTSAM, a well known and well tested implementation pose graph optimizer. 
+
+We use Levenberg-Marquadt optimizer which is a popular implementation of nonlinear least squares. 
+Given that this report is focused on SLAM, and not on least squares optimization, we will give an overview of general Iterative Local Linearization - which LM utilizes
+
+        Solving Nonlinear Least Squares - Iterative Local Linearizations
+
+1)Linearize around our first guess
+* add picture of linearizing using jacobian*
+
+ei(x + deltaX) ~ ei(x) + J(x)delta(x).   
+
+Linearizing turns a complex and "bendy" environment, so a straight a linear one that we can better use linear algebrea to solve
+
+2)Find the derrivative of the Error function : So we know which to "go" to minimize error
+
+As we mentioned earlier, we want to use the squared error
+
+ei^2 = (ei + Ji*deltaX) Omega_i (ei + Ji*deltaX)
+    we expand
+    = ei Omega_i ei + e. +2ei^T Omega_i Ji *deltaX + deltaX ^T * Ji^t Omega_i Ji*deltaX
+    we can group these three terms
+    = Ci + 2Bi^T*deltaX +deltaX*Hi*deltaX
+
+Intuitively, b =     
+            H = Hessian 
+
+    So we have, in words, F = 
+            (in math)   F = 
+
+    This is our objective function to minimize
+
+    We find the derrivative, set to 0, and solve. 
+
+    Thankfully, our GTSAM solver takes care of all of this. 
+
+
+
+7) Optimized Graph
+
+If our pose graph optimizer was able to find a good solution, below some error threshold, we update our pose graph and reproject our lidar readings to these new poses. 
+This is where the errors that are accumulated over time are reduced, and we see our trajectory and map "snap" into place, much closer to the ground truth trajectory and map
+
+
+
+##### Process of implementation
+
+SLAM is a system with many components all relying on the last. 
+To implement a system of this scale and complexity succesfully, it is necessary to have continued deliverables and integration tests to ensure that each addition 
+works well with what came before it, and accomplishes what is it supposed to. 
+
+Special attention was given to visualization tools 
+
+
+Odometry: Using a known diameter of the wheels and width of wheelbase, we calculate the trajectory of the robot <b> according to wheel sensor data <b>
+<b>Noise<b> IN a real world setting wheel sensors are not perfect and introduce noise. Wether that be issues with the sensor itself, or where the sensor records movement
+that didn't lead to robot movement, such as the wheel slipping on a wet terrain. 
+This is important to include, as this is the noise that our SLAM system, using lidar data, will try to correct for
+
+Point Cloud: Using the lidar to map the world and robot's surroundings  
+    Point Cloud: Using simple trigonometry, for each beam from the lidar sensor, we are able to calculate where it lands, and therefore where surfaces are, from the robot's frame (POV)    
+    ** code snippet **
+    To World Frame: Now that we know how the world looks from the robot's POV, with the estimated current location of the robot, we are now able to project this point cloud into a static world frame
+                    and estimate where surfaces are on the map. 
+    **code snippet and or picture **
 
 
 
 
-<P3: Description of report. Steps, intermediary achievements, problems, solutions, progress pictures>
+
+
+
+
+
 
 
 
