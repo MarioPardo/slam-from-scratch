@@ -27,6 +27,7 @@ errors in localization and mapping. To illustrate the effects of an erroneous po
 we are at (2,0) - we now believe that there is a wall at (6,1) while in reality it's at (5,0).
 A Graph Based SLAM system makes a graph of poses and movements, and when it detects a loop closure - a place where it's been before - it uses this new datapoint at this repeated location to 
 update all it's previous poses and estimates of the world around, to "snap" it's trajectory and mapping into a corrected version.
+//TODO elaborate on other versions of SLAM, and why we chose to go with Graph Based. 
 
 
 <P2: Why I chose to build it>
@@ -108,10 +109,16 @@ One of the main components of our SLAM system. This takes two point cloud readin
     5) If the errors in this transformation fall below our treshold, we have succesfully found our transformation!
 
 3.1) Find correspondences
-    //TODO test point to plane and explain
+    //TODO test point to plane 
+    //TODO explain point to point, and limitations
+    //TODO explain poit to plane and explain why better than point to point
 
-3.2) Given our pairs of correspondences, we now use linear algebra to estimate the transform - how the robot must have moved in order to have these pairs move in this manner
-//TODO overview of this function
+3.2) Estimate Transform
+Given our pairs of correspondences, we now use linear algebra to estimate the transform - how the robot must have moved in order to have these pairs move in this manner
+//TODO explain linear algebra behind it
+
+3.3) Find error: decide convergence
+
 
 ICP told us how much the robot has moved since it last ran ICP
 
@@ -211,6 +218,10 @@ If our pose graph optimizer was able to find a good solution, below some error t
 This is where the errors that are accumulated over time are reduced, and we see our trajectory and map "snap" into place, much closer to the ground truth trajectory and map
 
 
+8) Occupancy Grid 
+
+//TODO explain
+
 
 ##### Process of implementation
 
@@ -219,7 +230,7 @@ To implement a system of this scale and complexity succesfully, it is necessary 
 works well with what came before it, and accomplishes what is it supposed to. 
 
 Special attention was given to visualization tools that allow us to see various stages of the system, see proof of our systems, and diagnose problems that cannot be spotted by data
-
+For more complex parts of the system that can't necessarily be visualized, or provide less utility, "unit" tests were used where we test individual components, functions, with known inputs and expected outputs.
 
 1) Arena, Robot setup
 The first step in our journey was to get our testing arena set up as well as a robot we could control
@@ -248,16 +259,136 @@ We then implement Point cloud transoformatoin code so we can "see" from the robo
 
 
 4) Now starts the first large component of SLAM : ICP
+    1) Correspondence Matching. 
+        First we used a brute force and less optimal method of point to point
+        Here lies an important hyperparamater, max_distance, which dictates the maximum distance at which two points can be considered a correspondence. 
+        This is a tradeoff in precision, the smaller the distance, the more precise our transformations, and generality; too small of a distance and we rely on our points being too
+        precise for them to match: we won't get enough matches. 
+        This was later upgraded to a more efficient, and rotation-resistant point to plane
+
+    2) Estimate transform
+        This was one of the easier sections. Since a straightforward analytical solution is known, it was just a matter of properly converting the equations 
+        into matching code. 
+        Tests were used to ensure proper behaviour
+
+    3)Now comes simply calculating the error and deciding if it's good enough to be considered converged. 
+        This required hyperparameter tuning. To do this, I started printing all errors, found the top 10% best errors, and iteratively narrowed down on an error
+        rate that gave consistent yet precises ICP convergences. 
+
+    Now came testing. 
+
+
+    For this, I made a visualization tool with Python that allowed us to map the robot's trajectory, as well as an Occupancy gri.
+    This allowed us to test both the locations aspect, it's trajectory, as well as the mapping aspect, what it thinks the world looks like. 
+    This tool was extended on as time along, and remained our most important testing and visualization tool.
+
+    First, came a big bug that had to be "patched" until later on. 
+    ICP gave transformations at 180* of actual movement
+    The patch was to take the rotation and manually rotate it by 180*. This worked but was clearly a sign of a bigger issue. 
+    It's source, and eventual solution, is described in the challenges section
+   
+
+    At this point, there was noticeable Map smear, but given the primitive stage of the system, I did not think too much of it. After all, the pose graph optimiation is what is supposed
+    to eliminate much of the error, and therefore, this smear. 
+
+    Here came lots of testing and hyperparameter tuning, until we could get an ICP that was reasonably good. 
+
+    <b>Issues with Rotation <b>   **Picture of issues **
+
+    <b> Gating <b> 
+    Rotations make point clouds change drastically from little movement, so ICP by it's nature struggle to find good transformations when undergoing through large rotations. 
+    Thus, we do some <b> gating <b>, where if we are rotating fast enough, we use the transformation estimated by odometry rather than running ICP. 
+    This is a simple and effective fix we used, but could be improved. In a production SLAM system, better sensor fusion would be used, such as an <b> Extended Kalman Filter <b> 
+    to intelligently use various sensor's informations when one cannot be fully relied on
+    
+    <b> 360* lidar <b> 
+    //TODO
+
+    This was a big breakthrough with ICP that gaev us trajectories much more consistent with actual movement. 
+
+    **Picture of much better ICP** 
+
+    ICP is good but not perfect, as one can expect, now comes the next part of SLAM, creating the pose graph. 
+
+
+
+5) Pose Graph Creation
+
+Relatively straightforward. First came creating the correct Graph data structures : nodes and edges. 
+Then simply as we move along, create Nodes, and the edges connecting these nodes. 
+No major issues, trial and error was required to find good keyframe thresholds : every how many meters, or radians of rotation, do we consider adding a new node to our graph. 
+This becomes a tradeoff of too many nodes vs too little nodes, which affects computation later on, and reasonable distances for ICP to find transformations from, now that we use
+point clouds of these keyframes to find ICP transformations, not every "frame" of the world. 
+Given a square world nearly 2m diagonally across, a small step of 15cm was large enough to not overwhelm the pose graph optimizer with too many keyframes, and small enough to give good ICP transformations. 
+
+The visualizatoin tool was updated to visualize these nodes and the calculated ICP edges between them. 
+
+6) Loop Closure
+
+While loop closures use alot of the already existing infrastructure, notably ICP, they are a <b> crucial <b> step of SLAM as they decide when and how we will optimize the graph 
+where things "snap" into place. 
+
+Once again, hyperparemeter tuning was required, notably for correspondence distance and for error epsilon. 
+We wanted to find a balance of accurate loop closure edges, but general enough so that we could reliably get loop closure edges when we came to a place we had been before. 
+If we are too selective with our loop closure edges, we never notice that we "have been here before", and therefore never trigger the graph optimization mechanism. 
+
+Performance Tuning. 
+
+Loop Closure detection requires the repeated running of ICP, a computationaly heavy process, so we look to reduce the amount of nodes to try to find loop closures with
+* Loops, and especially usefull loops, only occur with nodes from a long time ago. So we only look at nodes that are atleaset X+ from most recent. Given our small map, 10 was decided. 
+* Time is not the only qualifying factor for a loop, but also distance. We only want to compare with past nodes that we are physically close to, so before running ICP, we only 
+    keep the 6 closest nodes by euclidian distance. 6 was random small number that provided enough performance results
+* Repeated and Sequential Loops. 
+
+    ** Add picture ** 
+
+    Once we've made a loop closure, future loop closures at a close vicinity provide little use and pose a very big challenge for the pose graph optimizer, since the error in the graph has already been reduced. 
+    Therefore, we gate loop closures to only be attempted 3 keyframes after the last loop closure. 
+    This provided significant computational improvements in a way that did not limit the effectiveness of our SLAM system 
+
+Once we were getting consistent and accurate loop closures, we move onto the final major step of Pose Graph SLAM: Pose Graph Optimization. 
+
+
+7) Pose Graph Optimization
+
+Finally we put all of our data collection to test and see if we can truly make things "snap" into place. 
+Pose Graph Optimization is a very complex topic that could span an entire semester of work - and to create a production quality one could take years. 
+
+Given time constraints with this project, and the fact that I needed an optimizer that I could rely on, I decided to use the well kown GTSAM Nonlinear Least Squares Optimizer. 
+This allowed me to focus on the testing and troubleshooting of other parts of my SLAM system. 
+
+The optimizer was straightforward to implement, simply add the correct dependencies to my project, and create a <b>FactorGraph<b> using my existing PoseGraph, for the optimizer to solve. 
+Then simply update my graph with the optimized nodes to "snap" the trajectory into place. Then, to remove the smears and uncertainty in the mapping (occupancy grid), reproject the point clouds
+of each node, with the update pose coordinates 
+
+Similar to Loop Closures, this is a very computationaly heavy process so I gated such that minimum 10 keyframes since last optimization could we again
+try to optimize the graph
+
+        **add picture **
+
+Initial attemps gave unexpected shifts/translations of graph, and most notably, no improvement to mapping : no smearing was removed. 
+
+This lead to a thorough evaluation of the SLAM pipeline. 
+In efforts to improve this, we implemented Point to Plane Correspondence matching in ICP, and continued iterating into more accurate hyperparameters, notably for ICP
+
+
+At this point, is where we discovered the Lidar issue with WEBOTS, which made everything click. 
+
+
+
+// Results
+*Pictures, statistics from visualizer
+
+
+* possibly statistics from well established datasets. 
 
 
 
 
-<b>Issues with Rotation <b> 
-ICP: 
-Rotations make point clouds change drastically from little movement, so ICP by it's nature struggle to find good transformations when undergoing through large rotations. 
-Thus, we do some <b> gating <b>, where if we are rotating fast enough, we use the transformation estimated by odometry rather than running ICP. 
-This is a simple and effective fix we used, but could be improved. In a production SLAM system, better sensor fusion would be used, such as an <b> Extended Kalman Filter <b> 
-to intelligently use various sensor's informations when one cannot be fully relied on
+
+
+
+
 
 
 
@@ -269,6 +400,15 @@ After countless hours of troubleshooting, I noticed with was an issue with Webot
 it snaps back into place. This means, we are getting very noisy and incorrect lidar data. 
 Thus, we only use lidar data when we are not rotating, when it is guaranteed to be correct.
 
+ICP 180deg:
+ Later on while doing a manual passthrough of all the logic in order to isolate a rotation issue (shown later), it was shown that the issue came from a missmatch in source->target in ICP. 
+    Let's say we have a robot at (0,0) and a wall straight ahead at (0,2).
+        From the robot POV: wall 2m ahead
+        We move forward 1m: Robot as (0,1), wall 1m ahead.    The motion was positive (0,1)
+        From the robot POV, it looks like the wall moved 1m closer, motion was (0,-1).  This is not incorrect, just from the robot POV
+        So to correct this, we must "flip" the source and target. 
+
+        If our source is (0,1), 1m away , and target is (0,2) 2m away, we now find our transformation to be (0,1) which is correct!
 
 
 
