@@ -131,6 +131,12 @@ location of the robot, we are able to project this point cloud into a static wor
 where surfaces are on the map.
     ** code snippet and/or picture **
 
+An initial visualization tool, was implemented to map the robot's trajectory, as well as it's 
+the surfaces it currently sees through Data. 
+
+Then this tool was upgraded,as noted by dark background, to hold a history of past seen surfaces
+and therefore a map of our environment
+
 -- Issue: Webots Lidar Noise During Rotation
 
 Even after introducing rotation gating for localization (described in Section 4), significant map
@@ -142,7 +148,19 @@ readings that are guaranteed to be correct.
 
 
 ------------------------------------------------------------------------
-4. ICP: Scan Matching
+4. Occupancy Grid
+------------------------------------------------------------------------
+To accomplish the mapping portion of SLAM, we use an occupancy grid representing the map, that stores
+the likelihood that each grid is occupied, using log odds. 
+
+Log odds: P(cell Occupied) = P(Occupied | history, sensor readings)
+
+As the robot scans and receives back data about where points have bounced back from, where there are 
+surfaces, it updates the grid with an increased likelihood that this cell is occupied. 
+
+
+------------------------------------------------------------------------
+5. ICP: Scan Matching
 ------------------------------------------------------------------------
 
 Iterative Closest Point (ICP) is one of the main components of the SLAM system. It takes two point
@@ -160,14 +178,16 @@ The algorithm proceeds as follows:
 
 -- 4.1 Correspondence Matching
 
-First, a brute force point-to-point method was used. Here lies an important hyperparameter,
+First, a brute force point-to-point method was used where for each point in the source point cloud,
+we find the closest point to it. We try to minimize the squared distances between them and through 
+this found our set of correspondences. 
+Here lies an important hyperparameter,
 max_distance, which dictates the maximum distance at which two points can be considered a
 correspondence. This is a tradeoff between precision - smaller distance gives more precise
 transformations - and generality: too small a distance and points must match too exactly, yielding
 too few matches.
 
-This was later upgraded to the more efficient and rotation-resistant point-to-plane method.
-//TODO explain point to point limitations, and explain point to plane and why it is better
+
 
 -- 4.2 Estimate Transform
 
@@ -222,7 +242,7 @@ ICP is good but not perfect, as one can expect. The next component is the pose g
 
 
 ------------------------------------------------------------------------
-5. Pose Graph Construction
+6. Pose Graph Construction
 ------------------------------------------------------------------------
 
 Here the graph is built: a record of where the robot has been and how the world has looked at each
@@ -254,7 +274,7 @@ The visualization tool was updated to display these nodes and the calculated ICP
 
 
 ------------------------------------------------------------------------
-6. Loop Closure Detection
+7. Loop Closure Detection
 ------------------------------------------------------------------------
 
 As the robot traverses the world and adds keyframes, the current position is compared with old graph
@@ -296,7 +316,7 @@ set of candidate nodes is reduced aggressively before ICP is invoked:
 
 
 ------------------------------------------------------------------------
-7. Pose Graph Optimization
+8. Pose Graph Optimization
 ------------------------------------------------------------------------
 
 With a loop closure edge added, the graph has a full loop and is ready to be optimized. Graph
@@ -373,15 +393,39 @@ brought the full system together.
 
 
 ------------------------------------------------------------------------
-8. Occupancy Grid
-------------------------------------------------------------------------
-
-//TODO explain
-
-
-------------------------------------------------------------------------
 9. Results
 ------------------------------------------------------------------------
+
+This project has resulted in a working and reliable SLAM implementation that is able to localise the trajectory
+of our robot as well as provide an accurate mapping of it's surroundings. 
+We are able to clearly see it's sucess in mapping, as well as it's localization and trajectory, despite noisy 
+odometry data. 
+
+The success in trajectory is best showcased in the following pictures
+
+*pictures * 
+
+And the success in mapping, notably the improved accuracy of the mapping using ICP over using Odometry. 
+This shows ICP succesfully using Lidar information to calculate it's trajectories, and it is able to smooth
+and correct the errors introduced by noisy odometry. 
+
+*picture*
+
+As for pose graph optimization, given our small map size, not enough error is accumulated to visually show a meaningful
+"snapping" of the map, a shifting of our nodes. 
+We can quantify it though through the removal of total error before and after pose graph optimzation. 
+
+The following is a table of results from various testing runs in our simulation environment
+     Optimization error removed: 0.123527 m (pre=2.07447 m, post=1.95095 m)
+     Optimization error removed: 0.0270642 m (pre=0.0313762 m, post=0.00431202 m)
+     Optimization error removed: 0.00699533 m (pre=0.0150567 m, post=0.00806133 m)
+     Optimization error removed: 0.000863467 m (pre=0.00347639 m, post=0.00261292 m)
+
+
+
+
+
+
 
 * Pictures, statistics from visualizer
 * Possibly statistics on well-established datasets.
@@ -392,6 +436,12 @@ brought the full system together.
 ------------------------------------------------------------------------
 
 //TODO
+
+// Future Work, improvements
+
+Better Correspondence Matching Algorithms. For example, 
+Point to plane, as the name suggests, make use of the fact that these points lie on a plane,
+and we minimize the error with respect to the plane on which the target lies. 
 
 
 ------------------------------------------------------------------------

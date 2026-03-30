@@ -8,16 +8,17 @@
 
 import sys
 import json
+from datetime import datetime
 from typing import Tuple
 
 import pygame
 import zmq
 
 
-WINDOW_WIDTH = 1000
-WINDOW_HEIGHT = 760
-MARGIN = 30
-PANEL_GAP = 24
+WINDOW_WIDTH = 1800
+WINDOW_HEIGHT = 960
+MARGIN = 40
+PANEL_GAP = 30
 STATIC_ZOOM = 1.00
 BG_COLOR = (0, 0, 0)
 GRID_LINE_COLOR = (40, 40, 40)
@@ -74,10 +75,10 @@ def draw_grid_panel(
             sy = y0 + (height - gy - 1) * cell_size
             pygame.draw.rect(screen, color, (sx, sy, cell_size, cell_size))
 
-    for gx in range(0, width + 1, 10):
+    for gx in range(0, width + 1, 50):
         x = x0 + gx * cell_size
         pygame.draw.line(screen, GRID_LINE_COLOR, (x, y0), (x, y0 + map_h), 1)
-    for gy in range(0, height + 1, 10):
+    for gy in range(0, height + 1, 50):
         y = y0 + gy * cell_size
         pygame.draw.line(screen, GRID_LINE_COLOR, (x0, y), (x0 + map_w, y), 1)
 
@@ -97,7 +98,7 @@ def main() -> None:
 
     pygame.init()
     screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
-    pygame.display.set_caption("SLAM Occupancy Grid: Raw vs Optimized")
+    pygame.display.set_caption("SLAM Occupancy Grid: Odometry vs ICP")
     clock = pygame.time.Clock()
     font = pygame.font.Font(None, 28)
 
@@ -111,6 +112,10 @@ def main() -> None:
                 running = False
             elif event.type == pygame.KEYDOWN and event.key in (pygame.K_q, pygame.K_ESCAPE):
                 running = False
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_s:
+                filename = f"slam_grid_{datetime.now().strftime('%Y%m%d_%H%M%S')}.png"
+                pygame.image.save(screen, filename)
+                print(f"[Screenshot] Saved {filename}")
 
         # Non-blocking receive: take the newest grid if available
         while True:
@@ -152,7 +157,7 @@ def main() -> None:
             draw_grid_panel(
                 screen,
                 font,
-                "Raw (non-optimized)",
+                "Odometry Only (smeared)",
                 left_panel_x,
                 panel_y,
                 panel_size,
@@ -164,7 +169,7 @@ def main() -> None:
             draw_grid_panel(
                 screen,
                 font,
-                "Pose-graph optimized",
+                "ICP Corrected (sharper)",
                 right_panel_x,
                 panel_y,
                 panel_size,

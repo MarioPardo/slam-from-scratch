@@ -205,7 +205,7 @@ ICPResult alignPointClouds(
         std::vector<Eigen::Vector2d> transformedSource = transformPointCloud(source, result.transform);        
 
         // find correspondences
-        std::vector<CorrespondencePair> correspondences = findCorrespondencesPointToPlane(transformedSource, target, correspondence_distance);
+        std::vector<CorrespondencePair> correspondences = findCorrespondencesPointToPoint(transformedSource, target, correspondence_distance);
         result.correspondence_count = correspondences.size();
         if (correspondences.empty()) 
             break;

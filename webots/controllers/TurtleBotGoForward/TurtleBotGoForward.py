@@ -8,12 +8,12 @@ import math
 import random
 
 # Encoder noise 
-ENCODER_NOISE_STD = 0.02  # radians
+ENCODER_NOISE_STD = 0.2  # radians
 
 #Wheel slip 
-SLIP_PROBABILITY     = 0.05   # chance per step  (0 = off, 0.01 = ~1% per step)
-SLIP_MAGNITUDE_MEAN  = 0.1     # mean extra encoder rotation per slip event (rad)
-SLIP_MAGNITUDE_STD   = 0.1    # std of slip magnitude (rad)
+SLIP_PROBABILITY     = 0.1   # chance per step  (0 = off, 0.01 = ~1% per step)
+SLIP_MAGNITUDE_MEAN  = 0.2     # mean extra encoder rotation per slip event (rad)
+SLIP_MAGNITUDE_STD   = 0.2    # std of slip magnitude (rad)
 
 TIME_STEP = 64
 MAX_SPEED = 6.28

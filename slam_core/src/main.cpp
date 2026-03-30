@@ -48,9 +48,10 @@ int main(int /*argc*/, char* /*argv*/[]) {
         slam::OdometryProcessor odometry(0.033, 0.16);
         slam::PoseGraph pose_graph;
 
-        // ccupancy grid
-        slam::OccupancyGrid raw_grid(0.025, 200, 200, -2.5, -2.5);
-        slam::OccupancyGrid optimized_grid(0.025, 200, 200, -2.5, -2.5);
+        // Occupancy grids: odom_grid uses raw odometry poses, icp_grid uses ICP-corrected poses
+        slam::OccupancyGrid odom_grid(0.01, 500, 500, -2.5, -2.5);
+        slam::OccupancyGrid icp_grid(0.01, 500, 500, -2.5, -2.5);
+        slam::OccupancyGrid optimized_grid(0.01, 500, 500, -2.5, -2.5);
 
         // Odom trajectory
         std::vector<slam::Pose2D> odom_trajectory; //keeping for now during development
@@ -77,7 +78,7 @@ int main(int /*argc*/, char* /*argv*/[]) {
 
         auto messageCallback = [&publisher, &odometry, &odom_trajectory, &icp_trajectory,
                                  &message_count, &prev_pointcloud_keyframe, &prev_odompose_keyframe,
-                                 &keyframe_icp_pose, &first_scan, &pose_graph, &raw_grid, &optimized_grid,
+                                 &keyframe_icp_pose, &first_scan, &pose_graph, &odom_grid, &icp_grid, &optimized_grid,
                                  &gt_origin, &gt_origin_set,
                                  &pending_full_map_points, &clear_map_frames_remaining]
                                 (const std::string& /*topic*/, const std::string& message)
@@ -136,11 +137,12 @@ int main(int /*argc*/, char* /*argv*/[]) {
                 if (!curr_point_cloud.empty() && !is_turning)
                     first_scan = false;
 
-                // Update world map using icp pose — skip distorted scans during rotation
+                // Update both grids — skip distorted scans during rotation
                 if (!scan.ranges.empty() && !is_turning)
                 {
                     world_lidar_points = slam::transformToWorldFrame(scan, curr_icp_pose);
-                    raw_grid.updateWithScan(scan, curr_odom_pose);
+                    odom_grid.updateWithScan(scan, curr_odom_pose);
+                    icp_grid.updateWithScan(scan, curr_icp_pose);
                 }
 
                 //Record both trajectories
@@ -209,16 +211,16 @@ int main(int /*argc*/, char* /*argv*/[]) {
                     }
                 }
 
-                // Rebuild optimized occupancy grid only when optimization has corrected poses.
+                // Rebuild ICP grid from corrected poses after loop closure optimization.
                 std::vector<slam::Node> graph_nodes = pose_graph.getNodes();
                 if (optimization_happened)
                 {
-                    optimized_grid = slam::OccupancyGrid(0.025, 200, 200, -2.5, -2.5);
+                    icp_grid = slam::OccupancyGrid(0.01, 500, 500, -2.5, -2.5);
                     for (const slam::Node& node : graph_nodes)
                     {
                         if (!node.lidar_scan.ranges.empty())
                         {
-                            optimized_grid.updateWithScan(node.lidar_scan, node.pose);
+                            icp_grid.updateWithScan(node.lidar_scan, node.pose);
                         }
                     }
                 }
@@ -248,18 +250,19 @@ int main(int /*argc*/, char* /*argv*/[]) {
                     keyframe_added);
                 publisher.publishMessage("visualization", viz_message);
                 if ((message_count % grid_publish_every_n_messages) == 0 || optimization_happened) {
-                    int grid_w = raw_grid.getWidth();
-                    int grid_h = raw_grid.getHeight();
-                    double res = raw_grid.getResolution();
+                    int grid_w = odom_grid.getWidth();
+                    int grid_h = odom_grid.getHeight();
+                    double res = odom_grid.getResolution();
 
                     std::ostringstream grid_stream;
                     grid_stream << "{\"width\":" << grid_w
                                 << ",\"height\":" << grid_h
                                 << ",\"resolution\":" << res
-                                << ",\"origin_x\":" << raw_grid.getOriginX()
-                                << ",\"origin_y\":" << raw_grid.getOriginY()
+                                << ",\"origin_x\":" << odom_grid.getOriginX()
+                                << ",\"origin_y\":" << odom_grid.getOriginY()
                                 << ",\"cells\":[";
 
+                    // Left panel: odometry-only map
                     for (int y = 0; y < grid_h; ++y)
                     {
                         if (y > 0) grid_stream << ",";
@@ -267,13 +270,14 @@ int main(int /*argc*/, char* /*argv*/[]) {
                         for (int x = 0; x < grid_w; ++x)
                         {
                             if (x > 0) grid_stream << ",";
-                            grid_stream << raw_grid.getProbability(x, y);
+                            grid_stream << odom_grid.getProbability(x, y);
                         }
                         grid_stream << "]";
                     }
 
                     grid_stream << "],\"optimized_cells\":[";
 
+                    // Right panel: ICP-corrected map
                     for (int y = 0; y < grid_h; ++y)
                     {
                         if (y > 0) grid_stream << ",";
@@ -281,7 +285,7 @@ int main(int /*argc*/, char* /*argv*/[]) {
                         for (int x = 0; x < grid_w; ++x)
                         {
                             if (x > 0) grid_stream << ",";
-                            grid_stream << optimized_grid.getProbability(x, y);
+                            grid_stream << icp_grid.getProbability(x, y);
                         }
                         grid_stream << "]";
                     }
