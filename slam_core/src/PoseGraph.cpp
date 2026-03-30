@@ -90,7 +90,6 @@ bool PoseGraph:: tryAddKeyframe(const Pose2D& pose, const LidarScan& scan, doubl
         Eigen::Vector3d info_diag = movementInfoDiagFromResidual(rel_trans, odom_rel_transform);
         Edge newEdge = {nodes.back().id, newNode.id, MOVEMENT, rel_trans, info_diag.asDiagonal()};
         edges.push_back(newEdge);
-        std::cout<<"Keyframe added: " << edges.size() <<std::endl;
     }
 
     nodes.push_back(newNode);

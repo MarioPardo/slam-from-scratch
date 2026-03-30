@@ -41,6 +41,7 @@ endif()
 
 set(SOURCES
     src/main.cpp
+    src/slam_config.cpp
     src/zmq_bridge.cpp
     src/odometry.cpp
     src/lidar_processor.cpp

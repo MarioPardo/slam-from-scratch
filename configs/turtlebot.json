@@ -1,0 +1,26 @@
+{
+    "wheel_radius": 0.033,
+    "wheelbase": 0.16,
+
+    "grid_resolution": 0.01,
+    "grid_width": 500,
+    "grid_height": 500,
+    "grid_origin_x": -2.5,
+    "grid_origin_y": -2.5,
+
+    "lidar_num_beams": 2048,
+    "lidar_angle_min": -3.14159265,
+    "lidar_angle_max":  3.14159265,
+    "lidar_range_min": 0.01,
+    "lidar_range_max": 3.0,
+
+    "icp_max_iterations": 100,
+    "icp_convergence_epsilon": 1e-6,
+    "icp_correspondence_distance": 0.2,
+    "icp_turn_threshold": 0.1,
+
+    "grid_publish_every_n": 4,
+
+    "zmq_sub_addr": "tcp://localhost:5555",
+    "zmq_pub_addr": "tcp://*:5556"
+}

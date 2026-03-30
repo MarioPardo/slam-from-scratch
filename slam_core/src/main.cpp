@@ -1,3 +1,4 @@
+#include "slam_config.h"
 #include "zmq_bridge.h"
 #include "odometry.h"
 #include "lidar_processor.h"
@@ -29,32 +30,29 @@ void signalHandler(int signal) {
     running = 0;
 }
 
-int main(int /*argc*/, char* /*argv*/[]) {
+int main(int argc, char* argv[]) {
     std::cout << "=== SLAM Core - ZMQ Bidirectional Communication ===" << std::endl;
+
+    SLAMConfig cfg;
+    if (argc > 1) cfg = loadConfig(argv[1]);
 
     // Setup signal handling for clean shutdown (Ctrl+C)
     std::signal(SIGINT, signalHandler);
     std::signal(SIGTERM, signalHandler);
 
     try {
-        slam::ZMQSubscriber subscriber("tcp://localhost:5555");
-        slam::ZMQPublisher publisher("tcp://*:5556");
+        slam::ZMQSubscriber subscriber(cfg.zmq_sub_addr);
+        slam::ZMQPublisher publisher(cfg.zmq_pub_addr);
 
-        // TurtleBot parameters
-        // Wheel radius: 33mm = 0.033m
-        // Wheelbase: 160mm = 0.16m
-
-        //Set up sensor processors
-        slam::OdometryProcessor odometry(0.033, 0.16);
+        slam::OdometryProcessor odometry(cfg.wheel_radius, cfg.wheelbase);
         slam::PoseGraph pose_graph;
 
         // Occupancy grids: odom_grid uses raw odometry poses, icp_grid uses ICP-corrected poses
-        slam::OccupancyGrid odom_grid(0.01, 500, 500, -2.5, -2.5);
-        slam::OccupancyGrid icp_grid(0.01, 500, 500, -2.5, -2.5);
-        slam::OccupancyGrid optimized_grid(0.01, 500, 500, -2.5, -2.5);
+        slam::OccupancyGrid odom_grid(cfg.grid_resolution, cfg.grid_width, cfg.grid_height, cfg.grid_origin_x, cfg.grid_origin_y);
+        slam::OccupancyGrid icp_grid(cfg.grid_resolution, cfg.grid_width, cfg.grid_height, cfg.grid_origin_x, cfg.grid_origin_y);
 
         // Odom trajectory
-        std::vector<slam::Pose2D> odom_trajectory; //keeping for now during development
+        std::vector<slam::Pose2D> odom_trajectory;
         slam::Pose2D prev_odompose_keyframe = {0.0, 0.0, 0.0};
 
         // ICP trajectory.
@@ -63,7 +61,6 @@ int main(int /*argc*/, char* /*argv*/[]) {
         std::vector<Eigen::Vector2d> prev_pointcloud_keyframe;
 
         bool first_scan = true;
-        const int grid_publish_every_n_messages = 4;
         std::vector<slam::Point2D> pending_full_map_points;
         int clear_map_frames_remaining = 0;
 
@@ -78,9 +75,9 @@ int main(int /*argc*/, char* /*argv*/[]) {
 
         auto messageCallback = [&publisher, &odometry, &odom_trajectory, &icp_trajectory,
                                  &message_count, &prev_pointcloud_keyframe, &prev_odompose_keyframe,
-                                 &keyframe_icp_pose, &first_scan, &pose_graph, &odom_grid, &icp_grid, &optimized_grid,
+                                 &keyframe_icp_pose, &first_scan, &pose_graph, &odom_grid, &icp_grid,
                                  &gt_origin, &gt_origin_set,
-                                 &pending_full_map_points, &clear_map_frames_remaining]
+                                 &pending_full_map_points, &clear_map_frames_remaining, &cfg]
                                 (const std::string& /*topic*/, const std::string& message)
         {
             message_count++;
@@ -101,7 +98,7 @@ int main(int /*argc*/, char* /*argv*/[]) {
 
 
                 // ICP gating: skip ICP during turns, use odometry instead
-                const double GYRO_TURN_THRESHOLD = 0.1; // rad/s
+                const double GYRO_TURN_THRESHOLD = cfg.icp_turn_threshold;
                 const bool is_turning = std::abs(odom.gyro_z) > GYRO_TURN_THRESHOLD;
 
                 slam::Pose2D curr_icp_pose = curr_odom_pose;
@@ -122,9 +119,9 @@ int main(int /*argc*/, char* /*argv*/[]) {
                             curr_point_cloud,
                             prev_pointcloud_keyframe,
                             odom_delta,
-                            100,
-                            1e-6,
-                            0.2
+                            cfg.icp_max_iterations,
+                            cfg.icp_convergence_epsilon,
+                            cfg.icp_correspondence_distance
                         );
 
                         if(icp.converged) {
@@ -215,7 +212,7 @@ int main(int /*argc*/, char* /*argv*/[]) {
                 std::vector<slam::Node> graph_nodes = pose_graph.getNodes();
                 if (optimization_happened)
                 {
-                    icp_grid = slam::OccupancyGrid(0.01, 500, 500, -2.5, -2.5);
+                    icp_grid = slam::OccupancyGrid(cfg.grid_resolution, cfg.grid_width, cfg.grid_height, cfg.grid_origin_x, cfg.grid_origin_y);
                     for (const slam::Node& node : graph_nodes)
                     {
                         if (!node.lidar_scan.ranges.empty())
@@ -249,7 +246,7 @@ int main(int /*argc*/, char* /*argv*/[]) {
                     send_clear ? pending_full_map_points : std::vector<slam::Point2D>{},
                     keyframe_added);
                 publisher.publishMessage("visualization", viz_message);
-                if ((message_count % grid_publish_every_n_messages) == 0 || optimization_happened) {
+                if ((message_count % cfg.grid_publish_every_n) == 0 || optimization_happened) {
                     int grid_w = odom_grid.getWidth();
                     int grid_h = odom_grid.getHeight();
                     double res = odom_grid.getResolution();
