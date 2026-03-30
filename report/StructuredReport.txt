@@ -1,0 +1,401 @@
+Abstract
+--------
+
+Humans are able to navigate and understand new environments quickly and intuitively,
+combining sensory inputs with spatial memory to create an understanding their environment
+and their location with it. Replicating this in machines is a complicated task encompassing
+various areas of research and is a key challenge in developping autonomous robots and vehicles.
+Simulatenous Localization and Mapping (SLAM) is a class of algorithms dedicated to just this task,
+allowing for systems to understand the environment in which they are, and where they are in it - especially critical
+in scenarios where outside sources of information, such as GPS, are unavailable.
+This project presents a C++ implementation of a Graph-Based SLAM backend developed from first principles.
+The resulting system demonstrates reliable convergence in pose-graph optimization, validating that a ground-up implementation can manage the underlying mathematical complexity and high-performance requirements of modern robotics.
+
+
+------------------------------------------------------------------------
+1. Introduction
+------------------------------------------------------------------------
+
+Robotic systems sense the world and themselves through a variety of sensors, such as wheel encoders,
+gyroscopes, and lidar sensors. The two former are combined to create odometry data, estimating the
+change in position and orientation (Pose), and the latter using laser reflections to sense the geometry
+of the world at a distance. In real world settings, odometry data carries noise from sensor readings
+and misalignments in these readings to the actions they imply: for example, wheels slipping and bumps
+on road. This causes drift - an error in the calculated pose compared to the actual pose. As these pose
+estimates build on top of eachother, this drift quickly accumulates and leads to worsening estimates,
+and new sensor inputs conflict with these internal estimates, leading to catastrophic errors in
+localization and mapping. To illustrate the effects of an erroneous pose estimate, lidar data might say
+that there is a wall 3m directly ahead, but our pose estimates say that we are at (3m, 1m) while in
+reality we are at (2,0) - we now believe that there is a wall at (6,1) while in reality it's at (5,0).
+
+A Graph Based SLAM system makes a graph of poses and movements, and when it detects a loop closure - a
+place where it's been before - it uses this new datapoint at this repeated location to update all its
+previous poses and estimates of the world around, to "snap" its trajectory and mapping into a corrected
+version.
+
+//TODO elaborate on other versions of SLAM, and why we chose to go with Graph Based.
+
+Working with modern robotics tools we are given implemented and tested versions of these algorithms,
+nicely packed up and ready to use, but as black boxes where we input the sensor readings, and get out
+the mapping and localization estimates. My intention with this project was to open this box, and gain
+rigorous experience in studying and understanding, then implementing, debugging, and testing a complex
+algorithm like this. Developing a SLAM algorithm tested my knowledge in mathematics, specifically linear
+algebra and statistics, and applying it to a complex, multi step, real world system using high
+performing C++ code.
+
+
+------------------------------------------------------------------------
+2. System Architecture
+------------------------------------------------------------------------
+
+A SLAM system starts with sensor inputs, and over time accumulates information to locate itself and map
+its surroundings. It is composed of a chain of subsystems, each of varying complexities and points of
+failure, each depending on the step before it to produce meaningful results.
+
+** Add pipeline overview diagram **
+
+This project was implemented using mainly C++ as the brains of the algorithm, with the open source
+robotics platform Webots as a front end to perform the robot and sensor simulation, completed with
+Python visualization tools to easily test and visualize the outputs of the program.
+
+C++: Core of the SLAM algorithm. C++ continues to be the language of choice for high performing code.
+Writing the backend in C++ gave an excellent opportunity to make use of its powerful features and meet
+the intense performance requirements of robotics software. Key libraries:
+    * Eigen: Linear algebra
+    * GTSAM: Pose Graph Optimization
+
+Webots: Robotics simulation. Webots is a simple yet powerful open source robotics simulation software.
+It provides ready-made sandboxes and robot models, like the TurtlebotBurger3 used in this project,
+that contain the necessary setup for motion and sensor usage. Using these ready-made tools allowed
+focus on the core SLAM implementation, and allows for easy scaling of the project.
+
+Python: Communication from front end to backend, and visualization. Python was used for both sides of
+visualization - interfacing with Webots for robot simulation, and on the backend for visualizing
+trajectories, occupancy grids, and the output of the SLAM system. Selected due to its ease of use and
+wide library support.
+
+ZeroMQTT: Communication protocol between front end, backend, and visualization tools. It implements
+the PubSub architecture, which is well suited to a use case where systems must communicate consistently
+both ways but don't necessarily need to be fully synchronized. The name "ZeroMQTT" comes from its need
+for no (zero) broker or central server, so it is resilient to any one endpoint failing. It is also easy
+to implement from both C++ and Python.
+
+
+------------------------------------------------------------------------
+3. Odometry and Sensor Integration
+------------------------------------------------------------------------
+
+Various sensors in the robot acquire data at each timestep. In our use case, we make use of:
+    * Wheel encoders: measure the rotation of wheels. This gets processed into odometry data.
+    * Lidar: a 360* scan of the environment using light. It uses the reflection of the projected beams
+      to store the distance of each beam at a certain angle.
+        ** Insert Picture **
+
+This data is gathered in Webots, and the raw data is sent to the C++ backend for processing.
+
+The first step in the project was to get the testing arena and robot set up. A simple square arena was
+created that could easily be interpreted in visualization tools, but had enough details and landmarks
+for ICP to work with. For the robot, the premade TurtlebotBurger3 was selected, already equipped with
+all the sensors needed.
+
+A simple differential drive controller was created and tested to confirm reliable movement.
+** Add picture **
+
+Once the robot could be controlled reliably, sensor data collection was set up. Communication between
+Webots and the C++ backend was established through ZeroMQTT. It is crucial to understand how lidar
+data relates to the robot's pose, so that the world can be interpreted from the robot's point of view.
+    ** Picture **
+
+-- Odometry
+
+Using a known diameter of the wheels and width of the wheelbase, we calculate the trajectory of the
+robot according to wheel sensor data.
+
+Noise: In a real world setting wheel sensors are not perfect and introduce noise - whether that be
+issues with the sensor itself, or cases where the sensor records movement that didn't lead to robot
+movement, such as the wheel slipping on wet terrain. This is important to include, as this is the noise
+that our SLAM system, using lidar data, will try to correct for.
+
+Odometry was the first reference point for the SLAM algorithm, so the robot's position was first
+estimated using odometry data alone. This is a crucial validation step to confirm that the robot's
+trajectory can be accurately calculated.
+
+-- Point Cloud
+
+Using simple trigonometry, for each beam from the lidar sensor, we are able to calculate where it
+lands, and therefore where surfaces are, from the robot's frame (POV).
+    ** code snippet **
+
+To World Frame: Now that we know how the world looks from the robot's POV, with the estimated current
+location of the robot, we are able to project this point cloud into a static world frame and estimate
+where surfaces are on the map.
+    ** code snippet and/or picture **
+
+-- Issue: Webots Lidar Noise During Rotation
+
+Even after introducing rotation gating for localization (described in Section 4), significant map
+smear persisted. After considerable troubleshooting, the source was identified as a Webots issue.
+While the robot is rotating, the lidar scan twitches back and forth and only snaps back into place
+once rotation finishes. This means very noisy and incorrect lidar data is produced during rotation.
+The fix was to discard all lidar data collected while the robot is rotating, using only lidar
+readings that are guaranteed to be correct.
+
+
+------------------------------------------------------------------------
+4. ICP: Scan Matching
+------------------------------------------------------------------------
+
+Iterative Closest Point (ICP) is one of the main components of the SLAM system. It takes two point
+cloud readings (previous and current) and estimates how the robot has moved.
+
+** show alignPointClouds() func signature **
+
+The algorithm proceeds as follows:
+    1) Take the source point cloud and transform it by the initial guess from odometry.
+    2) Find correspondences: from the two clouds, identify which points represent the same surface,
+       but transformed.
+    3) Using these pairs, estimate the transformation between them.
+    4) Update the initial guess to correct for small errors found in the last step.
+    5) If the errors in this transformation fall below the threshold, ICP has converged.
+
+-- 4.1 Correspondence Matching
+
+First, a brute force point-to-point method was used. Here lies an important hyperparameter,
+max_distance, which dictates the maximum distance at which two points can be considered a
+correspondence. This is a tradeoff between precision - smaller distance gives more precise
+transformations - and generality: too small a distance and points must match too exactly, yielding
+too few matches.
+
+This was later upgraded to the more efficient and rotation-resistant point-to-plane method.
+//TODO explain point to point limitations, and explain point to plane and why it is better
+
+-- 4.2 Estimate Transform
+
+Given our pairs of correspondences, we use linear algebra to estimate the transform - how the robot
+must have moved for these pairs to move in this manner. Since a straightforward analytical solution
+is known, implementation was a matter of properly converting the equations into code. Tests were used
+to ensure correct behaviour.
+//TODO explain linear algebra behind it
+
+-- 4.3 Convergence
+
+The error between the current transformation and the previous iteration is calculated. If it falls
+below the threshold, ICP is considered converged. This required hyperparameter tuning: all errors
+were printed, the top 10% best errors were identified, and an error rate was iteratively narrowed
+down to one that gave consistent yet precise ICP convergences.
+
+-- 4.4 Handling Rotation
+
+Rotations cause point clouds to change drastically from relatively little robot movement, so ICP by
+its nature struggles to find good transformations during large rotations. To address this, gating was
+introduced: if the robot is rotating fast enough, the transformation estimated by odometry is used
+rather than running ICP. This is a simple and effective fix, though in a production SLAM system better
+sensor fusion would be used, such as an Extended Kalman Filter, to intelligently weight sensor
+information when one source cannot be fully relied on.
+
+Initial Lidar was limited to a 90* FOV which served for implementation of point clouds and first versions of ICP. 
+Issues quickly appeared with rotations with ICP, and amplifying the Lidar FOV to 360* greatly improved accuracy 
+and concistency. With a 90* FOV small rotations make up a much greater percentage of the total available
+field of view and thus major changes in the points that are seen by ICP. By increasing FOV to 360 and getting an 
+all around view of the surroundings, we keep a constant view of surfaces all around the robot and thus can 
+understand rotation transformations significantly better. 
+
+This was a significant breakthrough for ICP, giving trajectories much more consistent with actual
+movement.
+** Picture of much better ICP **
+
+-- Issue: ICP 180-Degree Inversion
+
+Early in testing, ICP gave transformations at 180* of actual movement. The initial patch was to
+manually rotate the output by 180*. This worked but was clearly a sign of a deeper issue.
+
+The root cause was a source/target mismatch in ICP. Consider a robot at (0,0) with a wall straight
+ahead at (0,2). From the robot's POV, the wall is 2m ahead. The robot moves forward 1m: it is now
+at (0,1), wall 1m ahead. The motion was positive (0,1). But from the robot's POV, the wall appears
+to have moved 1m closer - motion (0,-1). This is not incorrect, just expressed from the robot's
+frame.
+
+To correct this, the source and target must be swapped. If the source is (0,1) and the target is
+(0,2), the transformation found is (0,1) - which is correct.
+
+ICP is good but not perfect, as one can expect. The next component is the pose graph.
+
+
+------------------------------------------------------------------------
+5. Pose Graph Construction
+------------------------------------------------------------------------
+
+Here the graph is built: a record of where the robot has been and how the world has looked at each
+of those timesteps.
+
+Graph Nodes contain:
+    * Pose: (estimated) location and angle
+    * Point cloud: how the world looked
+    * ID and Timestamp (for identification purposes)
+
+Edges represent the transform between the last node and the current one - how the robot must have
+moved to get from one node to the next.
+    * Information: how confident is this measurement? The difference between the odometry prediction
+      and the ICP measurement is used as this confidence weight.
+
+Nodes are added only once in a while - once the robot has moved some distance X, or rotated some
+angle Y. These are parameters tuned from trial and error.
+
+Implementation was relatively straightforward: first the correct graph data structures (nodes and
+edges) were created, then nodes and edges are added as the robot moves. Trial and error was required
+to find good keyframe thresholds: how many meters, or radians of rotation, constitute a new node.
+This is a tradeoff - too many nodes overwhelms the pose graph optimizer later; too few means ICP
+has to find transformations across larger gaps.
+
+Given a square world nearly 2m diagonally across, a step of 15cm was large enough not to overwhelm
+the optimizer and small enough to give good ICP transformations.
+
+The visualization tool was updated to display these nodes and the calculated ICP edges between them.
+
+
+------------------------------------------------------------------------
+6. Loop Closure Detection
+------------------------------------------------------------------------
+
+As the robot traverses the world and adds keyframes, the current position is compared with old graph
+nodes to detect revisited locations. Note that a match doesn't require an exact position - being
+close enough is sufficient. If a match is found, ICP is run against the old node to confirm the
+loop closure and get a precise edge. A special loop closure edge is then added between the current
+node and the matched old node.
+** add picture **
+
+If no good match is found, or ICP does not converge, the robot continues as normal.
+
+While loop closures reuse much of the existing ICP infrastructure, they are a crucial step of SLAM
+as they determine when and how the graph is optimized.
+
+Hyperparameter tuning was again required, notably for correspondence distance and error epsilon. The
+goal is accurate loop closure edges that are also general enough to reliably trigger when revisiting
+a location. Too selective, and loop closures are never detected; too permissive, and false closures
+corrupt the graph.
+
+-- Performance Tuning
+
+Loop closure detection requires running ICP repeatedly - a computationally heavy process - so the
+set of candidate nodes is reduced aggressively before ICP is invoked:
+
+* Only old nodes are considered. Useful loops only occur with nodes from well before the current
+  position, so only nodes at least X keyframes back are candidates. Given the small map, 10 was used.
+
+* Proximity filter. Only nodes within a close euclidean distance are kept, since a loop closure
+  requires physical proximity. The 6 closest nodes by euclidean distance were kept before running ICP.
+  6 was a small number that still provided sufficient candidates.
+
+* Gating repeated closures. Once a loop closure has been made, future closures in close vicinity
+  provide little additional information and pose a significant challenge for the pose graph optimizer,
+  since graph error has already been reduced. Loop closure attempts are therefore gated to a minimum
+  of 3 keyframes after the last closure. This provided significant computational improvement without
+  limiting the effectiveness of the SLAM system.
+
+** Add picture **
+
+
+------------------------------------------------------------------------
+7. Pose Graph Optimization
+------------------------------------------------------------------------
+
+With a loop closure edge added, the graph has a full loop and is ready to be optimized. Graph
+optimization finds the arrangement of nodes that minimizes the error across all edges.
+
+-- 7.1 Problem Formulation
+
+Let x be our state: the set of nodes.
+Let Zi^ = real observations: the edges in our graph, representing the movement between nodes as
+    measured by ICP.
+Let Zi = predicted observation: simply the difference in position from the stored node coordinates.
+    ** Add picture **
+
+We define our error:
+    e_i(x) = Zi - Zi^    (the difference between predicted and measured robot movements)
+
+To get a notion of magnitude rather than direction, we take the squared error.
+
+We assume this error is normally distributed with mean 0, and define an information matrix Omega
+as the weight of each measurement - how confident are we in this edge?
+    Here we use the edge information: how different the ICP measurement is from odometry.
+
+Our weighted squared error per edge:
+    ei(x) = ei(x)^T * Omega * ei(x)
+
+Our goal: find nodes X that minimize the total weighted squared error across all edges.
+    X = argmin_x  sum_i [ ei(x)^T * Omega_i * ei(x) ]
+
+-- 7.2 Solving: Iterative Local Linearization
+
+This nonlinear least squares problem is solved using iterative local linearization, which
+Levenberg-Marquardt (the optimizer used) builds upon.
+
+1) Linearize around the current estimate:
+
+    ei(x + deltaX) ≈ ei(x) + J(x) * delta(x)
+
+    Linearizing turns a complex, curved error landscape into a locally flat one that can be solved
+    with linear algebra.
+    * add picture of linearizing using Jacobian *
+
+2) Expand the squared error in terms of deltaX:
+
+    ei^2 = (ei + Ji*deltaX)^T * Omega_i * (ei + Ji*deltaX)
+         = ei^T*Omega_i*ei  +  2*ei^T*Omega_i*Ji*deltaX  +  deltaX^T*Ji^T*Omega_i*Ji*deltaX
+
+    Grouping these three terms:
+         = Ci  +  2*Bi^T*deltaX  +  deltaX^T*Hi*deltaX
+
+    Where:
+        b = ei^T * Omega_i * Ji    (gradient direction)
+        H = Ji^T * Omega_i * Ji    (Hessian approximation)
+
+3) Find the derivative of the total error function, set to zero, and solve for deltaX.
+
+The GTSAM solver handles all of this internally.
+
+-- 7.3 Implementation
+
+GTSAM is a well known and well tested pose graph optimization library. A FactorGraph was constructed
+from the existing PoseGraph data structure and passed to GTSAM's Levenberg-Marquardt optimizer.
+The optimized poses were then written back into the graph, and the point clouds of each node were
+reprojected at the updated pose coordinates to remove map smear from accumulated error.
+
+Similar to loop closure, this is computationally heavy. Optimization is therefore gated to a minimum
+of 10 keyframes since the last optimization run.
+
+Initial attempts gave unexpected shifts and translations of the graph, and most notably no improvement
+to the occupancy grid mapping - smear was not removed. This led to a thorough evaluation of the full
+SLAM pipeline. In efforts to improve this, point-to-plane correspondence matching was implemented in
+ICP, and ICP hyperparameters were iteratively refined. The Webots lidar rotation issue (described in
+Section 3) was discovered during this investigation, and resolving it was the key breakthrough that
+brought the full system together.
+
+
+------------------------------------------------------------------------
+8. Occupancy Grid
+------------------------------------------------------------------------
+
+//TODO explain
+
+
+------------------------------------------------------------------------
+9. Results
+------------------------------------------------------------------------
+
+* Pictures, statistics from visualizer
+* Possibly statistics on well-established datasets.
+
+
+------------------------------------------------------------------------
+10. Conclusion
+------------------------------------------------------------------------
+
+//TODO
+
+
+------------------------------------------------------------------------
+References
+------------------------------------------------------------------------
+
+//TODO
