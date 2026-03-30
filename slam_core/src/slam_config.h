@@ -24,6 +24,13 @@ struct SLAMConfig {
     double lidar_range_min  = 0.01;            
     double lidar_range_max  = 3;           
 
+    // ---- Pose graph / keyframing ----
+    double pg_min_dist_keyframe       = 0.15;  // metres — min travel before new keyframe
+    double pg_min_angle_keyframe      = 0.2;   // radians — min rotation before new keyframe
+    double pg_max_dist_loop_closure   = 0.3;   // metres — spatial search radius for loop candidates
+    int    pg_loop_min_correspondences = 35;   // min ICP correspondences to accept a loop edge
+    double pg_loop_max_icp_error      = 0.12;  // metres — max ICP residual to accept a loop edge
+
     // ---- ICP scan matching ----
     int    icp_max_iterations          = 100;
     double icp_convergence_epsilon     = 1e-6;

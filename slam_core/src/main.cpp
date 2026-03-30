@@ -46,6 +46,7 @@ int main(int argc, char* argv[]) {
 
         slam::OdometryProcessor odometry(cfg.wheel_radius, cfg.wheelbase);
         slam::PoseGraph pose_graph;
+        pose_graph.configure(cfg);
 
         // Occupancy grids: odom_grid uses raw odometry poses, icp_grid uses ICP-corrected poses
         slam::OccupancyGrid odom_grid(cfg.grid_resolution, cfg.grid_width, cfg.grid_height, cfg.grid_origin_x, cfg.grid_origin_y);

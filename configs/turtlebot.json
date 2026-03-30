@@ -14,6 +14,12 @@
     "lidar_range_min": 0.01,
     "lidar_range_max": 3.0,
 
+    "pg_min_dist_keyframe": 0.15,
+    "pg_min_angle_keyframe": 0.2,
+    "pg_max_dist_loop_closure": 0.3,
+    "pg_loop_min_correspondences": 35,
+    "pg_loop_max_icp_error": 0.12,
+
     "icp_max_iterations": 100,
     "icp_convergence_epsilon": 1e-6,
     "icp_correspondence_distance": 0.2,

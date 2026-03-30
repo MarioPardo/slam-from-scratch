@@ -2,6 +2,7 @@
 #define SLAM_POSEGRAPH_H
 
 #include "types.h"
+#include "slam_config.h"
 #include <vector>
 #include <gtsam/3rdparty/Eigen/Eigen/Dense>
 
@@ -20,6 +21,7 @@ class PoseGraph{
     int minKeyframesBetweenOptimizations = 10;
     double loopClosure_ICPMaxError = 0.12;
     int loopClosure_ICPMinCorrespondences = 35;
+    double loopClosure_ICPCorrespondenceDistance = 0.3;
     
     //capping loop closure info
     double loopClosure_minSigma = 0.02; // minimum assumed sigma (m) for loop closures
@@ -37,6 +39,14 @@ class PoseGraph{
     std::vector<std::vector<slam::Point2D>> optimized_projected_scans_world;
 
     public:
+        void configure(const SLAMConfig& cfg) {
+            minDistNewKeyframe                = cfg.pg_min_dist_keyframe;
+            minAngleNewKeyframe               = cfg.pg_min_angle_keyframe;
+            maxDistLoopClosure                = cfg.pg_max_dist_loop_closure;
+            loopClosure_ICPMinCorrespondences = cfg.pg_loop_min_correspondences;
+            loopClosure_ICPMaxError           = cfg.pg_loop_max_icp_error;
+            loopClosure_ICPCorrespondenceDistance = cfg.icp_correspondence_distance * 1.5;
+        }
         bool tryAddKeyframe(const Pose2D& pose, const LidarScan& scan, double timestamp, const Transform2D& odom_rel_transform, bool* optimization_happened = nullptr);
         std::vector<slam::Node> getNodes() const {return nodes;}
         std::vector<slam::Edge> getEdges() const {return edges;}

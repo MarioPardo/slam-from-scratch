@@ -53,6 +53,11 @@ SLAMConfig loadConfig(const std::string& path) {
     maybeDouble("lidar_angle_max",             cfg.lidar_angle_max);
     maybeDouble("lidar_range_min",             cfg.lidar_range_min);
     maybeDouble("lidar_range_max",             cfg.lidar_range_max);
+    maybeDouble("pg_min_dist_keyframe",        cfg.pg_min_dist_keyframe);
+    maybeDouble("pg_min_angle_keyframe",       cfg.pg_min_angle_keyframe);
+    maybeDouble("pg_max_dist_loop_closure",    cfg.pg_max_dist_loop_closure);
+    maybeInt   ("pg_loop_min_correspondences", cfg.pg_loop_min_correspondences);
+    maybeDouble("pg_loop_max_icp_error",       cfg.pg_loop_max_icp_error);
     maybeInt   ("icp_max_iterations",          cfg.icp_max_iterations);
     maybeDouble("icp_convergence_epsilon",     cfg.icp_convergence_epsilon);
     maybeDouble("icp_correspondence_distance", cfg.icp_correspondence_distance);

@@ -175,7 +175,7 @@ std::vector<Edge> PoseGraph::detectLoopClosures(const Node& queryNode)
 
         ICPResult icpresult = alignPointClouds(scanToPointCloudRobotFrame(queryNode.lidar_scan),
                             scanToPointCloudRobotFrame(candidateNode.lidar_scan),
-                            initial_guess, 100, 1e-6, 0.3);
+                            initial_guess, 100, 1e-6, loopClosure_ICPCorrespondenceDistance);
 
 
         //Add edge if loop closure found
