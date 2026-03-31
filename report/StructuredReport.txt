@@ -397,7 +397,11 @@ brought the full system together.
 ------------------------------------------------------------------------
 
 This project has resulted in a working and reliable SLAM implementation that is able to localise the trajectory
-of our robot as well as provide an accurate mapping of it's surroundings. 
+of our robot as well as provide an accurate mapping of it's surroundings in our testing environment
+
+Creating an entire SLAM system from scratch, without any prior experience in the field, is a massive undertaking
+that challenged my abilities to architecture systems, and design, write and test complex code with direct real life applications. 
+
 We are able to clearly see it's sucess in mapping, as well as it's localization and trajectory, despite noisy 
 odometry data. 
 
@@ -422,20 +426,23 @@ The following is a table of results from various testing runs in our simulation 
      Optimization error removed: 0.000863467 m (pre=0.00347639 m, post=0.00261292 m)
 
 
+To validate the performance of our SLAM system, we ran it with popular 2D SLAM datasets of real world research facilities. 
+Here the weakenesses in our system were shown, as one might expect. 
+
+Intel Research Lab: 
 
 
+This system was designed using a 2x2m grid in Webots, while this dataset is of a center over 80m long, with a 
+completely different Lidar scanner, motion, etc. Our system was not optimized for this setup, not for
+maps of this scale, so it is not surprising that our system fails. 
+We note that some features are able to me made out. 
+
+We should note, that in this dataset, we were able to find loop closures and optimize, just to not great success. 
+
+Production scale SLAM systems span entire fields of research and take teams years of work to implement. Thus, 
+the success demonstrated in this project is to be expectd given my time constraints, experience, and limitations of resources. 
 
 
-
-* Pictures, statistics from visualizer
-* Possibly statistics on well-established datasets.
-
-
-------------------------------------------------------------------------
-10. Conclusion
-------------------------------------------------------------------------
-
-//TODO
 
 // Future Work, improvements
 
