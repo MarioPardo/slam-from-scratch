@@ -20,6 +20,8 @@
     "pg_loop_min_correspondences": 35,
     "pg_loop_max_icp_error": 0.12,
 
+    "OptimizerMaxError": 0.5,
+
     "icp_max_iterations": 100,
     "icp_convergence_epsilon": 1e-6,
     "icp_correspondence_distance": 0.2,

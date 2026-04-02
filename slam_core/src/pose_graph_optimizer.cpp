@@ -11,7 +11,7 @@
 
 namespace slam {
 
-bool PoseGraphOptimizer::optimize(std::vector<Node>& nodes, const std::vector<Edge>& edges)
+bool PoseGraphOptimizer::optimize(std::vector<Node>& nodes, const std::vector<Edge>& edges, double max_error)
 {
     if (nodes.empty() || edges.empty())
         return false;
@@ -62,10 +62,10 @@ bool PoseGraphOptimizer::optimize(std::vector<Node>& nodes, const std::vector<Ed
         gtsam::Values result = optimizer.optimize();
 
         double final_error = graph.error(result);
-        constexpr double kErrorThreshold = 0.5; // Tunable error threshold
-        if (!std::isfinite(final_error) || final_error > kErrorThreshold) 
+        if (!std::isfinite(final_error) || final_error > max_error) 
         {
-            std::cerr << "[PoseGraphOptimizer] Optimization failed: final error = " << final_error << std::endl;
+            std::cerr << "[PoseGraphOptimizer] Optimization failed: final error = " << final_error
+                      << " (max " << max_error << ")" << std::endl;
             return false;
         }
 

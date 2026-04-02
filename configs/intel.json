@@ -1,0 +1,36 @@
+{
+    "wheel_radius": 0.097,
+    "wheelbase": 0.38,
+
+    "grid_resolution": 0.1,
+    "grid_width": 1600,
+    "grid_height": 1200,
+    "grid_origin_x": -40.0,
+    "grid_origin_y": -30.0,
+
+    "lidar_num_beams": 180,
+    "lidar_angle_min": -1.5707963,
+    "lidar_angle_max":  1.5707963,
+    "lidar_range_min": 0.1,
+    "lidar_range_max": 80.0,
+
+    "pg_min_dist_keyframe": 0.5,
+    "pg_min_angle_keyframe": 0.3,
+    "pg_max_dist_loop_closure": 3.0,
+    "pg_loop_min_correspondences": 20,
+    "pg_loop_max_icp_error": 0.4,
+
+    "OptimizerMaxError": 30,
+
+    "icp_max_iterations": 100,
+    "icp_convergence_epsilon": 1e-6,
+    "icp_correspondence_distance": 1.0,
+    "icp_turn_threshold": 0.05,
+    "icp_use_turn_gating": false,
+    "lidar_scan_reversed": false,
+
+    "grid_publish_every_n": 1,
+
+    "zmq_sub_addr": "tcp://localhost:5555",
+    "zmq_pub_addr": "tcp://*:5556"
+}

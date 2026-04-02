@@ -31,11 +31,20 @@ struct SLAMConfig {
     int    pg_loop_min_correspondences = 35;   // min ICP correspondences to accept a loop edge
     double pg_loop_max_icp_error      = 0.12;  // metres — max ICP residual to accept a loop edge
 
+    // ---- Pose graph optimization ----
+    double optimizer_max_error        = 0.5;
+
     // ---- ICP scan matching ----
     int    icp_max_iterations          = 100;
     double icp_convergence_epsilon     = 1e-6;
     double icp_correspondence_distance = 0.2;  // metres
-    double icp_turn_threshold          = 0.1;  // rad/s gyro
+    double icp_turn_threshold          = 0.1;  // rad/s gyro — only used when icp_use_turn_gating=true
+    bool   icp_use_turn_gating         = true; // false = always run ICP (for datasets without jumpy lidar)
+
+    // ---- LiDAR scan convention ----
+    // true  = Webots convention: ranges[0] is at angle_max, ranges[N] at angle_min
+    // false = standard convention: ranges[0] is at angle_min, ranges[N] at angle_max (CARMEN/ROS)
+    bool   lidar_scan_reversed         = true;
 
     // ---- Pipeline ----
     int grid_publish_every_n = 4;  // publish occupancy grid every N messages

@@ -9,7 +9,7 @@ namespace slam {
 class PoseGraphOptimizer {
 public:
 
-    static bool optimize(std::vector<Node>& nodes, const std::vector<Edge>& edges);
+    static bool optimize(std::vector<Node>& nodes, const std::vector<Edge>& edges, double max_error);
 
 };
 

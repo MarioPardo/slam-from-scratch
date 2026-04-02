@@ -13,6 +13,7 @@
 #include <sstream>
 #include <cmath>
 #include <vector>
+#include <algorithm>
 
 // Global flag for clean shutdown
 volatile sig_atomic_t running = 1;
@@ -91,6 +92,13 @@ int main(int argc, char* argv[]) {
 
                 //Lidar: world-frame points for viz, robot-frame cloud for ICP
                 slam::LidarScan scan = parseLidarScan(message, odom.timestamp);
+
+                // Standard datasets (CARMEN/ROS) store ranges[0] at angle_min.
+                // The scan processing functions assume the Webots convention where
+                // ranges[0] is at angle_max. Reversing the array aligns them.
+                if (!cfg.lidar_scan_reversed && !scan.ranges.empty())
+                    std::reverse(scan.ranges.begin(), scan.ranges.end());
+
                 std::vector<slam::Point2D> world_lidar_points;
                 std::vector<Eigen::Vector2d> curr_point_cloud;
 
@@ -98,9 +106,10 @@ int main(int argc, char* argv[]) {
                     curr_point_cloud = slam::scanToPointCloudRobotFrame(scan);
 
 
-                // ICP gating: skip ICP during turns, use odometry instead
-                const double GYRO_TURN_THRESHOLD = cfg.icp_turn_threshold;
-                const bool is_turning = std::abs(odom.gyro_z) > GYRO_TURN_THRESHOLD;
+                // ICP gating: skip ICP during turns, use odometry instead.
+                // Turn gating is disabled for datasets without jumpy lidar (e.g. CARMEN).
+                const bool is_turning = cfg.icp_use_turn_gating &&
+                                        std::abs(odom.gyro_z) > cfg.icp_turn_threshold;
 
                 slam::Pose2D curr_icp_pose = curr_odom_pose;
 
@@ -125,7 +134,11 @@ int main(int argc, char* argv[]) {
                             cfg.icp_correspondence_distance
                         );
 
-                        if(icp.converged) {
+                        // Accept the result if it found correspondences, whether or not it
+                        // reached the epsilon threshold. Requiring converged==true silently
+                        // discards valid alignments that plateau above 1e-6 due to
+                        // correspondence flipping at the end of the iteration loop.
+                        if(icp.correspondence_count > 0) {
                             curr_icp_pose = keyframe_icp_pose.transform(icp.transform);
                         }
                     }

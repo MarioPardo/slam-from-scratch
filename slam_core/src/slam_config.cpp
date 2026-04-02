@@ -9,6 +9,16 @@ bool hasKey(const std::string& json, const std::string& key) {
     return json.find("\"" + key + "\"") != std::string::npos;
 }
 
+bool extractBool(const std::string& json, const std::string& key) {
+    size_t pos = json.find("\"" + key + "\"");
+    if (pos == std::string::npos) return false;
+    pos = json.find(":", pos + key.size() + 2);
+    if (pos == std::string::npos) return false;
+    pos = json.find_first_not_of(" \t\r\n", pos + 1);
+    if (pos == std::string::npos) return false;
+    return (json.compare(pos, 4, "true") == 0);
+}
+
 std::string extractString(const std::string& json, const std::string& key, const std::string& def) {
     size_t pos = json.find("\"" + key + "\"");
     if (pos == std::string::npos) return def;
@@ -40,6 +50,9 @@ SLAMConfig loadConfig(const std::string& path) {
     auto maybeInt = [&](const std::string& key, int& field) {
         if (hasKey(json, key)) field = extractInt(json, key);
     };
+    auto maybeBool = [&](const std::string& key, bool& field) {
+        if (hasKey(json, key)) field = extractBool(json, key);
+    };
 
     maybeDouble("wheel_radius",                cfg.wheel_radius);
     maybeDouble("wheelbase",                   cfg.wheelbase);
@@ -58,10 +71,16 @@ SLAMConfig loadConfig(const std::string& path) {
     maybeDouble("pg_max_dist_loop_closure",    cfg.pg_max_dist_loop_closure);
     maybeInt   ("pg_loop_min_correspondences", cfg.pg_loop_min_correspondences);
     maybeDouble("pg_loop_max_icp_error",       cfg.pg_loop_max_icp_error);
+
+    // Optimizer max error (new preferred key: OptimizerMaxError)
+    if (hasKey(json, "OptimizerMaxError")) cfg.optimizer_max_error = extractDouble(json, "OptimizerMaxError");
+    else maybeDouble("optimizer_max_error", cfg.optimizer_max_error);
     maybeInt   ("icp_max_iterations",          cfg.icp_max_iterations);
     maybeDouble("icp_convergence_epsilon",     cfg.icp_convergence_epsilon);
     maybeDouble("icp_correspondence_distance", cfg.icp_correspondence_distance);
     maybeDouble("icp_turn_threshold",          cfg.icp_turn_threshold);
+    maybeBool  ("icp_use_turn_gating",         cfg.icp_use_turn_gating);
+    maybeBool  ("lidar_scan_reversed",         cfg.lidar_scan_reversed);
     maybeInt   ("grid_publish_every_n",        cfg.grid_publish_every_n);
 
     cfg.zmq_sub_addr = extractString(json, "zmq_sub_addr", cfg.zmq_sub_addr);

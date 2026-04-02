@@ -22,6 +22,11 @@ class PoseGraph{
     double loopClosure_ICPMaxError = 0.12;
     int loopClosure_ICPMinCorrespondences = 35;
     double loopClosure_ICPCorrespondenceDistance = 0.3;
+    int    loopClosure_ICPMaxIterations = 100;
+    double loopClosure_ICPConvergenceEpsilon = 1e-6;
+
+    // Optimization acceptance threshold
+    double optimizerMaxError = 0.5;
     
     //capping loop closure info
     double loopClosure_minSigma = 0.02; // minimum assumed sigma (m) for loop closures
@@ -46,6 +51,9 @@ class PoseGraph{
             loopClosure_ICPMinCorrespondences = cfg.pg_loop_min_correspondences;
             loopClosure_ICPMaxError           = cfg.pg_loop_max_icp_error;
             loopClosure_ICPCorrespondenceDistance = cfg.icp_correspondence_distance * 1.5;
+            loopClosure_ICPMaxIterations       = cfg.icp_max_iterations;
+            loopClosure_ICPConvergenceEpsilon  = cfg.icp_convergence_epsilon;
+            optimizerMaxError                  = cfg.optimizer_max_error;
         }
         bool tryAddKeyframe(const Pose2D& pose, const LidarScan& scan, double timestamp, const Transform2D& odom_rel_transform, bool* optimization_happened = nullptr);
         std::vector<slam::Node> getNodes() const {return nodes;}

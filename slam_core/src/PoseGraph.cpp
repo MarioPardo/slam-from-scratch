@@ -24,7 +24,6 @@ bool pgChainDiagEnabled() {
     double kMovementTransResidualScale = 2.0;
     double kMovementRotResidualScale = 1.5;
     double kLoopToMovementInfoRatioCap = 3.0;
-    double kLoopHardRejectTransResidual = 0.25;
     double kLoopHardRejectRotResidual = 0.5;
     double kLoopBestScoreRotWeight = 0.5;
 
@@ -112,7 +111,7 @@ bool PoseGraph:: tryAddKeyframe(const Pose2D& pose, const LidarScan& scan, doubl
     if(!loop_closure_edges.empty() && keyframesSinceLastOptimization >= minKeyframesBetweenOptimizations)
     {
         std::cout<<"Loop Closure found, Optimizing!" <<std::endl;
-        bool success = PoseGraphOptimizer::optimize(this->nodes, this->edges);
+        bool success = PoseGraphOptimizer::optimize(this->nodes, this->edges, this->optimizerMaxError);
         if(success) 
         {
             optimized_projected_scans_world = projectNodeScansToWorldFrame(nodes);
@@ -175,11 +174,15 @@ std::vector<Edge> PoseGraph::detectLoopClosures(const Node& queryNode)
 
         ICPResult icpresult = alignPointClouds(scanToPointCloudRobotFrame(queryNode.lidar_scan),
                             scanToPointCloudRobotFrame(candidateNode.lidar_scan),
-                            initial_guess, 100, 1e-6, loopClosure_ICPCorrespondenceDistance);
+                            initial_guess,
+                            loopClosure_ICPMaxIterations,
+                            loopClosure_ICPConvergenceEpsilon,
+                            loopClosure_ICPCorrespondenceDistance);
 
-
-        //Add edge if loop closure found
-        if(icpresult.converged && icpresult.final_error <= this->loopClosure_ICPMaxError && icpresult.correspondence_count >= this->loopClosure_ICPMinCorrespondences)
+        //Add edge if loop closure found — convergence flag not required; error + correspondence
+        //count already gate quality. Requiring converged==true silently discards good results
+        //that plateau above the 1e-6 epsilon due to correspondence flipping.
+        if(icpresult.final_error <= this->loopClosure_ICPMaxError && icpresult.correspondence_count >= this->loopClosure_ICPMinCorrespondences)
         {
             std::cout<<" LC Edge found! !" <<std::endl;
 
@@ -198,6 +201,10 @@ std::vector<Edge> PoseGraph::detectLoopClosures(const Node& queryNode)
             
             double trans_res = (predicted.translation - icpresult.transform.translation).norm();
             double rot_res = wrappedAbsAngleDiff(angleOf(predicted.rotation), angleOf(icpresult.transform.rotation));
+            if (trans_res > maxDistLoopClosure) {
+                std::cout << " LC Edge rejected (translation mismatch): trans=" << trans_res << std::endl;
+                continue;
+            }
             if (rot_res > kLoopHardRejectRotResidual) {
                 std::cout << " LC Edge rejected (rotation mismatch): rot=" << rot_res << std::endl;
                 continue;
