@@ -3,7 +3,7 @@
 %% ============================================================
 %% PACKAGES
 %% ============================================================
-\usepackage[top=1in, bottom=0.5in, left=1.25in, right=1in, headheight=15pt, headsep=16pt]{geometry}
+\usepackage[top=0.75in, bottom=0.5in, left=1.25in, right=1in, headheight=15pt, headsep=16pt]{geometry}
 \usepackage{setspace}
 \usepackage{graphicx}
 \usepackage{amsmath}
@@ -238,6 +238,8 @@ and map surrounding environment
     \label{fig:loop_closure}
 \end{figure}
 
+\newpage
+
 \section{Technology Stack}
 
 \textbf{C++ --- Core Algorithm.}
@@ -382,8 +384,10 @@ The algorithm, at a high level, proceeds as follows: \newline
 
 \section{Correspondence Matching}
 
-A brute-force point-to-point method was used first: for each point in the source cloud, the closest
+The most simple method of correspondence matching was used. 
+The logic goes as follows for each point in the source cloud, the closest
 point in the target cloud is found and the pair is considered a correspondence.
+
 A key hyperparameter is \texttt{max\_distance}, the maximum distance at which two points can be
 paired.
 This is a trade-off between precision (smaller distance yields more accurate transformations) and
@@ -396,7 +400,7 @@ Given the set of correspondences, the transformation is estimated using the Sing
 
 Let $\mu_s$ and $\mu_t$ denote the centroids of the source and target point sets respectively. Let $W = \sum_i (p_i - \mu_s)(q_i - \mu_t)^\top$ be their cross-covariance. Taking their outer product tells us how each pair of axes from each group correlates. 
 
-The SVD of $W$ is given by $W = U D V^\top$. We can interpret $V$ as the directions coming \textbf{into} the transformation, $U$ as the transformed (output) direction vectors for those same inputted directions, and $D$ as the scaling for each direction. 
+The SVD of $W$ is given by $W = U D V^\top$. We can interpret $V$ as the directions coming \textbf{into} the transformation, $U$ as the transformed \textbf{output} direction vectors for those same inputted directions, and $D$ as the scaling for each direction. 
 
 From this, we get the optimal rotation:
 \begin{equation}
@@ -457,7 +461,7 @@ found is $(0,+1)$, which correctly describes the robot's forward motion.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.5\textwidth]{../images/WorkingICP.png}
+    \includegraphics[width=0.3\textwidth]{../images/WorkingICP.png}
     \caption{Initial working ICP implementation, still dealing with mentioned rotation smear}
     \label{fig:first_traj_lidar_viz}
 \end{figure}
@@ -479,7 +483,7 @@ timestep.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.72\textwidth]{../images/PoseGraphDiagram.jpg}
+    \includegraphics[width=0.6\textwidth]{../images/PoseGraphDiagram.jpg}
     \caption{Diagram of Pose Graph and it's meaning}
     \label{fig:pose_graph}
 \end{figure}
@@ -509,8 +513,8 @@ A special \textit{loop closure edge} is then added between the current node and 
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.72\textwidth]{../../Pictures/ProgressPics/LoopClosure}
-    \caption{Visualization of a detected loop closure and the resulting graph edge connecting the
+    \includegraphics[width=0.5\textwidth]{../../Pictures/ProgressPics/LoopClosure}
+    \caption{Visualization of a detected loop closures (cyan) and the resulting graph edge connecting the
              current pose to a previously visited node.}
     \label{fig:loop_closure}
 \end{figure}
@@ -554,6 +558,7 @@ so the set of candidate nodes is filtered aggressively before ICP is invoked:
 
 With a loop closure edge added, the graph forms a full loop and is ready to be optimized.
 Optimization finds the arrangement of node poses that minimizes the total error across all edges.
+This step is what "snaps" the map in place, through the reduction of acculumated drift
 
 \section{Problem Formulation}
 
@@ -577,7 +582,7 @@ The weighted squared error per edge is:
         = e_{ij}(\mathbf{x})^\top\, \Omega_{ij}\, e_{ij}(\mathbf{x})
 \end{equation}
 
-The optimization goal is:
+Thus, to minimize error, the optimization goal is:
 \begin{equation}
     \mathbf{x}^* = \arg\min_{\mathbf{x}}\;
         \sum_{(i,j) \in \mathcal{E}} e_{ij}(\mathbf{x})^\top\, \Omega_{ij}\, e_{ij}(\mathbf{x})
@@ -653,9 +658,54 @@ The success of the system is clearly visible in the trajectory results.
 ICP demonstrably uses lidar information to calculate trajectories that smooth and correct the errors
 introduced by noisy odometry.
 
+In the image below we can see the remarkable accuracy of ICP and our Pose Graph in trajectory mapping.
+We have ICP trajectory in green, Odometry trajectory in blue, ground truth trajectory in white. 
+As well as Pose Graph nodes in pink with their ground truth transformation in a dark pink. 
+We see that ICP in green actually hides the ground truth trajectory, shown in white, only visible at some spots,
+which goes to show that the estimated trajectory is virtually identical to the ground truth trajectory.
+We see a slight shift between the Pose Graph nodes and ICP, and this is a result of our Pose Graph Optimization.
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.4\textwidth]{../images/ICP_vs_Odom_FullMap.png}
+    \caption{Final Trajectories and Pose Graph in simulation environment  }
+    \label{fig:traj_icp_vs_odom}
+\end{figure}
+
 \section{Mapping Accuracy}
 
-The improvement in map quality from using ICP over raw odometry is clearly visible.
+The improvement in map quality from using ICP over raw odometry is clearly visible in the image below. 
+We see how ICP does not smear like odometry does
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{../images/Odometry_vs_ICP_Mapping_midtraj.png}
+    \caption{In progress occupancy grid from Odometry(left) and ICP(right)  }
+    \label{fig:traj_icp_vs_odom}
+\end{figure}
+
+And when we visualize the final output of our occupancy grid compared to our actual simulation environment, we see
+the remarkable success of the SLAM system.
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[t]{0.32\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{../images/GroundTruthSimEnv}
+        \caption{Simulation environment ground truth.}
+        \label{fig:simenv_ground_truth}
+    \end{subfigure}
+    \hspace{0.3in}
+    \begin{subfigure}[t]{0.32\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{../images/SimEnv_Output_OccGrid}
+        \caption{Output occupancy grid.}
+        \label{fig:simenv_occ_grid}
+    \end{subfigure}
+    \caption{Ground truth vs. SLAM occupancy grid output for the simulation environment.}
+    \label{fig:simenv_gt_vs_occgrid}
+\end{figure}
 
 \section{Pose Graph Optimization}
 
@@ -684,13 +734,32 @@ Table~\ref{tab:opt_results} presents results from several test runs in the simul
 \section{Validation on a Real-World Dataset}
 
 To validate the system beyond the simulation environment, the Intel Research Lab dataset was used ---
-a popular benchmark for 2D SLAM, recorded in a real research facility.
+a popular benchmark for 2D SLAM, recorded in a real research facility.This data came from Cyrill Stachniss TODO add reference
 
 As expected, the weaknesses of the system became apparent at this scale.
 The system was designed for a $2\times 2$~m Webots grid, while the Intel dataset covers a facility
 over 80~m long with a different lidar scanner and motion profile.
 Nonetheless, some structural features of the facility are discernible in the output, and loop closure
 and graph optimization did trigger during replay.
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[t]{0.32\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{../images/IntelResearchLab_GroundTruth.png}
+        \caption{Actual Intel Research Lab.}
+        \label{fig:intel_ground_truth}
+    \end{subfigure}
+    \hspace{0.3in}
+    \begin{subfigure}[t]{0.32\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{../images/IntelResearchLab_output.png}
+        \caption{Output of SLAM system.}
+        \label{fig:intel_occ_grid}
+    \end{subfigure}
+    \caption{Ground truth vs. SLAM output on the Intel Research Lab dataset.}
+    \label{fig:intel_gt_vs_output}
+\end{figure}
 
 Production-scale SLAM systems span entire fields of research and take teams of researchers years to
 implement and refine.
@@ -705,7 +774,7 @@ Several directions could improve the system:
     \item \textbf{Point-to-plane correspondence matching.}
           Minimizing the distance from a source point to the plane containing its corresponding target
           point is more robust to noise than point-to-point matching, particularly in planar
-          environments.
+          environments. 
 
     \item \textbf{Sensor fusion with an Extended Kalman Filter.}
           An EKF could intelligently weight contributions from odometry and lidar, especially during
@@ -736,9 +805,8 @@ Several directions could improve the system:
 \label{app:code}
 
 Source code for this project is submitted in electronic format alongside this report.
-Below is the function signature for the core ICP alignment function as a reference.
+The source code can be found at \href{}{Github Repository}
 
-% TODO: insert representative code snippet(s) here.
 \vspace{1cm}
 \noindent\textit{Code snippets to be added.}
 
