@@ -1,0 +1,143 @@
+#VRML_SIM R2025a utf8
+
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackground.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/floors/protos/RectangleArena.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/apartment_structure/protos/Wall.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/robotis/turtlebot/protos/TurtleBot3Burger.proto"
+
+WorldInfo {
+}
+Viewpoint {
+  orientation -0.5170337440875711 0.5381404716108014 0.6656432530186814 1.9298208808636472
+  position 0.02824214502198706 -2.041199458273033 8.08030845390389
+}
+TexturedBackground {
+}
+TexturedBackgroundLight {
+}
+RectangleArena {
+  floorSize 5 5
+  wallHeight 0.7
+}
+Wall {
+  translation -1.5 -1.5 0
+  name "cross_r0c0_H"
+  size 0.1 1 0.7
+}
+Wall {
+  translation -1.5 -1.5 0
+  rotation 0 0 1 1.5708
+  name "cross_r0c0_V"
+  size 0.1 1 0.7
+}
+Wall {
+  translation 0 -1.5 0
+  name "cross_r0c1_H"
+  size 0.1 1 0.7
+}
+Wall {
+  translation 0 -1.5 0
+  rotation 0 0 1 1.5708
+  name "cross_r0c1_V"
+  size 0.1 1 0.7
+}
+Wall {
+  translation 1.5 -1.5 0
+  name "cross_r0c2_H"
+  size 0.1 1 0.7
+}
+Wall {
+  translation 1.5 -1.5 0
+  rotation 0 0 1 1.5708
+  name "cross_r0c2_V"
+  size 0.1 1 0.7
+}
+Wall {
+  translation -1.5 0 0
+  name "cross_r1c0_H"
+  size 0.1 1 0.7
+}
+Wall {
+  translation -1.5 0 0
+  rotation 0 0 1 1.5708
+  name "cross_r1c0_V"
+  size 0.1 1 0.7
+}
+Wall {
+  name "cross_r1c1_H"
+  size 0.1 1 0.7
+}
+Wall {
+  rotation 0 0 1 1.5708
+  name "cross_r1c1_V"
+  size 0.1 1 0.7
+}
+Wall {
+  translation 1.5 0 0
+  name "cross_r1c2_H"
+  size 0.1 1 0.7
+}
+Wall {
+  translation 1.5 0 0
+  rotation 0 0 1 1.5708
+  name "cross_r1c2_V"
+  size 0.1 1 0.7
+}
+Wall {
+  translation -1.5 1.5 0
+  name "cross_r2c0_H"
+  size 0.1 1 0.7
+}
+Wall {
+  translation -1.5 1.5 0
+  rotation 0 0 1 1.5708
+  name "cross_r2c0_V"
+  size 0.1 1 0.7
+}
+Wall {
+  translation 0 1.5 0
+  name "cross_r2c1_H"
+  size 0.1 1 0.7
+}
+Wall {
+  translation 0 1.5 0
+  rotation 0 0 1 1.5708
+  name "cross_r2c1_V"
+  size 0.1 1 0.7
+}
+Wall {
+  translation 1.5 1.5 0
+  name "cross_r2c2_H"
+  size 0.1 1 0.7
+}
+Wall {
+  translation 1.5 1.5 0
+  rotation 0 0 1 1.5708
+  name "cross_r2c2_V"
+  size 0.1 1 0.7
+}
+TurtleBot3Burger {
+  hidden position_0_0 0.42528219303866666
+  hidden position_0_1 0.42528219293821473
+  hidden position_0_2 -3.170761994238494
+  hidden position2_0_2 0.009728536934452508
+  hidden position3_0_2 0.08060286499141195
+  hidden rotation_3 0 -1 0 1.1455138069613333
+  hidden rotation_4 -0.8404084426811407 4.910520158279162e-07 -0.5419535491811259 3.1415881048130747
+  hidden rotation_5 -0.9991760351155373 0.040219035048947055 -0.0054479418614807075 3.1703459967562093
+  translation 0.790848 -0.624388 -0.00333996
+  rotation 0.0022044919017843423 -0.002296550510390707 0.9999949330227669 1.529913869452048
+  controller "TurtleBotGoForward"
+  extensionSlot [
+    GPS {
+    }
+    Lidar {
+      translation 0 0 0.02
+      horizontalResolution 2048
+      fieldOfView 6.28318
+      numberOfLayers 1
+      maxRange 3
+    }
+  ]
+}
