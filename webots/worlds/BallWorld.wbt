@@ -1,0 +1,223 @@
+#VRML_SIM R2025a utf8
+
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackground.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/floors/protos/RectangleArena.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/robotis/turtlebot/protos/TurtleBot3Burger.proto"
+
+WorldInfo {
+}
+Viewpoint {
+  orientation -0.5773502691896258 0.5773502691896258 0.5773502691896258 2.0944
+  position 0.06978795937426785 -0.36349781492153027 11.275182096082563
+}
+TexturedBackground {
+}
+TexturedBackgroundLight {
+}
+RectangleArena {
+  floorSize 5 5
+  wallHeight 1
+}
+TurtleBot3Burger {
+  hidden position_0_0 672.3276070280615
+  hidden position_0_1 638.002699631393
+  hidden position_0_2 -4506.385831093245
+  hidden position2_0_2 0.7155479919187641
+  hidden position3_0_2 17.66118663410568
+  hidden linearVelocity_0 -2.9729952363085266e-14 -1.0306041409518328e-14 -3.731116280956717e-14
+  hidden angularVelocity_0 3.555755109534473e-13 -9.990165510587346e-13 -1.6931887370774627e-15
+  hidden rotation_3 0 1 0 4.739168467025326
+  hidden linearVelocity_3 -3.28996459334282e-14 -1.1782154155077344e-14 -1.7342672298812334e-15
+  hidden angularVelocity_3 3.712651063034302e-13 -9.92907139323053e-13 -2.362349840639856e-15
+  hidden rotation_4 0.6097185992747598 -2.3072529010959536e-06 -0.7926179594818058 3.1415920517308686
+  hidden linearVelocity_4 -3.281500488154576e-14 -1.188517919062385e-14 2.209711995356291e-16
+  hidden angularVelocity_4 3.6078381077826635e-13 -9.960048097624701e-13 -2.005067546357316e-15
+  hidden rotation_5 -0.7278474074578334 -0.11301928363818724 -0.6763614366467248 2.126613479075491
+  hidden linearVelocity_5 -2.2106045052790245e-15 -2.019632915281771e-16 -2.0027167258306385e-14
+  hidden angularVelocity_5 5.0491161642904555e-14 -5.526514981496486e-13 0.04171054704196137
+  translation 1.9465613179000043 -0.8091089640003394 -0.00020956419920765967
+  rotation -0.002204402075435531 0.012733636825932964 -0.999916494065717 -0.34285224692527283
+  controller "TurtleBotGoForward"
+  extensionSlot [
+    GPS {
+    }
+    Lidar {
+      translation 0 0 0.02
+      horizontalResolution 2048
+      fieldOfView 6.28318
+      numberOfLayers 1
+      maxRange 3
+    }
+  ]
+}
+Solid {
+  translation -1.5 -1.5 0
+  rotation 1 0 0 1.5708
+  children [
+    CadShape {
+      url [
+        "../objectfiles/circular_wall_R0.3_D360.obj"
+      ]
+    }
+  ]
+  name "circle_r0c0"
+  boundingObject Shape {
+    geometry Mesh {
+      url [
+        "../objectfiles/circular_wall_R0.3_D360.obj"
+      ]
+    }
+  }
+}
+Solid {
+  translation 0 -1.5 0
+  rotation 1 0 0 1.5708
+  children [
+    CadShape {
+      url [
+        "../objectfiles/circular_wall_R0.3_D360.obj"
+      ]
+    }
+  ]
+  name "circle_r0c1"
+  boundingObject Shape {
+    geometry Mesh {
+      url [
+        "../objectfiles/circular_wall_R0.3_D360.obj"
+      ]
+    }
+  }
+}
+Solid {
+  translation 1.5 -1.5 0
+  rotation 1 0 0 1.5708
+  children [
+    CadShape {
+      url [
+        "../objectfiles/circular_wall_R0.3_D360.obj"
+      ]
+    }
+  ]
+  name "circle_r0c2"
+  boundingObject Shape {
+    geometry Mesh {
+      url [
+        "../objectfiles/circular_wall_R0.3_D360.obj"
+      ]
+    }
+  }
+}
+Solid {
+  translation -1.5 0 0
+  rotation 1 0 0 1.5708
+  children [
+    CadShape {
+      url [
+        "../objectfiles/circular_wall_R0.3_D360.obj"
+      ]
+    }
+  ]
+  name "circle_r1c0"
+  boundingObject Shape {
+    geometry Mesh {
+      url [
+        "../objectfiles/circular_wall_R0.3_D360.obj"
+      ]
+    }
+  }
+}
+Solid {
+  rotation 1 0 0 1.5708
+  children [
+    CadShape {
+      url [
+        "../objectfiles/circular_wall_R0.3_D360.obj"
+      ]
+    }
+  ]
+  name "circle_r1c1"
+  boundingObject Shape {
+    geometry Mesh {
+      url [
+        "../objectfiles/circular_wall_R0.3_D360.obj"
+      ]
+    }
+  }
+}
+Solid {
+  translation 1.5 0 0
+  rotation 1 0 0 1.5708
+  children [
+    CadShape {
+      url [
+        "../objectfiles/circular_wall_R0.3_D360.obj"
+      ]
+    }
+  ]
+  name "circle_r1c2"
+  boundingObject Shape {
+    geometry Mesh {
+      url [
+        "../objectfiles/circular_wall_R0.3_D360.obj"
+      ]
+    }
+  }
+}
+Solid {
+  translation -1.5 1.5 0
+  rotation 1 0 0 1.5708
+  children [
+    CadShape {
+      url [
+        "../objectfiles/circular_wall_R0.3_D360.obj"
+      ]
+    }
+  ]
+  name "circle_r2c0"
+  boundingObject Shape {
+    geometry Mesh {
+      url [
+        "../objectfiles/circular_wall_R0.3_D360.obj"
+      ]
+    }
+  }
+}
+Solid {
+  translation 0 1.5 0
+  rotation 1 0 0 1.5708
+  children [
+    CadShape {
+      url [
+        "../objectfiles/circular_wall_R0.3_D360.obj"
+      ]
+    }
+  ]
+  name "circle_r2c1"
+  boundingObject Shape {
+    geometry Mesh {
+      url [
+        "../objectfiles/circular_wall_R0.3_D360.obj"
+      ]
+    }
+  }
+}
+Solid {
+  translation 1.5 1.5 0
+  rotation 1 0 0 1.5708
+  children [
+    CadShape {
+      url [
+        "../objectfiles/circular_wall_R0.3_D360.obj"
+      ]
+    }
+  ]
+  name "circle_r2c2"
+  boundingObject Shape {
+    geometry Mesh {
+      url [
+        "../objectfiles/circular_wall_R0.3_D360.obj"
+      ]
+    }
+  }
+}

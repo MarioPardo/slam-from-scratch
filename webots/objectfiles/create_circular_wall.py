@@ -1,7 +1,7 @@
 import math
 
 # --- Wall Parameters ---
-radius = 2.4       # Outer radius in meters
+radius = 2.5       # Outer radius in meters
 degrees = 360.0     # Arc span in degrees (360 = full circle)
 thickness = 0.03     # Wall thickness in meters
 height = 2.0        # Wall height in meters

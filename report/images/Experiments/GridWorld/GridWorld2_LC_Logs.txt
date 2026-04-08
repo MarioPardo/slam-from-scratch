@@ -1,0 +1,35 @@
+[OdometryProcessor] Initialized at pose: (0, 0, 0 rad)
+ LC Edge found! !
+ LC Edge rejected (translation mismatch): trans=0.366415
+ LC Edge found! !
+ LC Edge rejected (translation mismatch): trans=0.364447
+ LC Edge found! !
+ LC Edge rejected (translation mismatch): trans=0.340924
+ LC Edge found! !
+ LC Edge rejected (translation mismatch): trans=0.341033
+ LC Edge found! !
+ LC Edge rejected (translation mismatch): trans=0.341538
+ LC Edge found! !
+ LC Edge rejected (translation mismatch): trans=0.331515
+ LC Edge found! !
+ LC Edge rejected (translation mismatch): trans=0.330469
+ LC Edge found! !
+ LC Edge rejected (translation mismatch): trans=0.332824
+ LC Edge found! !
+ LC Edge rejected (translation mismatch): trans=0.331783
+ LC Edge found! !
+ LC Edge rejected (translation mismatch): trans=0.311821
+ LC Edge found! !
+ LC Edge rejected (translation mismatch): trans=0.310199
+ LC Edge found! !
+ LC Edge rejected (translation mismatch): trans=0.310966
+ LC Edge found! !
+ LC Edge rejected (translation mismatch): trans=0.30631
+ LC Edge found! !
+ LC Edge rejected (translation mismatch): trans=0.306326
+ LC Edge found! !
+Loop Closure found, Optimizing!
+Pose Graph Optimized!
+[Metrics] Optimization error removed: 0.244338 m (pre=0.259547 m, post=0.0152094 m)
+ LC Edge found! !
+ LC Edge rejected (rotation mismatch): rot=0.707061
