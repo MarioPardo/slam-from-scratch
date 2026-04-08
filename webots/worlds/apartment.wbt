@@ -1,0 +1,606 @@
+#VRML_SIM R2025a utf8
+
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackground.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/appearances/protos/Parquetry.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/apartment_structure/protos/Wall.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/apartment_structure/protos/Window.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/appearances/protos/PaintedWood.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/apartment_structure/protos/Door.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/apartment_structure/protos/DoorLever.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/lights/protos/CeilingLight.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/lights/protos/FloorLight.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/kitchen/fridge/protos/Fridge.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/cabinet/protos/Cabinet.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/cabinet/protos/CabinetHandle.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/kitchen/oven/protos/Oven.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/kitchen/components/protos/Worktop.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/kitchen/components/protos/Sink.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/kitchen/components/protos/HotPlate.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/drinks/protos/Can.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/tables/protos/Table.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/chairs/protos/Chair.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/fruits/protos/FruitBowl.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/fruits/protos/Orange.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/fruits/protos/Apple.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/tables/protos/Desk.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/chairs/protos/WoodenChair.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/school_furniture/protos/Book.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/living_room_furniture/protos/Armchair.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/living_room_furniture/protos/Sofa.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/plants/protos/BunchOfSunFlowers.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/gctronic/e-puck/protos/E-puck.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/gctronic/e-puck/protos/E-puckGroundSensors.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/plants/protos/PottedTree.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/paintings/protos/PortraitPainting.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/paintings/protos/LandscapePainting.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/television/protos/Television.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/create_wall/protos/CreateWall.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/robotis/turtlebot/protos/TurtleBot3Burger.proto"
+
+WorldInfo {
+  info [
+    "Sample of how the indoor objects can be placed"
+  ]
+  basicTimeStep 16
+}
+Viewpoint {
+  orientation -0.5773502691896258 0.5773502691896258 0.5773502691896258 2.0944
+  position -4.702992447974481 -2.976125889685074 16.081443275263165
+  exposure 0.5
+}
+TexturedBackground {
+  texture "empty_office"
+  skybox FALSE
+  skyColor [
+    0.2 0.2 0.2
+  ]
+}
+DEF FLOOR Solid {
+  translation -4.95 -3.3 0
+  children [
+    Shape {
+      appearance Parquetry {
+        textureTransform TextureTransform {
+          scale 6 9
+        }
+      }
+      geometry DEF FLOOR_PLANE Plane {
+        size 9.9 6.6
+      }
+    }
+  ]
+  name "floor"
+  boundingObject USE FLOOR_PLANE
+  locked TRUE
+}
+DEF ROOF Solid {
+  translation -4.95 -3.3 2.3999
+  rotation 1 0 0 3.14159
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.8 0.8 0.8
+        baseColorMap ImageTexture {
+          url [
+            "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/default/worlds/textures/roughcast.jpg"
+          ]
+        }
+        roughness 0.5
+        metalness 0
+        textureTransform TextureTransform {
+          scale 8 8
+        }
+      }
+      geometry USE FLOOR_PLANE
+    }
+  ]
+  name "roof"
+  boundingObject USE FLOOR_PLANE
+  locked TRUE
+}
+Wall {
+  translation 0 -0.65 0
+  name "wall 1"
+  size 0.3 1 2.4
+}
+Window {
+  translation 0 -1.65 0
+  name "window 1"
+  size 0.3 1 2.4
+  frameAppearance PaintedWood {
+    colorOverride 0.13333333333333333 0.13333333333333333 0.13333333333333333
+  }
+}
+Wall {
+  translation 0 -4.3 0
+  name "wall 2"
+  size 0.3 4.3 2.4
+}
+Wall {
+  translation -9.9 -2.3 0
+  name "wall 3"
+  size 0.3 4.3 2.4
+}
+Wall {
+  translation -9.9 -5.95 0
+  name "wall 4"
+  size 0.3 1 2.4
+}
+Door {
+  translation -9.9 -4.95 0
+  name "door 1"
+  size 0.3 1 2.4
+  canBeOpen FALSE
+  frameAppearance PaintedWood {
+    colorOverride 0.13333333333333333 0.13333333333333333 0.13333333333333333
+  }
+  doorHandle DoorLever {
+    hasStaticParent TRUE
+  }
+}
+Wall {
+  translation -3.8 0 0
+  rotation 0 0 1 1.5708
+  name "wall 5"
+  size 0.3 7.9 2.4
+}
+Wall {
+  translation -9.4 0 0
+  rotation 0 0 1 1.5708
+  name "wall 6"
+  size 0.3 1.3 2.4
+}
+Window {
+  translation -8.25 0 0
+  rotation 0 0 1 1.5708
+  name "window 2"
+  size 0.3 1 2.4
+  frameAppearance PaintedWood {
+    colorOverride 0.13333333333333333 0.13333333333333333 0.13333333333333333
+  }
+}
+Wall {
+  translation -9.4 -6.6 0
+  rotation 0 0 1 1.5708
+  name "wall 7"
+  size 0.3 1.3 2.4
+}
+Door {
+  translation -8.25 -6.6 0
+  rotation 0 0 1 1.5708
+  name "door 2"
+  size 0.3 1 2.4
+  canBeOpen FALSE
+  frameAppearance PaintedWood {
+    colorOverride 0.13333333333333333 0.13333333333333333 0.13333333333333333
+  }
+  doorHandle DoorLever {
+    rotation -0.0012868889344011497 0.9999991719580925 0 0
+    hasStaticParent TRUE
+  }
+}
+Wall {
+  translation -3.8 -6.6 0
+  rotation 0 0 1 1.5708
+  name "wall 8"
+  size 0.3 7.9 2.4
+}
+Wall {
+  translation -3.3 -1.8 0
+  name "wall 9"
+  size 0.3 3.3 2.4
+}
+CeilingLight {
+  translation -1.3341 -2.4706 2.4
+  name "ceiling light 1"
+  pointLightIntensity 5
+}
+CeilingLight {
+  translation -7.1011 -2.4432 2.4
+  name "ceiling light 2"
+  pointLightIntensity 8
+}
+FloorLight {
+  translation -4.0043 -0.7456 0
+  pointLightIntensity 2
+}
+Fridge {
+  hidden position_0_0 -2.19743793632432e-05
+  hidden position_0_1 2.197437945815066e-05
+  hidden rotation_1 0 0 -1 2.1974378191611376e-05
+  hidden rotation_2 0 0 1 2.1974378191611376e-05
+  translation -0.52 -0.5 0
+  rotation 0 0 1 -1.5707953071795862
+  mainColor 0.6666666666666666 0 0
+}
+Cabinet {
+  hidden position_6_0 1.1945140208728894e-40
+  hidden position_14_0 1.1945140722821468e-40
+  hidden position_22_0 1.1945140722821468e-40
+  translation -1.31 -0.15 0
+  rotation 0 0 -1 1.5708
+  name "cabinet 1"
+  depth 0.68
+  outerThickness 0.02
+  rowsHeights [
+    0.22, 0.21, 0.21
+  ]
+  columnsWidths [
+    0.42, 0.42
+  ]
+  layout [
+    "Drawer (1, 1, 1, 1, 1.5)"
+    "Drawer (1, 2, 1, 1, 1.5)"
+    "Drawer (1, 3, 1, 1, 1.5)"
+    "Shelf  (1, 2, 2, 0)"
+    "Shelf  (1, 3, 2, 0)"
+    "Shelf (1, 1, 0, 3)"
+  ]
+  handle CabinetHandle {
+    handleLength 0.09
+    handleRadius 0.008
+  }
+  primaryAppearance PaintedWood {
+    colorOverride 0.13333333333333333 0.13333333333333333 0.13333333333333333
+  }
+  secondaryAppearance PaintedWood {
+    colorOverride 0.13333333333333333 0.13333333333333333 0.13333333333333333
+  }
+}
+Cabinet {
+  hidden position_6_0 3.3624388902190898e-06
+  hidden translation_7 -7.025816061099552e-07 -1.1811107647474728e-12 0
+  hidden rotation_7 0 0 1 3.362383545100939e-06
+  hidden position_10_0 -3.3631885818508067e-06
+  hidden translation_11 -7.027382541764013e-07 1.1817213874110166e-12 0
+  hidden rotation_11 0 0 -1 3.3631759060274798e-06
+  translation -1.31 -0.15 1.12
+  rotation 0 0 1 -1.5707953071795862
+  name "cabinet 2"
+  outerThickness 0.02
+  rowsHeights [
+    0.22, 0.21, 0.21
+  ]
+  columnsWidths [
+    0.42, 0.42
+  ]
+  layout [
+    "RightSidedDoor (1, 1, 1, 3, 1.5)"
+    "LeftSidedDoor (2, 1, 1, 3, 1.5)"
+    "Shelf  (1, 2, 2, 0)"
+    "Shelf  (1, 3, 2, 0)"
+    "Shelf (1, 1, 0, 3)"
+  ]
+  handle CabinetHandle {
+    translation 0 -0.2 0
+    handleLength 0.09
+    handleRadius 0.008
+  }
+  primaryAppearance PaintedWood {
+    colorOverride 0.13333333333333333 0.13333333333333333 0.13333333333333333
+  }
+  secondaryAppearance PaintedWood {
+    colorOverride 0.13333333333333333 0.13333333333333333 0.13333333333333333
+  }
+}
+Cabinet {
+  hidden position_6_0 -3.362442056091037e-06
+  hidden translation_7 -7.025822676188986e-07 1.1811107647474728e-12 0
+  hidden rotation_7 0 0 -1 3.362383545100939e-06
+  translation -2.19 -0.15 0
+  rotation 0 0 1 -1.5707953071795862
+  name "cabinet 3"
+  depth 0.68
+  outerThickness 0.02
+  rowsHeights [
+    0.22, 0.21, 0.21
+  ]
+  columnsWidths [
+    0.42, 0.42
+  ]
+  layout [
+    "LeftSidedDoor (2, 1, 1, 3, 1.5)"
+    "Shelf  (1, 2, 2, 0)"
+    "Shelf  (1, 3, 2, 0)"
+    "Shelf (1, 1, 0, 3)"
+  ]
+  handle CabinetHandle {
+    translation 0 0.2 0
+    handleLength 0.09
+    handleRadius 0.008
+  }
+  primaryAppearance PaintedWood {
+    colorOverride 0.13333333333333333 0.13333333333333333 0.13333333333333333
+  }
+  secondaryAppearance PaintedWood {
+    colorOverride 0.13333333333333333 0.13333333333333333 0.13333333333333333
+  }
+}
+Oven {
+  translation -2.85 -0.58 0
+  rotation 0 0 1 -1.5707953071795862
+}
+Worktop {
+  translation -1.31 -0.5 0.71
+  rotation 1 0 0 1.5708
+  name "worktop 1"
+  size 0.88 0.06 0.7
+}
+Worktop {
+  translation -1.97 -0.807 0.71
+  rotation 1 0 0 1.5708
+  name "worktop 2"
+  size 0.44 0.06 0.086
+}
+Worktop {
+  translation -1.97 -0.272 0.71
+  rotation 1 0 0 1.5708
+  name "worktop 3"
+  size 0.44 0.06 0.244
+}
+Worktop {
+  translation -2.63 -0.5 0.71
+  rotation 1 0 0 1.5708
+  name "worktop 4"
+  size 0.88 0.06 0.7
+}
+Sink {
+  translation -1.97 -0.48 0.715
+  rotation 0 0 1 -1.5707953071795862
+}
+HotPlate {
+  translation -2.85 -0.5 0.71
+  rotation 0 0 1 -1.5707953071795862
+}
+Can {
+  translation -0.5663 -0.6328 0.8410656643865422
+  rotation -0.43992558540481674 -0.8874360946959238 -0.13755964937828488 1.1178865940697843e-16
+  name "can 1"
+}
+Table {
+  translation -1.0743 -4.9444 0
+  rotation 0 0 1 1.5708
+  name "table(1)"
+}
+Chair {
+  translation -1.4606 -5.4128 -0.002244528026674908
+  rotation -1.5865404762152747e-18 -4.767827708806875e-18 1 1.5708000000000002
+  name "chair 1"
+  color 0.13333333333333333 0.13333333333333333 0.13333333333333333
+  physics Physics {
+    centerOfMass [
+      0 0 0.45
+    ]
+  }
+}
+Chair {
+  translation -0.6425 -4.4443 -0.0022445280266750745
+  rotation -6.470747973376686e-19 1.6622750002716603e-17 -0.9999999999999999 1.5707953071795862
+  name "chair 2"
+  color 0.13333333333333333 0.13333333333333333 0.13333333333333333
+  physics Physics {
+    centerOfMass [
+      0 0 0.45
+    ]
+  }
+}
+Chair {
+  translation -1.3943 -4.4875 -0.0022445280266750745
+  rotation 6.28903995621952e-18 1.0239899299685231e-17 -0.9999999999999999 1.5707953071795862
+  name "chair 3"
+  color 0.13333333333333333 0.13333333333333333 0.13333333333333333
+  physics Physics {
+    centerOfMass [
+      0 0 0.45
+    ]
+  }
+}
+Chair {
+  translation -0.7069 -5.3809 -0.002244528026674908
+  rotation -8.325463017862296e-19 2.2795835062765546e-18 1 1.5708000000000002
+  name "chair 4"
+  color 0.13333333333333333 0.13333333333333333 0.13333333333333333
+  physics Physics {
+    centerOfMass [
+      0 0 0.45
+    ]
+  }
+}
+FruitBowl {
+  hidden linearVelocity_0 -1.0547357191596714e-07 -1.1370608909129802e-07 3.2791331250336955e-10
+  hidden angularVelocity_0 2.0293629496189644e-06 -1.882209906664677e-06 -3.4033354592061617e-10
+  translation -0.715500019516965 -4.880599991938175 0.7397841800403799
+  rotation 0.00011153486193866696 -6.525271165510339e-06 0.9999999937586977 0.944615003192172
+  color 0.6666666666666666 0 0
+}
+Orange {
+  hidden linearVelocity_0 -1.0020073227288001e-07 -1.2513248736419794e-07 -1.7401249195359016e-07
+  hidden angularVelocity_0 2.1150842744180758e-06 -1.624632235425165e-06 -1.664573829226584e-07
+  translation -0.7836752139265316 -4.901956584819026 0.7996672555833171
+  rotation 0.9710685718398511 -0.23848951444904992 0.012189351203749641 0.6690456939339634
+}
+Orange {
+  hidden linearVelocity_0 -0.0006618187546903326 -0.0007222584201209084 3.505722233160569e-08
+  hidden angularVelocity_0 0.014479677772204526 -0.01326904999683417 0.01970634439485711
+  translation -0.7178039936611008 -4.812012768043122 0.7996729311772366
+  rotation 0.338710638356716 -0.3063785781280877 0.8896107409019954 1.0169095826710213
+  name "orange 2"
+}
+Apple {
+  hidden linearVelocity_0 -1.2032560608305366e-07 -1.09519792727437e-07 -1.428836947070522e-07
+  hidden angularVelocity_0 1.806871100420965e-06 -1.9936058929670114e-06 1.7620577809638742e-07
+  translation -0.7026481241243135 -4.960562117345306 0.7996585239501995
+  rotation -0.09377214885455519 0.08816754614441141 0.9916820397214383 1.7488159036729405
+}
+Apple {
+  hidden linearVelocity_0 1.9123954221729106e-06 2.6864895959519135e-06 2.5566470341684303e-07
+  hidden angularVelocity_0 -5.420297397859005e-05 3.8776590015261904e-05 -5.024758845836409e-05
+  translation -0.6440427630051135 -4.879535191687144 0.7996636339380522
+  rotation -0.5571505889947387 -0.49349266847251416 0.6678684057108053 0.5078239285138966
+  name "apple 2"
+}
+Desk {
+  translation -5.125 -0.5126 0
+  rotation 0 0 1 1.5708
+}
+WoodenChair {
+  translation -5.14999999992856 -0.9000000307053434 -0.0008272159089273146
+  rotation -3.0709760824263407e-05 3.056719293982527e-05 0.9999999990612787 1.5708000009467944
+  physics Physics {
+    centerOfMass [
+      0 0 0.45
+    ]
+  }
+}
+Book {
+  translation -4.69759937683887 -0.5922002817005871 0.7198822799924055
+  rotation 0.6215345943979392 0.47688671634047125 0.6215092981964084 -2.2515380803878298
+  name "book(1)"
+}
+Table {
+  translation -7.163 -2.5554 0.0199
+  size 0.8 1.2 0.53
+}
+Armchair {
+  translation -5.8922 -3.8267 0
+  rotation 0 0 1 2.30591
+  color 0.13333333333333333 0.13333333333333333 0.13333333333333333
+}
+Sofa {
+  translation -7.0533 -0.8042 0
+  rotation 2.3464099999870814e-06 -2.3464099999870814e-06 0.9999999999944944 -1.5707953071795862
+  color 0.13333333333333333 0.13333333333333333 0.13333333333333333
+}
+Sofa {
+  translation -8.9573 -2.4973 0
+  name "sofa 2"
+  color 0.13333333333333333 0.13333333333333333 0.13333333333333333
+}
+BunchOfSunFlowers {
+  translation -9.0598 -3.9144 0
+}
+Book {
+  translation -4.69169776553867 -0.5961009992996008 0.7398522018620463
+  rotation 0.6786317432294479 0.2810584278250835 0.6785758006515213 -2.5935077960335104
+}
+Can {
+  translation -7.226322463373514 -2.741912524898235 0.6109774700666545
+  rotation 0.00030730619720807715 -0.0001351512179094064 -0.9999999436485233 1.2949102324292483
+  name "can 2"
+}
+Can {
+  translation -7.35 -2.7233 0.6109656650333487
+  rotation -0.32152905829929695 0.7038879384390011 -0.6333725876522129 9.757318254586077e-17
+  name "can 3"
+}
+Can {
+  translation -7.2069 -2.8744 0.6109656650333487
+  rotation -1.9150981120683948e-17 -1.6358490169931924e-16 1 1.32183
+  name "can 4"
+}
+E-puck {
+  hidden position_0_0 28.192272943708637
+  hidden position_0_1 38.09572961851741
+  hidden linearVelocity_0 0.002389349892618358 0.05606927845031937 -2.3035510222188092e-07
+  hidden angularVelocity_0 0.011229639508402542 -0.00043723361647833223 0.09820316461477066
+  hidden rotation_1 0 0.9999999999999999 0 3.0595317149902916
+  hidden rotation_2 0 0.9999999999999999 0 0.3966177754398908
+  translation -6.787235145473138 -2.8837984617997683 0.5498679721890848
+  rotation -0.0003050764169528926 0.0003792600519810338 0.9999998815450895 1.529032828656204
+  groundSensorsSlot [
+    E-puckGroundSensors {
+    }
+  ]
+}
+Cabinet {
+  translation -3.4681 -6.4326 0
+  rotation 0 0 -1 -1.5707953071795862
+  name "cabinet 4"
+  depth 0.4
+  outerThickness 0.02
+  rowsHeights [
+    0.52, 0.44, 0.44, 0.44, 0.44
+  ]
+  columnsWidths [
+    0.96
+  ]
+  layout [
+    "Shelf  (1, 2, 1, 0)"
+    "Shelf  (1, 3, 1, 0)"
+    "Shelf  (1, 4, 1, 0)"
+    "Shelf  (1, 5, 1, 0)"
+  ]
+  primaryAppearance PaintedWood {
+    colorOverride 0.13333333333333333 0.13333333333333333 0.13333333333333333
+  }
+  secondaryAppearance PaintedWood {
+    colorOverride 0.13333333333333333 0.13333333333333333 0.13333333333333333
+  }
+}
+Book {
+  translation -3.0223178536418334 -6.1509000010808625 1.5292446000967772
+  rotation 0.12394526734832671 7.060923591872166e-08 0.9922890560224611 -3.1415909031869913
+  name "book 2"
+}
+Book {
+  translation -3.0447101506680925 -6.157600004543027 1.5289667636657829
+  rotation 0.13228742765063115 -1.0377487990950871e-07 0.991211398484485 -3.1415896991798133
+  name "book 3"
+}
+Book {
+  translation -3.06681718385173 -6.164199986784806 1.5287671726922918
+  rotation 0.13881202264670123 2.0527795588756643e-07 0.9903187478628735 3.141590820994328
+  name "book 4"
+}
+Book {
+  translation -3.0912055034950248 -6.158199956267025 1.528160525843211
+  rotation 0.1552046568313816 4.6553694829983814e-07 0.9878823383873389 3.141588856381992
+  name "book 5"
+}
+Book {
+  translation -3.11390221571618 -6.162299940777126 1.5277903163809283
+  rotation 0.162631391786824 3.2396012542052785e-07 0.9866868958313857 3.141590438390098
+  name "book 6"
+}
+PottedTree {
+  translation -4.517 -6.0805 0
+}
+PortraitPainting {
+  translation -9.73 -2.47 1.5999
+}
+LandscapePainting {
+  translation -0.1845 -4.9252 1.6286
+  rotation 0 0 1 3.14159
+}
+Television {
+  translation -3.4329 -2.1547 1.5596
+  rotation 0 0 1 3.14159
+}
+CreateWall {
+  translation -3.2349968504035362 -3.5311999999999526 -3.924001438586344e-05
+  rotation -1.836887126413354e-06 1.8368852536855522e-06 -0.9999999999966258 1.5707953072293537
+}
+TurtleBot3Burger {
+  hidden position_0_0 844.1958568198229
+  hidden position_0_1 820.9210464455517
+  hidden position_0_2 -5675.341656651027
+  hidden position2_0_2 1.0718708361815477
+  hidden position3_0_2 -175.12971847794708
+  hidden rotation_3 0 0.9999999999999999 0 0.6782296577583052
+  hidden rotation_4 -0.29811673066324396 2.060966200534722e-06 0.9545294206541837 3.1415948135831377
+  hidden rotation_5 0.6048525856560025 -0.7813432701776314 0.1538052137392388 4.661428144947792
+  translation -4.01928 -3.43032 -0.00569544
+  rotation -0.0011004035175513354 -0.0059909309368840905 -0.9999814487572297 0.3633389390852469
+  controller "TurtleBotGoForward"
+  extensionSlot [
+    GPS {
+    }
+    Lidar {
+      translation 0 0 0.02
+      horizontalResolution 2048
+      fieldOfView 6.28318
+      numberOfLayers 1
+      maxRange 3
+    }
+  ]
+}
