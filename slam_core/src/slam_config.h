@@ -12,10 +12,10 @@ struct SLAMConfig {
 
     // ---- Occupancy grid ----
     double grid_resolution = 0.01; // metres per cell
-    int    grid_width      = 500;  // cells
-    int    grid_height     = 500;  
-    double grid_origin_x   = -2.5; // world X of cell (0,0), metres
-    double grid_origin_y   = -2.5; 
+    int    grid_width      = 1000; // cells
+    int    grid_height     = 1000;
+    double grid_origin_x   = -5.0; // world X of cell (0,0), metres
+    double grid_origin_y   = -5.0;
 
     // ---- LiDAR sensor ----
     int    lidar_num_beams  = 2048;             

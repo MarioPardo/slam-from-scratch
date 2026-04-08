@@ -1,0 +1,90 @@
+#VRML_SIM R2025a utf8
+
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackground.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/floors/protos/RectangleArena.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/robotis/turtlebot/protos/TurtleBot3Burger.proto"
+
+WorldInfo {
+}
+Viewpoint {
+  orientation 0.5773502691896258 -0.5773502691896258 -0.5773502691896258 4.188785307179587
+  position 0.007851219844018369 1.531290104095362e-05 11.254198673078996
+}
+TexturedBackground {
+}
+TexturedBackgroundLight {
+}
+RectangleArena {
+  floorSize 5 5
+  wallHeight 0.8
+}
+Solid {
+  translation -0.0181096 -0.0676178 1.64
+  rotation -0.9831055672011413 0.1294309430197872 -0.1294259430219884 1.58783
+  children [
+    CadShape {
+      url [
+        "../objectfiles/circular_wall_R1.9_D360.obj"
+      ]
+    }
+  ]
+  boundingObject Shape {
+    geometry Mesh {
+      url [
+        "../objectfiles/circular_wall_R1.9_D360.obj"
+      ]
+    }
+  }
+}
+Solid {
+  translation 7.69522e-06 -1.67213e-06 1.64
+  rotation 0.9999999999944944 -2.3464099999870814e-06 -2.3464099999870814e-06 -1.5707953071795862
+  children [
+    CadShape {
+      url [
+        "../objectfiles/circular_wall_R2.4_D360.obj"
+      ]
+    }
+  ]
+  name "solid(1)"
+  boundingObject Shape {
+    geometry Mesh {
+      url [
+        "../objectfiles/circular_wall_R2.4_D360.obj"
+      ]
+    }
+  }
+}
+TurtleBot3Burger {
+  hidden position_0_0 425.4206559386156
+  hidden position_0_1 459.9492838978927
+  hidden position_0_2 2279.374521777874
+  hidden position2_0_2 8.202850417042015
+  hidden position3_0_2 2954.86809567183
+  hidden linearVelocity_0 -2.0636391004064547e-14 -6.937376813926613e-15 -1.1702763242853172e-14
+  hidden angularVelocity_0 2.84088519231889e-13 -6.766206845912033e-13 -3.8736110505553e-15
+  hidden rotation_3 0 1 0 3.3078590802182823
+  hidden linearVelocity_3 -2.1565678288428246e-12 5.044469769533565e-12 1.7016211706726516e-14
+  hidden angularVelocity_3 4.452737418143959e-13 -6.126059622133857e-13 -5.468047397476197e-15
+  hidden rotation_4 0.989211608996304 -1.3865227627839205e-06 0.1464936606990924 3.1415963907165607
+  hidden linearVelocity_4 2.111473226766422e-12 -5.063168543984914e-12 1.6766870455831075e-14
+  hidden angularVelocity_4 1.1491258690062274e-13 -7.468066833853036e-13 -5.27330626558953e-15
+  hidden rotation_5 0.5687914426257481 -0.7221388671321081 -0.39368991779429124 2.296831340810448
+  hidden linearVelocity_5 -2.597542933794141e-15 -2.120657830724858e-15 -2.1457355394964643e-13
+  hidden angularVelocity_5 5.301645887464206e-13 -6.493858942390541e-13 -1.6607829090987676e-29
+  translation -0.3912753475055998 2.1000411283218834 -0.0002095641992430064
+  rotation 0.0022043218673828786 -0.010887798920935974 0.9999382964962198 0.39955066171726855
+  controller "TurtleBotGoForward"
+  extensionSlot [
+    GPS {
+    }
+    Lidar {
+      translation 0 0 0.02
+      horizontalResolution 2048
+      fieldOfView 6.28318
+      numberOfLayers 1
+      maxRange 3
+    }
+  ]
+}

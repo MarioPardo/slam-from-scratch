@@ -1,0 +1,138 @@
+#VRML_SIM R2025a utf8
+
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackground.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/floors/protos/RectangleArena.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/robotis/turtlebot/protos/TurtleBot3Burger.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/apartment_structure/protos/Wall.proto"
+
+WorldInfo {
+}
+Viewpoint {
+  orientation 0.5773502691896258 -0.5773502691896258 -0.5773502691896258 4.188785307179587
+  position 0.007851219844018372 1.5312901040771212e-05 11.254198673078996
+}
+TexturedBackground {
+}
+TexturedBackgroundLight {
+}
+RectangleArena {
+  floorSize 5 5
+  wallHeight 0.8
+}
+Wall {
+  translation -7.02017e-06 2.46 0
+  rotation 0 0 1 -0.785395307179586
+  size 0.2 0.2 2
+}
+Wall {
+  translation -0.0848459 -2.43 0
+  rotation 0 0 1 -0.785395307179586
+  name "wall(1)"
+  size 0.2 0.2 2
+}
+Wall {
+  translation 2.4833 -0.0796337 0
+  rotation 0 0 1 1.0472
+  name "wall(2)"
+  size 0.2 0.2 2
+}
+Wall {
+  translation -2.45 -0.0200066 0
+  rotation 0 0 1 -0.785395307179586
+  name "wall(3)"
+  size 0.2 0.2 2
+}
+Wall {
+  translation -1.32 1.21999 0
+  rotation 0 0 1 2.85372e-06
+  name "wall(4)"
+  size 0.2 0.2 2
+}
+Wall {
+  translation -1.32 -1.31001 0
+  rotation 0 0 1 2.85372e-06
+  name "wall(6)"
+  size 0.2 0.2 2
+}
+Wall {
+  translation 1.29 -1.31001 0
+  rotation 0 0 1 2.85372e-06
+  name "wall(7)"
+  size 0.2 0.2 2
+}
+Wall {
+  translation 1.24 1.28999 0
+  rotation 0 0 1 2.85372e-06
+  name "wall(5)"
+  size 0.2 0.2 2
+}
+Solid {
+  translation -0.0181096 -0.0676178 1.64
+  rotation -0.9831055672011413 0.1294309430197872 -0.1294259430219884 1.58783
+  children [
+    CadShape {
+      url [
+        "../objectfiles/circular_wall_R1.9_D360.obj"
+      ]
+    }
+  ]
+  boundingObject Shape {
+    geometry Mesh {
+      url [
+        "../objectfiles/circular_wall_R1.9_D360.obj"
+      ]
+    }
+  }
+}
+Solid {
+  translation 7.69522e-06 -1.67213e-06 1.64
+  rotation 0.9999999999944944 -2.3464099999870814e-06 -2.3464099999870814e-06 -1.5707953071795862
+  children [
+    CadShape {
+      url [
+        "../objectfiles/circular_wall_R2.4_D360.obj"
+      ]
+    }
+  ]
+  name "solid(1)"
+  boundingObject Shape {
+    geometry Mesh {
+      url [
+        "../objectfiles/circular_wall_R2.4_D360.obj"
+      ]
+    }
+  }
+}
+TurtleBot3Burger {
+  hidden position_0_0 424.9953748086489
+  hidden position_0_1 459.5240027680156
+  hidden position_0_2 2282.355766344333
+  hidden position2_0_2 8.009461605298188
+  hidden position3_0_2 2952.5661796642657
+  hidden linearVelocity_0 3.605880033072092e-16 4.152463314228024e-15 -6.883978378148925e-17
+  hidden angularVelocity_0 -7.515569494771396e-16 -5.298348526588775e-16 7.243995672671533e-16
+  hidden rotation_3 0 1 0 2.8825779502515623
+  hidden linearVelocity_3 6.651497047845218e-17 5.378034590013875e-16 4.374935543740248e-16
+  hidden angularVelocity_3 3.571956981692583e-15 3.634021579372811e-15 7.969303421533566e-16
+  hidden rotation_4 0.9360153743660353 -9.60949346758911e-07 0.351959115451621 3.1415968917737644
+  hidden linearVelocity_4 2.8138333607930217e-16 -5.072496755167013e-16 -3.251667470741222e-16
+  hidden angularVelocity_4 -2.8171768170852334e-15 -4.639479084693108e-16 1.7171327476348399e-15
+  hidden rotation_5 0.8032507424490535 -0.40050604748052254 -0.4408890457774764 2.6443980506650258
+  hidden linearVelocity_5 2.531481553852268e-17 4.073420863286631e-15 -2.0251846459709563e-15
+  hidden angularVelocity_5 -1.0183578798287538e-12 6.32781389169844e-15 1.614518962305775
+  translation -0.40406916421121414 2.094561512489894 -0.00020956419927234404
+  rotation -0.002204315057737993 0.010887808196867218 -0.9999382964102308 -0.3995503795502806
+  controller "TurtleBotGoForward"
+  extensionSlot [
+    GPS {
+    }
+    Lidar {
+      translation 0 0 0.02
+      horizontalResolution 2048
+      fieldOfView 6.28318
+      numberOfLayers 1
+      maxRange 3
+    }
+  ]
+}

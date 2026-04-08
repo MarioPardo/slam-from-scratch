@@ -424,15 +424,22 @@ def save_trajectory_image(icp_trajectory, gt_trajectory, filename="slam_output.p
     print(f"[save] Trajectory image written to: {filename}")
 
 
-def save_localization_error_bars(
+def save_localization_error_linegraph(
     icp_trajectory,
     gt_trajectory,
     filename="slam_error_over_time.png",
-    map_width_m=2.5,
-    map_height_m=2.5,
-    sample_every_frames=5,
-    rotation_samples=None,
+    max_dist_m=None,
+    sample_every_frames=1,
 ):
+    """Render XY localization error as a line graph normalised by max_dist_m.
+
+    Parameters
+    ----------
+    max_dist_m : float or None
+        Denominator for normalisation.  Pass the map diagonal for square/rect
+        environments, or the diameter for circular ones.  Defaults to
+        hypot(2.5, 2.5) — the diagonal of the 2.5 x 2.5 m default world.
+    """
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
@@ -442,41 +449,130 @@ def save_localization_error_bars(
 
     paired_count = min(len(icp_trajectory), len(gt_trajectory))
     if paired_count == 0:
-        print("[save] No paired GT/ICP samples available for error bar graph")
+        print("[save] No paired GT/ICP samples available for error line graph")
         return
 
-    diagonal_m = math.hypot(map_width_m, map_height_m)
-    if diagonal_m <= 1e-9:
-        print("[save] Invalid map dimensions for error normalization")
+    if max_dist_m is None:
+        max_dist_m = math.hypot(2.5, 2.5)  # default: 2.5 x 2.5 m map diagonal
+    if max_dist_m <= 1e-9:
+        print("[save] max_dist_m must be positive")
         return
 
     frame_indices = []
     normalized_errors = []
-    rotation_bucket = []
 
     for i in range(0, paired_count, sample_every_frames):
         ix, iy = icp_trajectory[i]
         gx, gy = gt_trajectory[i]
         err_m = math.hypot(ix - gx, iy - gy)
         frame_indices.append(i)
-        normalized_errors.append(err_m / diagonal_m)
-
-        if rotation_samples is not None and i < len(rotation_samples):
-            rotation_bucket.append(rotation_samples[i])
-        else:
-            rotation_bucket.append(None)
+        normalized_errors.append(err_m / max_dist_m)
 
     fig, ax = plt.subplots(figsize=(12, 5), facecolor="white")
     ax.set_facecolor("white")
-    ax.bar(frame_indices, normalized_errors, width=max(1, sample_every_frames * 0.8), color="steelblue")
+    ax.plot(frame_indices, normalized_errors, color="steelblue", linewidth=1.2)
+    ax.fill_between(frame_indices, normalized_errors, alpha=0.15, color="steelblue")
     ax.set_xlabel("Frame Index")
-    ax.set_ylabel("Normalized XY Error (error / map diagonal)")
-    ax.set_title("Localization Error Over Time (sampled every 5 frames)")
+    ax.set_ylabel(f"Normalised XY Error  (error / {max_dist_m:.3f} m)")
+    ax.set_title("Localisation Error Over Time")
+    ax.set_ylim(bottom=0)
     ax.grid(True, axis="y", color="#cccccc", linewidth=0.5)
     fig.tight_layout()
     fig.savefig(filename, dpi=150)
     plt.close(fig)
-    print(f"[save] Error bar graph written to: {filename}")
+    print(f"[save] Error line graph written to: {filename}")
+
+
+def save_ate_summary(
+    icp_trajectory,
+    gt_trajectory,
+    filename="slam_ate_summary.png",
+):
+    """Compute and save ATE (Absolute Trajectory Error).
+
+    Produces a two-row figure:
+      - Top:    per-frame ATE in metres over time (line graph)
+      - Bottom: aggregate stats bar chart (left) + table (right)
+    """
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    paired_count = min(len(icp_trajectory), len(gt_trajectory))
+    if paired_count == 0:
+        print("[save] No paired GT/ICP samples available for ATE summary")
+        return
+
+    errors = [
+        math.hypot(icp_trajectory[i][0] - gt_trajectory[i][0],
+                   icp_trajectory[i][1] - gt_trajectory[i][1])
+        for i in range(paired_count)
+    ]
+
+    rmse   = math.sqrt(sum(e * e for e in errors) / len(errors))
+    mean   = sum(errors) / len(errors)
+    sorted_e = sorted(errors)
+    n = len(sorted_e)
+    median = (sorted_e[n // 2] if n % 2 else
+              (sorted_e[n // 2 - 1] + sorted_e[n // 2]) / 2)
+    std    = math.sqrt(sum((e - mean) ** 2 for e in errors) / len(errors))
+    maximum = max(errors)
+    final   = errors[-1]
+
+    labels = ["RMSE", "Mean", "Median", "Std", "Max", "Final"]
+    values = [rmse, mean, median, std, maximum, final]
+
+    fig = plt.figure(figsize=(12, 8), facecolor="white")
+    gs = fig.add_gridspec(2, 2, height_ratios=[1, 1], hspace=0.4, wspace=0.3)
+
+    ax_line  = fig.add_subplot(gs[0, :])   # top row: full width
+    ax_bar   = fig.add_subplot(gs[1, 0])   # bottom left
+    ax_table = fig.add_subplot(gs[1, 1])   # bottom right
+
+    # ── Top: ATE over time ──────────────────────────────────────────────
+    ax_line.set_facecolor("white")
+    ax_line.plot(range(paired_count), errors, color="steelblue", linewidth=1.2)
+    ax_line.fill_between(range(paired_count), errors, alpha=0.15, color="steelblue")
+    ax_line.axhline(rmse,   color="crimson",     linewidth=1.0, linestyle="--", label=f"RMSE {rmse:.3f} m")
+    ax_line.axhline(mean,   color="darkorange",  linewidth=1.0, linestyle=":",  label=f"Mean {mean:.3f} m")
+    ax_line.axhline(maximum, color="grey",       linewidth=0.8, linestyle="-.", label=f"Max {maximum:.3f} m")
+    ax_line.set_xlabel("Frame Index")
+    ax_line.set_ylabel("ATE (m)")
+    ax_line.set_title("ATE Over Time")
+    ax_line.set_ylim(bottom=0)
+    ax_line.legend(fontsize=8, loc="upper left")
+    ax_line.grid(True, axis="y", color="#cccccc", linewidth=0.5)
+
+    # ── Bottom left: aggregate bar chart ────────────────────────────────
+    ax_bar.set_facecolor("white")
+    bars = ax_bar.bar(labels, values, color="steelblue", width=0.5)
+    ax_bar.set_ylabel("Error (m)")
+    ax_bar.set_title("ATE Summary Statistics")
+    ax_bar.set_ylim(bottom=0)
+    ax_bar.grid(True, axis="y", color="#cccccc", linewidth=0.5)
+    for bar, val in zip(bars, values):
+        ax_bar.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + maximum * 0.01,
+                    f"{val:.4f}", ha="center", va="bottom", fontsize=8)
+
+    # ── Bottom right: stats table ────────────────────────────────────────
+    ax_table.axis("off")
+    tbl = ax_table.table(
+        cellText=[[f"{v:.4f} m"] for v in values],
+        rowLabels=labels,
+        colLabels=["Value"],
+        loc="center",
+        cellLoc="center",
+    )
+    tbl.auto_set_font_size(False)
+    tbl.set_fontsize(10)
+    tbl.scale(1.2, 1.6)
+
+    fig.savefig(filename, dpi=150)
+    plt.close(fig)
+
+    print(f"[save] ATE summary written to: {filename}")
+    print(f"       RMSE={rmse:.4f} m  mean={mean:.4f} m  median={median:.4f} m  "
+          f"std={std:.4f} m  max={maximum:.4f} m  final={final:.4f} m")
 
 
 # ─────────────────────────────────────────────
@@ -487,6 +583,11 @@ def main():
     parser.add_argument("--save", metavar="FILE", nargs="?",
                         const="slam_output.png", default=None,
                         help="On exit, save a trajectory PNG (default: slam_output.png)")
+    parser.add_argument("--maxdist", metavar="METRES", type=float, default=None,
+                        help="Max distance used to normalise the error graph. "
+                             "Use the map diagonal for rectangular worlds, or the "
+                             "diameter for circular ones. "
+                             "Default: hypot(2.5, 2.5) ≈ 3.54 m.")
     args = parser.parse_args()
 
     print("=== SLAM Pygame Viewer (optimized) ===")
@@ -556,15 +657,19 @@ def main():
             filename=args.save,
         )
         base, ext = os.path.splitext(args.save)
-        error_file = f"{base}_error_bars{ext or '.png'}"
-        save_localization_error_bars(
+        error_file = f"{base}_error_line{ext or '.png'}"
+        save_localization_error_linegraph(
             viewer.icp_trajectory,
             viewer.gt_trajectory,
             filename=error_file,
-            map_width_m=5.0,
-            map_height_m=5.0,
-            sample_every_frames=5,
-            rotation_samples=None,
+            max_dist_m=args.maxdist,
+            sample_every_frames=1,
+        )
+        ate_file = f"{base}_ate_summary{ext or '.png'}"
+        save_ate_summary(
+            viewer.icp_trajectory,
+            viewer.gt_trajectory,
+            filename=ate_file,
         )
 
     sys.exit(0)
