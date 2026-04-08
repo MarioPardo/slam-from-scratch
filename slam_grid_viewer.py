@@ -239,7 +239,7 @@ def main() -> None:
     sub.subscribe(b"grid_raw")
 
     pygame.init()
-    screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
+    screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT), pygame.RESIZABLE)
     pygame.display.set_caption(f"SLAM Occupancy Grid ({mode.upper()})")
     clock = pygame.time.Clock()
     font = pygame.font.Font(None, 28)
@@ -272,6 +272,11 @@ def main() -> None:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+            elif event.type == pygame.VIDEORESIZE:
+                screen = pygame.display.set_mode((event.w, event.h), pygame.RESIZABLE)
+                panel_w = max(1, event.w - 2 * MARGIN)
+                panel_h = max(50, event.h - 2 * MARGIN - HUD_HEIGHT)
+                panel_surface = pygame.Surface((panel_w, panel_h)).convert()
             elif event.type == pygame.KEYDOWN and event.key in (pygame.K_q, pygame.K_ESCAPE):
                 running = False
             elif event.type == pygame.KEYDOWN and event.key in (pygame.K_EQUALS, pygame.K_PLUS):

@@ -26,7 +26,7 @@ class SLAMViewer:
         self.width   = width
         self.height  = height
         self.scale   = scale
-        self.screen  = pygame.display.set_mode((width, height))
+        self.screen  = pygame.display.set_mode((width, height), pygame.RESIZABLE)
         pygame.display.set_caption("SLAM Viewer — Odometry (Blue)  ICP/SLAM (Green)  GT (White)")
 
         # Colors
@@ -340,10 +340,27 @@ class SLAMViewer:
     # ─────────────────────────────────────────
     #  Input
     # ─────────────────────────────────────────
+    def _handle_resize(self, new_w, new_h):
+        self.width   = new_w
+        self.height  = new_h
+        self.origin_x = new_w // 2
+        self.origin_y = new_h // 2
+        self.screen = pygame.display.set_mode((new_w, new_h), pygame.RESIZABLE)
+        self.grid_surface  = pygame.Surface((new_w, new_h))
+        self.map_surface   = pygame.Surface((new_w, new_h), pygame.SRCALPHA)
+        self.traj_surface  = pygame.Surface((new_w, new_h), pygame.SRCALPHA)
+        self.graph_surface = pygame.Surface((new_w, new_h), pygame.SRCALPHA)
+        self.map_surface.fill((0, 0, 0, 0))
+        self.traj_surface.fill((0, 0, 0, 0))
+        self.graph_surface.fill((0, 0, 0, 0))
+        self._view_dirty = True
+
     def handle_input(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return False
+            if event.type == pygame.VIDEORESIZE:
+                self._handle_resize(event.w, event.h)
             if event.type == pygame.KEYDOWN:
                 if event.key in (pygame.K_q, pygame.K_ESCAPE):
                     return False
