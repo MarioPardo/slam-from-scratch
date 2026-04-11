@@ -644,130 +644,498 @@ investigation, and resolving it was the key breakthrough that brought the full s
 \chapter{Results}
 % ============================================================
 
-This project produced a working and reliable SLAM implementation able to localize the trajectory
-of the robot and provide an accurate occupancy grid map of its surroundings within the testing
-environment.
+This project produced a working and reliable SLAM implementation able to localize the robot's
+trajectory and build an accurate occupancy grid map of its surroundings.
 
-Creating an entire SLAM system from scratch, without prior experience in the field, is a substantial
-undertaking that tested system architecture skills and the ability to design, implement, and debug
-complex code with direct real-world applications.
+During development a single testing environment was used, featuring a variety of surface types and
+lengths, and a deliberate lack of symmetry and repetition.
+For final testing, six new environments were used, each designed to stress the system under
+different conditions or to evaluate the impact of specific structural features such as distinct
+landmarks.
+All maps except the Apartment map were custom-built and fit within a $2.5 \times 2.5$~m arena.
 
-\section{Trajectory Accuracy}
+Each test environment is presented with three outputs:
+\begin{enumerate}
+    \item \textbf{Occupancy grid} --- the map produced by the system.
+    \item \textbf{Localization error over time} --- normalised as
+          $\text{error} = \tfrac{d(\text{ICP},\,\text{ground truth})}{\text{max possible distance}}$.
+    \item \textbf{Trajectory comparison} --- overlaying four traces:
+          \begin{itemize}
+              \item \textbf{White} --- ground truth from GPS.
+                    Often hidden beneath other traces, indicating near-perfect agreement.
+              \item \textbf{Blue} --- odometry-only trajectory, highlighting the drift that SLAM must correct.
+              \item \textbf{Green} --- ICP-estimated trajectory.
+              \item \textbf{Pink} --- optimised pose-graph nodes and trajectory.
+                    Where the pink and green traces diverge, the pose-graph optimizer has corrected
+                    accumulated ICP error.
+          \end{itemize}
+\end{enumerate}
 
-The success of the system is clearly visible in the trajectory results.
-ICP demonstrably uses lidar information to calculate trajectories that smooth and correct the errors
-introduced by noisy odometry.
+For nearly all maps, we see a sharp dropoff in the localization error over time, this is due to the Pose Graph
+Optimization doing it's job and reducing error. 
 
-In the image below we can see the remarkable accuracy of ICP and our Pose Graph in trajectory mapping.
-We have ICP trajectory in green, Odometry trajectory in blue, ground truth trajectory in white. 
-As well as Pose Graph nodes in pink with their ground truth transformation in a dark pink. 
-We see that ICP in green actually hides the ground truth trajectory, shown in white, only visible at some spots,
-which goes to show that the estimated trajectory is virtually identical to the ground truth trajectory.
-We see a slight shift between the Pose Graph nodes and ICP, and this is a result of our Pose Graph Optimization.
+\newpage
 
+\subsection*{Hallway Map}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.4\textwidth]{../images/ICP_vs_Odom_FullMap.png}
-    \caption{Final Trajectories and Pose Graph in simulation environment  }
-    \label{fig:traj_icp_vs_odom}
-\end{figure}
-
-\section{Mapping Accuracy}
-
-The improvement in map quality from using ICP over raw odometry is clearly visible in the image below. 
-We see how ICP does not smear like odometry does
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.5\textwidth]{../images/Odometry_vs_ICP_Mapping_midtraj.png}
-    \caption{In progress occupancy grid from Odometry(left) and ICP(right)  }
-    \label{fig:traj_icp_vs_odom}
-\end{figure}
-
-And when we visualize the final output of our occupancy grid compared to our actual simulation environment, we see
-the remarkable success of the SLAM system.
+A simple rectangular map composed of straight hallways --- a clean baseline environment with
+unambiguous straight-line features.
 
 \begin{figure}[H]
     \centering
-    \begin{subfigure}[t]{0.32\textwidth}
+    % --- Row 1: map image, trajectory, occupancy grid ---
+    \begin{subfigure}[t]{0.30\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{../images/GroundTruthSimEnv}
-        \caption{Simulation environment ground truth.}
-        \label{fig:simenv_ground_truth}
+        \includegraphics[height=5cm]{../images/Experiments/HallwayMap/HallwayMap_MapImg.png}
+        \caption{environment image.}
+        \label{fig:hallway_mapimg}
     \end{subfigure}
-    \hspace{0.3in}
-    \begin{subfigure}[t]{0.32\textwidth}
+    \hfill
+    \begin{subfigure}[t]{0.30\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{../images/SimEnv_Output_OccGrid}
-        \caption{Output occupancy grid.}
-        \label{fig:simenv_occ_grid}
+        \includegraphics[height=5cm]{../images/Experiments/HallwayMap/HallwayMap_traj.png}
+        \caption{Trajectory comparison.}
+        \label{fig:hallway_traj}
     \end{subfigure}
-    \caption{Ground truth vs. SLAM occupancy grid output for the simulation environment.}
-    \label{fig:simenv_gt_vs_occgrid}
+    \hfill
+    \begin{subfigure}[t]{0.30\textwidth}
+        \centering
+        \includegraphics[height=5cm]{../images/Experiments/HallwayMap/HallwayMap_grid.png}
+        \caption{Occupancy grid output.}
+        \label{fig:hallway_grid}
+    \end{subfigure}
+
+    \vspace{0.8em}
+
+    % --- Row 2: localisation error ---
+    \begin{subfigure}[t]{0.70\textwidth}
+        \centering
+        {\setlength{\fboxsep}{0pt}\setlength{\fboxrule}{0.5pt}%
+        \fbox{\includegraphics[width=\textwidth]{../images/Experiments/HallwayMap/HallwayMap_errorline.png}}}
+        \caption{Localisation error over time.}
+        \label{fig:hallway_error}
+    \end{subfigure}
+
+    \caption{Hallway Map results.}
+    \label{fig:hallway_results}
 \end{figure}
 
-\section{Pose Graph Optimization}
+The ground-truth white line is almost entirely hidden by the pink optimised trajectory, confirming
+that the system achieves near-perfect localisation accuracy on this straightforward environment.
+The mapping is excellent, but has a small issue at the bottom.
 
-Given the small map size ($\approx 2\times 2$~m), insufficient drift accumulates to produce a
-visually dramatic graph snap.
-The improvement can, however, be quantified through the reduction in total graph error before and
-after optimization.
-Table~\ref{tab:opt_results} presents results from several test runs in the simulation environment.
+\newpage
+\subsection*{Hallway Map --- With Landmarks}
 
-\begin{table}[H]
-    \centering
-    \caption{Pose graph optimization results across multiple test runs.}
-    \label{tab:opt_results}
-    \begin{tabular}{cccc}
-        \toprule
-        Run & Pre-optimization error (m) & Post-optimization error (m) & Reduction (m) \\
-        \midrule
-        1   & 2.07447                    & 1.95095                     & 0.12353       \\
-        2   & 0.03138                    & 0.00431                     & 0.02707       \\
-        3   & 0.01506                    & 0.00806                     & 0.00700       \\
-        4   & 0.00348                    & 0.00261                     & 0.00086       \\
-        \bottomrule
-    \end{tabular}
-\end{table}
-
-\section{Validation on a Real-World Dataset}
-
-To validate the system beyond the simulation environment, the Intel Research Lab dataset was used ---
-a popular benchmark for 2D SLAM, recorded in a real research facility.This data came from Cyrill Stachniss TODO add reference
-
-As expected, the weaknesses of the system became apparent at this scale.
-The system was designed for a $2\times 2$~m Webots grid, while the Intel dataset covers a facility
-over 80~m long with a different lidar scanner and motion profile.
-Nonetheless, some structural features of the facility are discernible in the output, and loop closure
-and graph optimization did trigger during replay.
+Landmark surfaces are added to the walls to provide additional ICP features and improve localisation accuracy.
 
 \begin{figure}[H]
     \centering
-    \begin{subfigure}[t]{0.32\textwidth}
+    \begin{subfigure}[t]{0.30\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{../images/IntelResearchLab_GroundTruth.png}
-        \caption{Actual Intel Research Lab.}
-        \label{fig:intel_ground_truth}
+        \includegraphics[height=5cm]{../images/Experiments/HallwayMap/HallwayMap_Landmark_MapImg.png}
+        \caption{environment image.}
+        \label{fig:hallway_lm_mapimg}
     \end{subfigure}
-    \hspace{0.3in}
-    \begin{subfigure}[t]{0.32\textwidth}
+    \hfill
+    \begin{subfigure}[t]{0.30\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{../images/IntelResearchLab_output.png}
-        \caption{Output of SLAM system.}
-        \label{fig:intel_occ_grid}
+        \includegraphics[height=5cm]{../images/Experiments/HallwayMap/HallwayMap_Landmark_traj.png}
+        \caption{Trajectory comparison.}
+        \label{fig:hallway_lm_traj}
     \end{subfigure}
-    \caption{Ground truth vs. SLAM output on the Intel Research Lab dataset.}
-    \label{fig:intel_gt_vs_output}
+    \hfill
+    \begin{subfigure}[t]{0.30\textwidth}
+        \centering
+        \includegraphics[height=5cm]{../images/Experiments/HallwayMap/HallwayMap_Landmark_grid.png}
+        \caption{Occupancy grid output.}
+        \label{fig:hallway_lm_grid}
+    \end{subfigure}
+
+    \vspace{0.8em}
+
+    \begin{subfigure}[t]{0.70\textwidth}
+        \centering
+        {\setlength{\fboxsep}{0pt}\setlength{\fboxrule}{0.5pt}%
+        \fbox{\includegraphics[width=\textwidth]{../images/Experiments/HallwayMap/HallwayMap_Landmark_errorline.png}}}
+        \caption{Localisation error over time.}
+        \label{fig:hallway_lm_error}
+    \end{subfigure}
+
+    \caption{Hallway Map (with landmarks) results.}
+    \label{fig:hallway_lm_results}
 \end{figure}
 
-Production-scale SLAM systems span entire fields of research and take teams of researchers years to
-implement and refine.
-The results of this project are therefore a commendable achievement given the time constraints,
-lack of prior experience, and available resources.
+We see that landmarks provided a noticeable improvement in performance. From visual inspection, the tajectory is closer 
+to ground truth, specifically that the green line is less visible, telling us that Pose Graph Optimization had lessworkd to do. 
+Likelise for mapping, we no longer have that "artifact" at the bottom of the map.
+
+\newpage
+\subsection*{Round Hallway}
+
+Now we test the same hallway idea, but the walls are now curved
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[t]{0.30\textwidth}
+        \centering
+        \includegraphics[height=5cm]{../images/Experiments/RoundHallway/RoundHallway_MapImg.png}
+        \caption{environment image.}
+        \label{fig:round_mapimg}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.30\textwidth}
+        \centering
+        \includegraphics[height=5cm]{../images/Experiments/RoundHallway/RoundHallway_traj_noloop.png}
+        \caption{Trajectory comparison.}
+        \label{fig:round_traj}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.30\textwidth}
+        \centering
+        \includegraphics[height=5cm]{../images/Experiments/RoundHallway/RoundHallway_Grid.png}
+        \caption{Occupancy grid output.}
+        \label{fig:round_grid}
+    \end{subfigure}
+
+    \vspace{0.8em}
+
+    \begin{subfigure}[t]{0.70\textwidth}
+        \centering
+        {\setlength{\fboxsep}{0pt}\setlength{\fboxrule}{0.5pt}%
+        \fbox{\includegraphics[width=\textwidth]{../images/Experiments/RoundHallway/RoundHallway_error_overtime.png}}}
+        \caption{Localisation error over time.}
+        \label{fig:round_error}
+    \end{subfigure}
+
+    \caption{Round Hallway results.}
+    \label{fig:round_results}
+\end{figure}
+
+This is our first negative result. We see that the round walls have a detrimental effect on our trajectory. 
+Looking at the trajectory comparison, we see that the ICP trajectory is actually quite far back compared to our ground truth. While
+the white ground truth line has made a full loop, ICP still believes we are a bit far back, around 1/8th of the circle back. 
+Then, when a loop closure is found and the Pose Graph Optimized, it is unable to remove mcuh error at all compared to other maps. 
+
+This result shows the clear negative effect of round surfaces on ICP
+
+We must also analyze that while trajectory is affected, mapping is not. Due to the radial symmetry of the circular path, 
+being further back "looks" identical as it relates to a point cloud, so the robot only has to drive a little further to complete the circle
+
+\subsection*{Round Hallway --- With Landmarks}
+Now we add landmarks to the surfaces of the walls to measure their impact
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[t]{0.30\textwidth}
+        \centering
+        \includegraphics[height=5cm]{../images/Experiments/RoundHallway/RoundHallway_landmark_MapImg.png}
+        \caption{environment image.}
+        \label{fig:round_lm_mapimg}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.30\textwidth}
+        \centering
+        \includegraphics[height=5cm]{../images/Experiments/RoundHallway/RoundHallway_Landmark_Traj.png}
+        \caption{Trajectory comparison.}
+        \label{fig:round_lm_traj}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.30\textwidth}
+        \centering
+        \includegraphics[height=5cm]{../images/Experiments/RoundHallway/RoundHallway_Landmark_Grid.png}
+        \caption{Occupancy grid output.}
+        \label{fig:round_lm_grid}
+    \end{subfigure}
+
+    \vspace{0.8em}
+
+    \begin{subfigure}[t]{0.70\textwidth}
+        \centering
+        {\setlength{\fboxsep}{0pt}\setlength{\fboxrule}{0.5pt}%
+        \fbox{\includegraphics[width=\textwidth]{../images/Experiments/RoundHallway/RoundHallway__landmarkerror_overtime.png}}}
+        \caption{Localisation error over time.}
+        \label{fig:round_lm_error}
+    \end{subfigure}
+
+    \caption{Round Hallway (with landmarks) results.}
+    \label{fig:round_lm_results}
+\end{figure}
+
+Once again, we are shown the importance of surface features for ICP performance. 
+We see a near halving of the localization error, and on the trajectory, we see that ICP is much less 
+far back compared to non-landmarks. 
+
+While the mapping is still good, here we more clearly see the impact of ICP. Since there's landmarks and walls look different along the path, 
+compared to no landmarks, a localization error will impact the mapping. We see this in the displacement and lack of some of the landmarks
+from our occupancy grid.
+
+\newpage
+
+\subsection*{Crosses Map}
+Now we start increasing the complexity of the Map. Here we have a map very symmetrical in nature, with clear but 
+repeated landmarks. 
+
+We take a more complex path through the map to better test our system and to get a complete mapping of the environment
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[t]{0.30\textwidth}
+        \centering
+        \includegraphics[height=5cm]{../images/Experiments/GridWorld/GridWorld2_MapImg.png}
+        \caption{environment image.}
+        \label{fig:grid2_mapimg}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.30\textwidth}
+        \centering
+        \includegraphics[height=5cm]{../images/Experiments/GridWorld/GridWorld_2_traj.png}
+        \caption{Trajectory comparison.}
+        \label{fig:grid2_traj}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.30\textwidth}
+        \centering
+        \includegraphics[height=5cm]{../images/Experiments/GridWorld/GridWorld_2_grid.png}
+        \caption{Occupancy grid output.}
+        \label{fig:grid2_grid}
+    \end{subfigure}
+
+    \vspace{0.8em}
+
+    \begin{subfigure}[t]{0.63\textwidth}
+        \centering
+        {\setlength{\fboxsep}{0pt}\setlength{\fboxrule}{0.5pt}%
+        \fbox{\includegraphics[width=\textwidth,height=5cm]{../images/Experiments/GridWorld/GridWorld_2_errorline.png}}}
+        \caption{Localisation error over time.}
+        \label{fig:grid2_error}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.45\textwidth}
+        \centering
+        \includegraphics[height=5cm]{../images/Experiments/GridWorld/GridWorld_1_grid.png}
+        \caption{Occupancyggrid mid-trajectory.}
+        \label{fig:cross_map_warped_grid}
+    \end{subfigure}
+
+    \caption{Crosses Map results.}
+    \label{fig:grid2_results}
+\end{figure}
+
+This map provided a big challenge for ICP due to its symmetry and winding path, visible in the noticeable divergence between the green ICP line and the pink pose-graph-optimised path.
+During traversal the occupancy grid exhibited clear warping (Figure~\ref{fig:cross_map_warped_grid}); once a loop closure was detected and the pose graph optimised, the trajectory snapped into place and the warping was removed.
+This is quantified by the substantial drop in localisation error from 0.12 to below 0.01, demonstrating the importance and strength of the pose graph optimisation step.
+
+
+\subsection*{Ball Map}
+This map is similar in it's simmetry to the crosses map, but has round objects.
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[t]{0.30\textwidth}
+        \centering
+        \includegraphics[height=5cm]{../images/Experiments/BallMap/BallMap_MapImg.png}
+        \caption{environment image.}
+        \label{fig:ball_mapimg}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.30\textwidth}
+        \centering
+        \includegraphics[height=5cm]{../images/Experiments/BallMap/BallWorld_traj.png}
+        \caption{Trajectory comparison.}
+        \label{fig:ball_traj}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.30\textwidth}
+        \centering
+        \includegraphics[height=5cm]{../images/Experiments/BallMap/BallWorld_grid.png}
+        \caption{Occupancy grid output.}
+        \label{fig:ball_grid}
+    \end{subfigure}
+
+    \vspace{0.8em}
+
+    \begin{subfigure}[t]{0.70\textwidth}
+        \centering
+        {\setlength{\fboxsep}{0pt}\setlength{\fboxrule}{0.5pt}%
+        \fbox{\includegraphics[width=\textwidth]{../images/Experiments/BallMap/BallMap_errorline.png}}}
+        \caption{Localisation error over time.}
+        \label{fig:ball_error}
+    \end{subfigure}
+
+    \caption{Ball Map results.}
+    \label{fig:ball_results}
+\end{figure}
+
+We see that the results are quite similar to crosses map, which is to be expected given the similar layouts of the 
+environments and paths taken. There is slightly less localization error, which could be from normal variance across runs, 
+but could also be impacted by the smaller size of the landmarks in relation to the map, as well as the different surface normals. 
+
+\newpage
+
+
+\subsection*{Everything Round}
+We combine round walls with round surfaces
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[t]{0.30\textwidth}
+        \centering
+        \includegraphics[height=5cm]{../images/Experiments/UltraRound/UltraRound_MapImg.png}
+        \caption{environment image.}
+        \label{fig:ultra_mapimg}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.30\textwidth}
+        \centering
+        \includegraphics[height=5cm]{../images/Experiments/UltraRound/UltraRound_traj.png}
+        \caption{Trajectory comparison.}
+        \label{fig:ultra_traj}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.30\textwidth}
+        \centering
+        \includegraphics[height=5cm]{../images/Experiments/UltraRound/UltraRound_grid.png}
+        \caption{Occupancy grid output.}
+        \label{fig:ultra_grid}
+    \end{subfigure}
+
+    \vspace{0.8em}
+
+    \begin{subfigure}[t]{0.70\textwidth}
+        \centering
+        {\setlength{\fboxsep}{0pt}\setlength{\fboxrule}{0.5pt}%
+        \fbox{\includegraphics[width=\textwidth]{../images/Experiments/UltraRound/UltraRound_errorlien.png}}}
+        \caption{Localisation error over time.}
+        \label{fig:everything_round_error}
+    \end{subfigure}
+
+    \caption{Everything Round results.}
+    \label{fig:everything_round_results}
+\end{figure}
+
+The performance on this environment is surprisingly good, given our past issues with a round wall and highly symmetric environments.
+
+Given the performance here, we can deduct that curved surfaces perform well quite well as landmarks.
+
+\newpage
+\subsection*{Regular Map}
+This map was used during development. It is highly asymmetrical and quite random in nature
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[t]{0.30\textwidth}
+        \centering
+        \includegraphics[height=5cm]{../images/Experiments/RegularMap/RegularMap_MapImg.png}
+        \caption{environment image.}
+        \label{fig:regular_mapimg}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.30\textwidth}
+        \centering
+        \includegraphics[height=5cm]{../images/Experiments/RegularMap/RegularMap_traj.png}
+        \caption{Trajectory comparison.}
+        \label{fig:regular_traj}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.30\textwidth}
+        \centering
+        \includegraphics[height=5cm]{../images/Experiments/RegularMap/RegularMap_grid.png}
+        \caption{Occupancy grid output.}
+        \label{fig:regular_grid}
+    \end{subfigure}
+
+    \vspace{0.8em}
+
+    \begin{subfigure}[t]{0.70\textwidth}
+        \centering
+        {\setlength{\fboxsep}{0pt}\setlength{\fboxrule}{0.5pt}%
+        \fbox{\includegraphics[width=\textwidth]{../images/Experiments/RegularMap/RegularMap_errorline.png}}}
+        \caption{Localisation error over time.}
+        \label{fig:regular_error}
+    \end{subfigure}
+
+    \caption{Regular Map results.}
+    \label{fig:regular_results}
+\end{figure}
+
+The performance in both trajectory and mapping is excellent, as we might expect in a map with clear landmarks
+
+\newpage
+\subsection*{Apartment}
+Fially, we test our system on a pre made Webots map, made for other scenarios. This serves as a "real world" test
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[t]{0.30\textwidth}
+        \centering
+        \includegraphics[height=5cm]{../images/Experiments/Apartment/Apartment_MapImg.png}
+        \caption{Environment Image.}
+        \label{fig:apartment_mapimg}
+    \end{subfigure}
+    \begin{subfigure}[t]{0.30\textwidth}
+        \centering
+        \includegraphics[height=5cm]{../images/Experiments/Apartment/Apartment_traj.png}
+        \caption{Trajectory comparison.}
+        \label{fig:apartment_traj}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.30\textwidth}
+        \centering
+        \includegraphics[height=5cm]{../images/Experiments/Apartment/Apartment_grid.png}
+        \caption{Occupancy grid output.}
+        \label{fig:apartment_grid}
+    \end{subfigure}
+
+    \vspace{0.8em}
+
+    \begin{subfigure}[t]{0.70\textwidth}
+        \centering
+        {\setlength{\fboxsep}{0pt}\setlength{\fboxrule}{0.5pt}%
+        \fbox{\includegraphics[width=\textwidth]{../images/Experiments/Apartment/Apartment_errorLine.png}}}
+        \caption{Localisation error over time.}
+        \label{fig:apartment_error}
+    \end{subfigure}
+
+    \caption{Apartment results.}
+    \label{fig:apartment_results}
+\end{figure}
+
+Once again, both trajectory and grid mapping are excellent!
+
+\newpage
+
+\section{Takeaways from Results}
+These results show a SLAM algorithm that performs exceptionally well in a variety of environments. 
+These experiments showed the impact of various environment factors on the systems's performance. 
+
+<bold> Symmetry <b> In the Crosses Map and the Ball Map we see that a highly symmetric map gives issues to ICP in localization. 
+Both Apartment and Regular Maps have highly assymetrical environments, and this is seen in their performance.
+
+<Landmarks> In both hallway maps, we saw an immediate and significant improvement in performance once landmarks were introduced. 
+As we noted, ICP makes great use of landmarks to best calculate relative transformations. 
+
+<Round Landmarks> Surprisingly, we saw that round landmarks did very well both in Ball Map and in Everythin Round. 
+I hypothesize that the contrast of the curved landmarks and the walls behind them are more identifiable to the ICP system 
+than landmarks made of straight surfaces. 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{../images/StraightVsCurvedLandmark.jpg}
+    \caption{Straight vs Curved Landmarks}
+    \label{fig:straight_v_curved_landmarks}
+\end{figure}
+
+
+We conclude that the main weakness in the system is in it's recognition and filtering of landmarks and surfaces. 
+
+Overall, we see that we have a strong SLAM system, in which we can see all parts of the system performing well. 
+ICP is able to map it's trajectory, we then combine this data with point clouds to update our occupancy grid, and once 
+loop closures are found, our Pose Graph Optimization is able to consistently reduce error, correct our trajectory, and snap our map into place. 
 
 \section{Future Work}
 
+This project created a working SLAM system, but one that could be further improved to work with larger and more complex environments 
 Several directions could improve the system:
 
 \begin{itemize}
@@ -801,7 +1169,7 @@ Several directions could improve the system:
 % ============================================================
 \appendix
 
-\chapter{Representative Source Code}
+\chapter{Source Code}
 \label{app:code}
 
 Source code for this project is submitted in electronic format alongside this report.
