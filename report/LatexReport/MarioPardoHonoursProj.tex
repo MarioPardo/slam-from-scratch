@@ -159,9 +159,15 @@ high-performance requirements of modern robotics.
 % ---- Acknowledgments ----------------------------------------
 \chapter*{Acknowledgments}
 
-% TODO: complete acknowledgments before submission.
-\vspace{4cm}
-\noindent\textit{Acknowledgments to be completed.}
+I would like to express my sincere gratitude to my supervisor, Professor Mark Lanthier, for his
+guidance, feedback, and support throughout this project.
+
+I am also deeply grateful to my family for their unwavering encouragement and support during my
+studies.
+
+Finally, I would like to acknowledge Professor Cyrill Stachniss of the University of Bonn, whose
+publicly available lecture series on robotics and SLAM were invaluable in building my understanding
+of the field and informed much of the implementation presented in this report.
 
 \newpage
 
@@ -173,9 +179,6 @@ high-performance requirements of modern robotics.
 \listoffigures
 \newpage
 
-% ---- List of Tables -----------------------------------------
-\listoftables
-\newpage
 
 % ============================================================
 %  MAIN BODY  (Arabic numerals, starting from 1)
@@ -1267,20 +1270,75 @@ Several directions could improve the core system:
 % ============================================================
 %  REFERENCES
 % ============================================================
-\chapter*{References}
+\renewcommand{\bibname}{References}
 \addcontentsline{toc}{chapter}{References}
+\begin{thebibliography}{10}
 
-% TODO: populate references before submission.
-\vspace{1cm}
-\noindent\textit{References to be added.}
+\bibitem{ros2_kinematics}
+ros2\_control Development Team,
+``Wheeled Mobile Robot Kinematics,''
+\textit{ROS\,2 Controllers Documentation (Rolling)}.
+[Online]. Available: \url{https://control.ros.org/rolling/doc/ros2_controllers/doc/mobile_robot_kinematics.html}
 
-% diff drive image : https://control.ros.org/rolling/doc/ros2_controllers/doc/mobile_robot_kinematics.html
+\bibitem{bresenham_mbedded}
+G.~Hunter,
+``Bresenham's Line Algorithm,''
+\textit{mbedded.ninja}, Jan.\ 30, 2019.
+[Online]. Available: \url{https://blog.mbedded.ninja/programming/algorithms-and-data-structures/bresenhams-line-algorithm/}
 
-% bresenham ray algo : https://blog.mbedded.ninja/programming/algorithms-and-data-structures/bresenhams-line-algorithm/
+\bibitem{diff_drive_icc}
+Leo,
+``Calculating Differential Drive Robot ICC Position,''
+\textit{Robotics Stack Exchange}.
+[Online]. Available: \url{https://robotics.stackexchange.com/questions/15013/calculating-differential-drive-robot-icc-position}
 
-%diff drive rotation image: https://robotics.stackexchange.com/questions/15013/calculating-differential-drive-robot-icc-position
+\bibitem{rodriguez2010grid}
+D.~Rodr\'iguez-Losada, P.~de~la~Puente, A.~Valero-Gomez, P.~San~Segundo, and M.~Hernando,
+``Fast Processing of Grid Maps using Graphical Multiprocessors,''
+2010.
+[Online]. Available: \url{https://www.researchgate.net/figure/Bresenham-line-algorithm-for-a-laser-beam-Note-that-the-occupied-cells-include-those_fig2_267690266}
 
-%ray cast occ grid: https://www.researchgate.net/figure/Bresenham-line-algorithm-for-a-laser-beam-Note-that-the-occupied-cells-include-those_fig2_267690266
+\bibitem{pose_graph_thesis}
+Max Pfingsthorn
+``Generalized Simultaneous Localization and Mapping (SLAM) on Graphs with Multimodal Probabilities and Hyperedges,''
+Ph.D.\ thesis, Mar.\ 2014.
+Supervisor: A.~Birk.
+DOI: \href{https://doi.org/10.13140/RG.2.1.4662.3600}{10.13140/RG.2.1.4662.3600}
+
+\bibitem{gtsam}
+GTSAM Development Team,
+``\texttt{gtsam::NonlinearOptimizer} Class Reference,''
+\textit{GTSAM 4.0.0 API Documentation}, 2019.
+[Online]. Available: \url{https://gtsam.org/doxygen/4.0.0/a03807.html}
+
+\bibitem{stachniss2020posegraph}
+C.~Stachniss,
+``Graph-Based SLAM Using Pose Graphs,''
+\textit{YouTube}, Apr.\ 3, 2020.
+[Online]. Available: \url{https://www.youtube.com/watch?v=uHbRKvD8TWg}
+
+\bibitem{stachniss2021icp}
+C.~Stachniss,
+``Point Cloud Registration with Unknown Data Associations Using the Iterative Closest Point (ICP) Algorithm'' (3-part lecture series),
+\textit{YouTube}, Mar.\ 21, 2021.
+[Online]. Available: \url{https://www.youtube.com/watch?v=dhzLQfDBx2Q}
+
+\bibitem{stachniss2020occgrid}
+C.~Stachniss and N.~Chebrolu,
+``Occupancy Grid Maps,''
+\textit{Mobile Sensing and Robotics}, YouTube, Aug.\ 27, 2020.
+[Online]. Available: \url{https://www.youtube.com/watch?v=v-Rm9TUG9LA}
+
+\bibitem{stachniss2020leastsquares}
+C.~Stachniss,
+``An Informal Introduction to Least Squares,''
+\textit{YouTube}, Apr.\ 3, 2020.
+[Online]. Available: \url{https://www.youtube.com/watch?v=r2cyMQ5NB1o}
+
+\end{thebibliography}
+
+
+
 
 % ============================================================
 %  APPENDIX
@@ -1291,9 +1349,11 @@ Several directions could improve the core system:
 \label{app:code}
 
 Source code for this project is submitted in electronic format alongside this report.
-The source code can be found at \href{}{Github Repository}
+The source code can be found at \href{https://github.com/MarioPardo/slam-from-scratch}{Github Repository}
+\newline
+https://github.com/MarioPardo/slam-from-scratch
 
 \vspace{1cm}
-\noindent\textit{Code snippets to be added.}
+
 
 \end{document}
