@@ -3,7 +3,7 @@
 %% ============================================================
 %% PACKAGES
 %% ============================================================
-\usepackage[top=0.75in, bottom=0.5in, left=1.25in, right=1in, headheight=15pt, headsep=16pt]{geometry}
+\usepackage[top=0.5in, bottom=0.5in, left=1.25in, right=1in, headheight=15pt, headsep=16pt]{geometry}
 \usepackage{setspace}
 \usepackage{graphicx}
 \usepackage{amsmath}
@@ -17,6 +17,7 @@
 \usepackage{xcolor}
 \usepackage{booktabs}
 \usepackage{float}
+\usepackage{svg}
 \usepackage{emptypage}   % suppress headers on blank pages
 \usepackage{needspace}   % prevent orphaned chapter headings in TOC
 
@@ -294,10 +295,66 @@ sufficient detail and landmarks for ICP (Chapter~\ref{chap:icp}) to work with.
 The premade TurtleBot Burger 3 was selected, already equipped with all necessary sensors.
 A simple differential drive controller was created and tested to confirm reliable movement.
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.4\textwidth]{../images/Experiments/RegularMap/RegularMap_MapImg.png}
+    \caption{Webots arena used for Development}
+    \label{fig:image_regular_map}
+\end{figure}
+
 \section{Odometry}
 
-Using the known wheel diameter and wheelbase width, the robot's trajectory is calculated from wheel
-sensor data.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{../images/DifferentialDrive.png}
+    \caption{Diagram of differential drive}
+    \label{fig:diff_drive}
+\end{figure}
+
+A differential drive robot steers by varying the speed of its two wheels independently.
+At each timestep, wheel encoders report the angular displacement of each wheel, $\Delta\phi_l$ and
+$\Delta\phi_r$ (in radians).
+Multiplying by the wheel radius $r$ converts these to linear distances:
+\begin{equation}
+    d_l = r\,\Delta\phi_l, \qquad d_r = r\,\Delta\phi_r
+\end{equation}
+
+The incremental displacement and heading change of the robot centre are then:
+\begin{align}
+    \Delta s      &= \frac{d_r + d_l}{2} \\[4pt]
+    \Delta\theta  &= \frac{d_r - d_l}{w}
+\end{align}
+where $w$ is the wheelbase.
+The pose $(x,\,y,\,\theta)$ is updated differently depending on whether the motion is
+effectively straight or curved.
+
+\textbf{Straight motion} ($|\Delta\theta| < \varepsilon$).
+When the heading change is negligible, the robot moves in a straight line along its current
+heading:
+\begin{align}
+    x'      &= x + \Delta s\cos\theta \\
+    y'      &= y + \Delta s\sin\theta
+\end{align}
+A threshold $\varepsilon$ guards against division-by-zero and numerical instability in the arc
+formula below.
+
+\newpage
+
+\textbf{Arc motion} ($|\Delta\theta| \geq \varepsilon$).
+When the robot turns, it traces a circular arc of radius $R = \Delta s / \Delta\theta$ around an 
+Instananeous Center of Curvature (ICC)
+The exact displacement for constant-curvature motion is obtained by integrating the arc
+analytically:
+\begin{align}
+    x'      &= x + R\bigl(\sin(\theta + \Delta\theta) - \sin\theta\bigr) \\
+    y'      &= y + R\bigl(\cos\theta - \cos(\theta + \Delta\theta)\bigr)
+\end{align}
+This is exact for a circular arc, whereas a simple midpoint approximation would accumulate
+error during sustained turns.
+In both cases the heading is updated identically:
+\begin{equation}
+    \theta' = \theta + \Delta\theta
+\end{equation}
 
 \textbf{Noise.}
 In a real-world setting, wheel sensors are not perfect.
@@ -309,18 +366,54 @@ Odometry provides the first reference point for the SLAM algorithm.
 The robot's position was first estimated using odometry alone as a crucial validation step, confirming
 that the trajectory can be accurately calculated before introducing additional components.
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{../images/DiffDriveRotation.png}
+    \caption{Diagram of rotation with Differential Drive}
+    \label{fig:diff_drive_rotation}
+\end{figure}
+
+\newpage
+
 \section{Point Cloud}
 
-Using simple trigonometry, for each beam from the lidar sensor the landing point --- and therefore
-the location of the nearest surface --- can be calculated from the robot's frame of reference.
+The lidar emits $N$ beams uniformly spread over a $360^\circ$ field of view.
+Each beam $i$ returns a range $r_i$ --- the distance to the nearest surface along angle
+$\alpha_i = \frac{2\pi i}{N}$.
 
-\textbf{World Frame Projection.}
-With the estimated current robot pose, the point cloud is projected into a static world frame,
-providing an estimate of where surfaces lie on the map.
-An initial visualization tool was implemented to display the robot's trajectory alongside the surfaces
-currently observed.
-The tool was subsequently upgraded (indicated visually by a dark background) to maintain a history of
-all previously observed surfaces, yielding a persistent map of the environment.
+\textbf{Robot frame.}
+Using basic trigonometry, each return is converted to a 2-D point relative to the robot:
+\begin{equation}
+    p_i^{\,\text{robot}} =
+    \begin{pmatrix} r_i \cos\alpha_i \\ r_i \sin\alpha_i \end{pmatrix}
+\end{equation}
+This gives the point cloud in the robot's own coordinate frame, centred at the robot's current
+position with the robot's heading as the forward axis.
+
+\textbf{World frame projection.}
+With the current robot pose $(x,\, y,\, \theta)$, each point is transformed into the fixed world
+frame by applying a 2-D rigid-body transform:
+\begin{equation}
+    p_i^{\,\text{world}} =
+    \begin{pmatrix} \cos\theta & -\sin\theta \\ \sin\theta & \phantom{-}\cos\theta \end{pmatrix}
+    p_i^{\,\text{robot}}
+    +
+    \begin{pmatrix} x \\ y \end{pmatrix}
+\end{equation}
+This places each observed surface point on the global map at the location the robot estimates it
+to occupy.
+Accumulating these projections over time builds a persistent point-cloud map of the environment,
+and any drift in the pose estimate directly manifests as smearing of the map --- making the quality
+of the map a useful diagnostic for localisation accuracy.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.4\textwidth]{../images/LidarDiagram.jpeg}
+    \caption{Diagram of Lidar Points}
+    \label{fig:lidar_diagram}
+\end{figure}
+
+\newpage
 
 \section{Webots Lidar Noise During Rotation}
 \label{sec:webots_bug}
@@ -359,6 +452,18 @@ and cells along the free path are decreased.
 
 The occupancy grid is only updated on new keyframes (Chapter 6) to ensure readings come from stable
 and trusted data. 
+
+To find out which cells are occupied and not, we use the \textbf{BresenhamLine Algorithm} to "trace" a line
+through our grid.
+For each ray, we draw a line. We take the endpoint of our ray to be occupied, and anything before it to be free. 
+This is then used to update the occupation probability of each cell. 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.4\textwidth]{../images/RayCastOccGrid.png}
+    \caption{Ray Casting and Occupancy}
+    \label{fig:lidar_diagram}
+\end{figure}
 
 % ============================================================
 \chapter{ICP: Scan Matching}
@@ -423,6 +528,13 @@ This required hyperparameter tuning: errors were printed across many runs, the b
 identified, and the threshold was iteratively narrowed to one that gave consistent yet precise
 convergences.
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.3\textwidth]{../images/WorkingICP.png}
+    \caption{Initial working ICP implementation, still dealing with mentioned rotation smear}
+    \label{fig:first_traj_lidar_viz}
+\end{figure}
+
 \section{Handling Rotation}
 \label{sec:icp_rotation}
 
@@ -459,12 +571,7 @@ If the source point is at relative position $(0,1)$ and the target at $(0,2)$, t
 found is $(0,+1)$, which correctly describes the robot's forward motion.
 
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.3\textwidth]{../images/WorkingICP.png}
-    \caption{Initial working ICP implementation, still dealing with mentioned rotation smear}
-    \label{fig:first_traj_lidar_viz}
-\end{figure}
+
 
 % ============================================================
 \chapter{Pose Graph Construction}
@@ -1101,7 +1208,8 @@ Fially, we test our system on a pre made Webots map, made for other scenarios. T
     \label{fig:apartment_results}
 \end{figure}
 
-Once again, both trajectory and grid mapping are excellent!
+Once again, both trajectory and grid mapping are very accurate. This map shows us that our algorithm works in real
+life environments.
 
 \newpage
 
@@ -1135,8 +1243,10 @@ loop closures are found, our Pose Graph Optimization is able to consistently red
 
 \section{Future Work}
 
-This project created a working SLAM system, but one that could be further improved to work with larger and more complex environments 
-Several directions could improve the system:
+This project created a working SLAM system, but one that could be further improved to work with larger and more complex environments,
+It is also one that shows the working structure of a SLAM system, real world systems build on this architecture and add complex processing 
+for features such as object detection and tracking, that allow them to be used in real world systems such as in autonomously navigating vehicles. 
+Several directions could improve the core system:
 
 \begin{itemize}
     \item \textbf{Point-to-plane correspondence matching.}
@@ -1163,6 +1273,14 @@ Several directions could improve the system:
 % TODO: populate references before submission.
 \vspace{1cm}
 \noindent\textit{References to be added.}
+
+% diff drive image : https://control.ros.org/rolling/doc/ros2_controllers/doc/mobile_robot_kinematics.html
+
+% bresenham ray algo : https://blog.mbedded.ninja/programming/algorithms-and-data-structures/bresenhams-line-algorithm/
+
+%diff drive rotation image: https://robotics.stackexchange.com/questions/15013/calculating-differential-drive-robot-icc-position
+
+%ray cast occ grid: https://www.researchgate.net/figure/Bresenham-line-algorithm-for-a-laser-beam-Note-that-the-occupied-cells-include-those_fig2_267690266
 
 % ============================================================
 %  APPENDIX
