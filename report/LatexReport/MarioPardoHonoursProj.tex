@@ -6,11 +6,13 @@
 \usepackage[top=0.5in, bottom=0.5in, left=1.25in, right=1in, headheight=15pt, headsep=16pt]{geometry}
 \usepackage{setspace}
 \usepackage{graphicx}
+\usepackage{gensymb}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{hyperref}
 \usepackage{caption}
 \usepackage{subcaption}
+\usepackage{chngcntr}
 \usepackage{fancyhdr}
 \usepackage{titlesec}
 \usepackage{listings}
@@ -37,6 +39,11 @@
 %% ============================================================
 \onehalfspacing
 \setlength{\parskip}{6pt}
+
+%% ============================================================
+%% FIGURE NUMBERING (SEQUENTIAL)
+%% ============================================================
+\counterwithout{figure}{chapter}
 
 %% ============================================================
 %% PAGE BREAK QUALITY
@@ -147,6 +154,9 @@ is a key challenge in developing autonomous robots and vehicles.
 Simultaneous Localization and Mapping (SLAM) is a class of algorithms dedicated to just this task,
 allowing systems to understand the environment in which they operate and where they are within
 it --- especially critical in scenarios where external positioning sources, such as GPS, are unavailable.
+Pose Graph SLAM is a popular implementation of SLAM used by most modern state of the art systems, and 
+that provide a computationally efficient, yet effective, solution to the localization and mapping
+problem. 
 
 This project presents a C++ implementation of a Graph-Based SLAM system developed from first
 principles.
@@ -202,10 +212,11 @@ As pose estimates build on top of one another, this drift accumulates quickly, l
 estimates and conflicts with incoming sensor data --- ultimately producing catastrophic errors in
 localization and mapping.
 
-To illustrate: lidar data might indicate a wall 3~m directly ahead, but the pose estimate says the
-robot is at $(3\text{ m},\; 1\text{ m})$ while it is in reality at $(2\text{ m},\; 0\text{ m})$. The
-system then believes the wall is at $(6\text{ m},\; 1\text{ m})$ when it is actually at
-$(5\text{ m},\; 0\text{ m})$.
+To illustrate. Assume our robot is at $(2\text{ m},\; 0\text{ m})$, but our current estimates think that the 
+robot is at $(3\text{ m},\; 1\text{ m})$.
+If our lidar tells us that there is a wall 3m ahead, then we will register this wall to be at $(6\text{ m},\; 1\text{ m})$, 
+when in reality our wall is at $(5\text{ m},\; 0\text{ m})$.\newline
+Frame by frame, these error quickly compound leading to highly innacurate trajectory and mapping estimations. 
 
 A Graph-Based SLAM system constructs a graph of poses and movements, and when it detects a
 \textit{loop closure} --- a location previously visited --- it uses this new observation to update all
@@ -226,7 +237,7 @@ map its surroundings.
 It is composed of a chain of subsystems of varying complexity, each depending on the step before it
 to produce meaningful results.
 
-The system can be broken down into 4 main stages:
+The system can be broken down into 4 main stages, with the flow shown in the diagram below. 
 \begin{enumerate}
     \item \textbf{Sensor Integration}: Collect sensor data and process into usable odometry data and point clouds
     \item \textbf{Transformation Estimation:} Iterative Closest Point (ICP) to estimate robot motion
@@ -238,8 +249,11 @@ and map surrounding environment
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.72\textwidth]{../images/PG-SLAM_Architecture.png}
-    \caption{Visualization of a the data flow and main components of the Pose Graph SLAM System.}
-    \label{fig:loop_closure}
+    \caption{Visualization of a the data flow and main components of the SLAM System.}
+    \label{fig:slam_architecture}
+    \small{Sensors are used to obtain odometry and point cloud data, which is used by ICP for transform
+    estimation. As the robot traverses the pose graph is continuously updated, and if succesfull loop clousures are found,
+    pose graph optimization is run to reduce error in the graph}
 \end{figure}
 
 \newpage
@@ -293,16 +307,19 @@ This data is gathered in Webots and the raw values are forwarded to the C++ back
 \section{Arena and Robot Setup}
 
 The first step was to set up the testing arena and robot.
-A simple square arena was created that is easy to interpret in visualization tools while containing
-sufficient detail and landmarks for ICP (Chapter~\ref{chap:icp}) to work with.
-The premade TurtleBot Burger 3 was selected, already equipped with all necessary sensors.
-A simple differential drive controller was created and tested to confirm reliable movement.
+A simple square arena was created, and was populated with various and assymetric landmarks.
+These landmarks are important for ICP (Chapter~\ref{chap:icp}) to work with, as well as for easy diagnostics 
+though visualization tools. 
+The premade TurtleBot Burger 3 was selected, already equipped with all the necessary actuators and sensors
+for our project. 
+A simple differential drive controller was created and tested to confirm reliable movement and control of the robot.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.4\textwidth]{../images/Experiments/RegularMap/RegularMap_MapImg.png}
     \caption{Webots arena used for Development}
-    \label{fig:image_regular_map}
+    \title{fig:image_regular_map}
+    \small{Square rectangle arena with checkerboard flooring, alongside a yellow ball and various white walls as landmarks}
 \end{figure}
 
 \section{Odometry}
@@ -311,12 +328,14 @@ A simple differential drive controller was created and tested to confirm reliabl
     \centering
     \includegraphics[width=0.5\textwidth]{../images/DifferentialDrive.png}
     \caption{Diagram of differential drive}
+    \small\textit{Taken from: Dunbar and Esposito \cite{dunbar2005swarm}.}
     \label{fig:diff_drive}
 \end{figure}
 
 A differential drive robot steers by varying the speed of its two wheels independently.
+We 
 At each timestep, wheel encoders report the angular displacement of each wheel, $\Delta\phi_l$ and
-$\Delta\phi_r$ (in radians).
+$\Delta\phi_r$ (in radians) for each wheel. \newline
 Multiplying by the wheel radius $r$ converts these to linear distances:
 \begin{equation}
     d_l = r\,\Delta\phi_l, \qquad d_r = r\,\Delta\phi_r
@@ -345,19 +364,27 @@ formula below.
 
 \textbf{Arc motion} ($|\Delta\theta| \geq \varepsilon$).
 When the robot turns, it traces a circular arc of radius $R = \Delta s / \Delta\theta$ around an 
-Instananeous Center of Curvature (ICC)
-The exact displacement for constant-curvature motion is obtained by integrating the arc
-analytically:
+Instananeous Center of Curvature (ICC), shown in Figure \ref{fig:diff_drive_rotation}. 
+The exact displacement for constant-curvature motion is obtained by the following.
 \begin{align}
     x'      &= x + R\bigl(\sin(\theta + \Delta\theta) - \sin\theta\bigr) \\
     y'      &= y + R\bigl(\cos\theta - \cos(\theta + \Delta\theta)\bigr)
 \end{align}
-This is exact for a circular arc, whereas a simple midpoint approximation would accumulate
-error during sustained turns.
+Note that sin and cos are used for x and y respectively, when normally this is reversed. 
+This is due to the ICC being at 90\degree to the robot. 
+
 In both cases the heading is updated identically:
 \begin{equation}
     \theta' = \theta + \Delta\theta
 \end{equation}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{../images/DiffDriveRotation.png}
+    \caption{Diagram of rotation with Differential Drive}
+    \small\textit{Taken from: Mishra et al.\ \cite{mishra2020kinematics}.}
+    \label{fig:diff_drive_rotation}
+\end{figure}
 
 \textbf{Noise.}
 In a real-world setting, wheel sensors are not perfect.
@@ -366,15 +393,11 @@ wet terrain --- or introduce sensor measurement noise.
 Modelling this noise is important, as correcting for it is a core responsibility of the SLAM system.
 
 Odometry provides the first reference point for the SLAM algorithm.
-The robot's position was first estimated using odometry alone as a crucial validation step, confirming
-that the trajectory can be accurately calculated before introducing additional components.
+Later on during ICP (Chapter~\ref{chap:icp}), odometry trajectory is used as a starting off point for 
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.5\textwidth]{../images/DiffDriveRotation.png}
-    \caption{Diagram of rotation with Differential Drive}
-    \label{fig:diff_drive_rotation}
-\end{figure}
+Wheel sensors and therefore odometry data can be quite noisy, which is why point clouds, which are much less prone to noise, 
+are used for calculating trajectory using ICP. 
+
 
 \newpage
 
@@ -383,6 +406,15 @@ that the trajectory can be accurately calculated before introducing additional c
 The lidar emits $N$ beams uniformly spread over a $360^\circ$ field of view.
 Each beam $i$ returns a range $r_i$ --- the distance to the nearest surface along angle
 $\alpha_i = \frac{2\pi i}{N}$.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.4\textwidth]{../images/LidarDiagram.jpeg}
+    \caption{Diagram of Lidar Points from robot POV}
+    \small{Robot shown in green, blue dotted line representing a single point cloud ray, as well
+    as the radius of the 360\degree lidar, with a landmark shown in red.}
+    \label{fig:lidar_diagram}
+\end{figure}
 
 \textbf{Robot frame.}
 Using basic trigonometry, each return is converted to a 2-D point relative to the robot:
@@ -405,16 +437,11 @@ frame by applying a 2-D rigid-body transform:
 \end{equation}
 This places each observed surface point on the global map at the location the robot estimates it
 to occupy.
-Accumulating these projections over time builds a persistent point-cloud map of the environment,
-and any drift in the pose estimate directly manifests as smearing of the map --- making the quality
-of the map a useful diagnostic for localisation accuracy.
+This transformed point cloud data is used by ICP (Chapter~\ref{chap:icp}) to estimate the robot's trajectory, 
+as well as by the occupancy grid to map the environment. 
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.4\textwidth]{../images/LidarDiagram.jpeg}
-    \caption{Diagram of Lidar Points}
-    \label{fig:lidar_diagram}
-\end{figure}
+
+
 
 \newpage
 
@@ -429,11 +456,13 @@ rotation finishes, producing very noisy and incorrect lidar data during the rota
 The fix was to discard all lidar data collected while the robot is rotating, using only readings when the 
 robot is undergoing no rotation, where lidar readings are accurate
 
+The figure below shows a working odometry trajectory combined with a single instance of lidar data. 
+Due to it being a single instance, the mentioned "smear" is not shown
+
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.72\textwidth]{../images/VisualizeLidarAndTrajTest.png}
-    \caption{Initial visualizations showing working trajectory estimation using odometry, and 
-    lidar point cloud in robot frame}
+    \caption{Initial visualizations showing odometry trajectory estimation , and basic cloud point recognition}
     \label{fig:first_traj_lidar_viz}
 \end{figure}
 
@@ -460,12 +489,15 @@ To find out which cells are occupied and not, we use the \textbf{BresenhamLine A
 through our grid.
 For each ray, we draw a line. We take the endpoint of our ray to be occupied, and anything before it to be free. 
 This is then used to update the occupation probability of each cell. 
+The figure below shows an example of four separate rays being casted, and the resulting occupied (grey) 
+and unnocupied (white) area
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.4\textwidth]{../images/RayCastOccGrid.png}
     \caption{Ray Casting and Occupancy}
-    \label{fig:lidar_diagram}
+    \small\textit{Taken from: Rodr\'iguez-Losada et al.\ \cite{rodriguez2010grid}.}
+    \label{fig:raycast_occ_diagram}
 \end{figure}
 
 % ============================================================
@@ -491,9 +523,14 @@ The algorithm, at a high level, proceeds as follows: \newline
 \end{enumerate}
 
 \section{Correspondence Matching}
-
-The most simple method of correspondence matching was used. 
-The logic goes as follows for each point in the source cloud, the closest
+To estimate the transformation between point clouds, we must first find pairs of points (source, target) in the two 
+point clouds, which we deem to be the same place on the surface, just from different point of view. 
+This change in the point of view is the transformation we wish to compute. 
+\newline
+The most simple method of corrßespondence matching was used, \textbf{Point to Point}.
+\newline
+The logic goes as follows: 
+\newline for each point in the source cloud, the closest
 point in the target cloud is found and the pair is considered a correspondence.
 
 A key hyperparameter is \texttt{max\_distance}, the maximum distance at which two points can be
@@ -531,12 +568,6 @@ This required hyperparameter tuning: errors were printed across many runs, the b
 identified, and the threshold was iteratively narrowed to one that gave consistent yet precise
 convergences.
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.3\textwidth]{../images/WorkingICP.png}
-    \caption{Initial working ICP implementation, still dealing with mentioned rotation smear}
-    \label{fig:first_traj_lidar_viz}
-\end{figure}
 
 \section{Handling Rotation}
 \label{sec:icp_rotation}
@@ -581,8 +612,7 @@ found is $(0,+1)$, which correctly describes the robot's forward motion.
 % ============================================================
 
 The pose graph is the record of where the robot has been and how the world has appeared at each
-timestep.
-
+timestep. 
 \textbf{Graph Nodes} contain:
 \begin{itemize}
     \item \textbf{Pose} --- estimated position $(x, y)$ and heading angle $\theta$.
@@ -594,18 +624,20 @@ timestep.
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.6\textwidth]{../images/PoseGraphDiagram.jpg}
-    \caption{Diagram of Pose Graph and it's meaning}
+    \caption{Diagram of Pose Graph}
+    \small{Figure shows the relation between the information stored in the pose graph,
+to the ground truth information about the environment, and the robot's trajectory.
+    \newline
+    \textit{Taken from: Pfingsthorn \cite{pose_graph_thesis}.}}
     \label{fig:pose_graph}
 \end{figure}
 
 
-\textbf{Edges} represent the robot movement between nodes as calculated by ICP
-
-Nodes (keyframes) are added only once the robot has moved a minimum distance $d$ or rotated a minimum
+\textbf{Nodes} (keyframes) are added only once the robot has moved a minimum distance $d$ or rotated a minimum
 angle $\delta\theta$, tuned through trial and error.
 This is a trade-off: too many nodes overwhelm the optimizer; too few forces ICP to find
 transformations across large gaps.
-For a square world nearly 2~m diagonally across, a keyframe step of 15~cm was large enough not to
+For a square world nearly 2~m diagonally across, a keyframe step of 15~cm, and angle change of 0.2radians (~12\degree) was large enough not to
 overwhelm the optimizer while small enough for ICP to find accurate transformations.
 
 The visualization tool was updated to display graph nodes and their ICP-estimated edges.
@@ -623,9 +655,8 @@ A special \textit{loop closure edge} is then added between the current node and 
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.5\textwidth]{../../Pictures/ProgressPics/LoopClosure}
-    \caption{Visualization of a detected loop closures (cyan) and the resulting graph edge connecting the
-             current pose to a previously visited node.}
+    \includegraphics[width=0.4\textwidth]{../../Pictures/ProgressPics/LoopClosure}
+    \caption{Visualization of detected loop closures edges (cyan) between pink nodes.}
     \label{fig:loop_closure}
 \end{figure}
 
@@ -1024,7 +1055,7 @@ We take a more complex path through the map to better test our system and to get
     \begin{subfigure}[t]{0.45\textwidth}
         \centering
         \includegraphics[height=5cm]{../images/Experiments/GridWorld/GridWorld_1_grid.png}
-        \caption{Occupancyggrid mid-trajectory.}
+        \caption{Occupancy grid mid-trajectory.}
         \label{fig:cross_map_warped_grid}
     \end{subfigure}
 
@@ -1216,17 +1247,17 @@ life environments.
 
 \newpage
 
-\section{Takeaways from Results}
+\section{Analysis}
 These results show a SLAM algorithm that performs exceptionally well in a variety of environments. 
 These experiments showed the impact of various environment factors on the systems's performance. 
 
-<bold> Symmetry <b> In the Crosses Map and the Ball Map we see that a highly symmetric map gives issues to ICP in localization. 
+\textbf{Symmetry} In the Crosses Map and the Ball Map we see that a highly symmetric map gives issues to ICP in localization. 
 Both Apartment and Regular Maps have highly assymetrical environments, and this is seen in their performance.
 
-<Landmarks> In both hallway maps, we saw an immediate and significant improvement in performance once landmarks were introduced. 
+\textbf{Landmarks} In both hallway maps, we saw an immediate and significant improvement in performance once landmarks were introduced. 
 As we noted, ICP makes great use of landmarks to best calculate relative transformations. 
 
-<Round Landmarks> Surprisingly, we saw that round landmarks did very well both in Ball Map and in Everythin Round. 
+\textbf{Round Landmarks} Surprisingly, we saw that round landmarks did very well both in Ball Map and in Everythin Round. 
 I hypothesize that the contrast of the curved landmarks and the walls behind them are more identifiable to the ICP system 
 than landmarks made of straight surfaces. 
 
@@ -1238,7 +1269,17 @@ than landmarks made of straight surfaces.
 \end{figure}
 
 
-We conclude that the main weakness in the system is in it's recognition and filtering of landmarks and surfaces. 
+\subsection{Wave-like Error over Time}
+We may notice that in multiple maps: HallwayMap, CrossesMap, BallMap, EverthingMap, and RegularMap, 
+there is a distinctive "wave" like behaviour in error over time. After analyzing the trajectories taken, as well as the 
+error over time as the trajectory is being taken live, I notice that these bumps/increases in error correspond to moments of major rotation 
+during the trajectory. This can also be seen in trajectory lines: where the robot is undergoing a trajectory
+with significant arc, the green ICP line is more evident, showing us a bigger mismatch with ground truth. 
+\newline
+These results can be attributed to ICP's weakness when undergoing rotation, since once the rotation stops and a more
+straight trajectory is resumed, error lowers significantly. 
+
+We conclude that the main weakness in the system is when undergoing rotatoin, and it's recognition and filtering of landmarks and surfaces. 
 
 Overall, we see that we have a strong SLAM system, in which we can see all parts of the system performing well. 
 ICP is able to map it's trajectory, we then combine this data with point clouds to update our occupancy grid, and once 
@@ -1274,11 +1315,11 @@ Several directions could improve the core system:
 \addcontentsline{toc}{chapter}{References}
 \begin{thebibliography}{10}
 
-\bibitem{ros2_kinematics}
-ros2\_control Development Team,
-``Wheeled Mobile Robot Kinematics,''
-\textit{ROS\,2 Controllers Documentation (Rolling)}.
-[Online]. Available: \url{https://control.ros.org/rolling/doc/ros2_controllers/doc/mobile_robot_kinematics.html}
+\bibitem{dunbar2005swarm}
+T.~W.~Dunbar and J.~Esposito,
+``Artificial Potential Field Controllers for Robust Communications in a Network of Swarm Robots,''
+in \textit{Proc.\ 37th Southeastern Symposium on System Theory (SSST)}, 2005, pp.\ 401--405.
+DOI: \href{https://doi.org/10.1109/SSST.2005.1460945}{10.1109/SSST.2005.1460945}
 
 \bibitem{bresenham_mbedded}
 G.~Hunter,
@@ -1286,11 +1327,11 @@ G.~Hunter,
 \textit{mbedded.ninja}, Jan.\ 30, 2019.
 [Online]. Available: \url{https://blog.mbedded.ninja/programming/algorithms-and-data-structures/bresenhams-line-algorithm/}
 
-\bibitem{diff_drive_icc}
-Leo,
-``Calculating Differential Drive Robot ICC Position,''
-\textit{Robotics Stack Exchange}.
-[Online]. Available: \url{https://robotics.stackexchange.com/questions/15013/calculating-differential-drive-robot-icc-position}
+\bibitem{mishra2020kinematics}
+D.~Mishra, R.~S.~Yadav, and K.~K.~Agrawal,
+``Kinematic Modelling and Emulation of Robot for Traversing over the Pipeline in the Refinery,''
+\textit{Microsystem Technologies}, vol.\ 26, no.\ 3, pp.\ 1011--1020, 2020.
+DOI: \href{https://doi.org/10.1007/s00542-019-04615-9}{10.1007/s00542-019-04615-9}
 
 \bibitem{rodriguez2010grid}
 D.~Rodr\'iguez-Losada, P.~de~la~Puente, A.~Valero-Gomez, P.~San~Segundo, and M.~Hernando,
@@ -1349,7 +1390,8 @@ C.~Stachniss,
 \label{app:code}
 
 Source code for this project is submitted in electronic format alongside this report.
-The source code can be found at \href{https://github.com/MarioPardo/slam-from-scratch}{Github Repository}
+\newline
+It can be found at \href{https://github.com/MarioPardo/slam-from-scratch}{Github Repository}
 \newline
 https://github.com/MarioPardo/slam-from-scratch
 
