@@ -1,0 +1,28 @@
+\contentsline {chapter}{\numberline {1}Introduction}{1}{chapter.1}%
+\contentsline {chapter}{\numberline {2}System Architecture}{2}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Technology Stack}{3}{section.2.1}%
+\contentsline {chapter}{\numberline {3}World Setup and Sensor Integration}{4}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Arena and Robot Setup}{4}{section.3.1}%
+\contentsline {section}{\numberline {3.2}Odometry}{5}{section.3.2}%
+\contentsline {section}{\numberline {3.3}Point Cloud}{7}{section.3.3}%
+\contentsline {section}{\numberline {3.4}Webots Lidar Noise During Rotation}{8}{section.3.4}%
+\contentsline {chapter}{\numberline {4}Occupancy Grid}{9}{chapter.4}%
+\contentsline {chapter}{\numberline {5}ICP: Scan Matching}{10}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Correspondence Matching}{10}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Estimating the Transform}{11}{section.5.2}%
+\contentsline {section}{\numberline {5.3}Convergence}{11}{section.5.3}%
+\contentsline {section}{\numberline {5.4}Handling Rotation}{12}{section.5.4}%
+\contentsline {section}{\numberline {5.5}ICP 180-Degree Inversion Bug}{12}{section.5.5}%
+\contentsline {chapter}{\numberline {6}Pose Graph Construction}{13}{chapter.6}%
+\contentsline {chapter}{\numberline {7}Loop Closure Detection}{14}{chapter.7}%
+\contentsline {section}{\numberline {7.1}Performance Tuning}{15}{section.7.1}%
+\contentsline {chapter}{\numberline {8}Pose Graph Optimization}{16}{chapter.8}%
+\contentsline {section}{\numberline {8.1}Problem Formulation}{16}{section.8.1}%
+\contentsline {section}{\numberline {8.2}Solving via Iterative Local Linearization}{17}{section.8.2}%
+\contentsline {section}{\numberline {8.3}Implementation}{17}{section.8.3}%
+\contentsline {chapter}{\numberline {9}Results}{18}{chapter.9}%
+\contentsline {section}{\numberline {9.1}Analysis}{28}{section.9.1}%
+\contentsline {subsection}{\numberline {9.1.1}Wave-like Error over Time}{28}{subsection.9.1.1}%
+\contentsline {section}{\numberline {9.2}Future Work}{29}{section.9.2}%
+\contentsline {chapter}{References}{29}{section.9.2}%
+\contentsline {chapter}{\numberline {A}Source Code}{32}{appendix.A}%

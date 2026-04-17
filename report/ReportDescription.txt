@@ -1,0 +1,57 @@
+An essential part of any technical work is effective communication of the motivation, methodology and results of that work to others. The final project report that you submit in COMP 4905/4906 is the communication of your work to the “outside world”. It should be clearly understood that your report will be read and graded by your supervisor, who knows about the work and knows how much effort you have put into it. However, often others may also read about your work, which will be the first time they will have heard about the project/thesis and thus will be assessing it entirely on the basis of the report. It is to these other readers that the report should be aimed.
+
+A common pitfall, when a project involves coding, is for the project report to become little more than code documentation. This approach, of course, will not impress the other readers who do not understand the motivation for the production of the code. Any outside reader will want to be informed of all three basic aspects of the work mentioned above.
+
+Here are some guidelines for preparing your final report. Try to follow them closely to avoid receiving a disappointing grade. Remember that the report should be formal in style. Reports should be as concise as possible as the worth of a project is not measured by the weight of its report. A reasonable guideline is: reports should be around 30 to 40 pages in total (plus an appendix with code and additional charts/data etc.).
+
+Items such as user manuals and annotated source code should be put into appendices if included at all. Many students are tempted to include all source code in their final reports, but this is rarely a good idea. Instead, you will submit your source code and extra material in electronic format along with your report. Do not bulk up a report with code to impress readers as it does just the opposite.
+
+Report Outline
+Aside from the main text, technical reports contain the items listed below in the following order:
+
+Title Page
+Abstract
+Acknowledgments
+Table of Contents
+List of Figures
+List of Tables
+… Main Body of Text …
+References
+Appendix(ces)
+All of the above should begin on new pages, and all pages must be numbered. All other pages should be numbered consecutively from 1 in Arabic numerals (i.e., 1, 2, 3, 4, etc.). Pages of appendices should be separately numbered so that each can stand alone. Each figure and table appearing within the text should be consecutively numbered, listed in the appropriate list, and included within the body of the text close to the point where it is first discussed. Below is an explanation of each section.
+
+The Title Page should contain the following information: (i) the name of the organization (i.e., Carleton University), (ii) the course (e.g.., COMP4905 – Honours Project or COMP4906 – Honours Thesis), (iii) the title of the project/thesis, (iv) your name, (v) your supervisor(s) name(s), (vi) the date.
+The Abstract allows a reader to get a quick idea of what is in the report without having to search into the main text. The abstract should present the problem, the approach, the results obtained, and the conclusion(s) reached in no more than 200 words. It is best to write the abstract after the remainder of the report is written.
+The Acknowledgments are used to credit copyrighted material, the significant assistance obtained from others and contributions received, etc. It should be brief and to the point.
+The Table of Contents lists principal headings as they appear in the report (including appendices, if applicable) together with the page numbers on which the headings occur. It should not list anything prior to the main text.
+The List of Figures should be an index of all figures found in the body of the report. Similarly, should your report contain tables, a list of tables should be included as well. Such lists should include the figure or table number, title or caption, and the page on which it occurs.
+The Main Body of the Text will be organized according to the nature of the material being discussed. typically reports begin with an introduction, have other chapter headings appropriate to the material, and end with a conclusion. Early pages usually should provide background information and work objectives. Succeeding sections describe work procedures, results achieved, and related matters as appropriate. Finally, the report should conclude with a frank appraisal of the achievements, relating these to the project/thesis goals, and suggestions for further work. The main body of your report should at least clearly describe:
+Motivation: Give a clear explanation of the project/thesis and the rationale for it. Give some background to the problem and, if possible, put it in the context of other similar work being done. Keep in mind that the reader must be introduced to the problem at hand. Therefore, you should assume that the reader is knowledgeable but not necessarily an expert in the project/thesis field. One way to make clear the nature of the project/thesis is to clearly summarize its objectives. This aspect is usually covered in the introductory chapter of the report.
+Methodology: Go into detail about the methods used in doing your project/thesis. What are the relevant ideas, the sources of information, the various approaches that might be used? Discuss approaches finally chosen as well as those discarded and finally describe what was accomplished. It is important here to strike a balance between too much detail and not enough. Above all, avoid a repetitious style. This part of the report is usually covered in one or more middle chapters. A good rule-of-thumb is to break a chapter into two or more parts if it is large compared to other chapters.
+Results: Tell the reader what has been achieved in the project/thesis. What works and what doesn’t? Give conclusions and summarize the most important issues dealt with in your project/thesis. Depending upon the nature of the work that you did, you might be able to compare performance, illustrate a user interface, or simply present results in a clear and meaningful way. This is your chance to “sell” your work (i.e., convince others that it is interesting and useful), particularly to the other readers. Most of this material should appear in the 2nd last chapter of your report. A summary should also be given in the short concluding chapter.
+The References section should list ALL sources cited in the text. Many potential references will likely be discovered during the preparatory phases of the project/thesis.Take care to record these for inclusion in your report. Within the text, references are to be cited by giving the surname and year of publication, as follows:
+for single authors, e.g., [Smith, 1961]
+for two-author entries, e.g., [Smith and Brown, 1959]
+for multiple-author entries, e.g., [Smith et al., 1941]
+if author not given, cite as Anon., and give year, e.g., [Anon., 1972]
+If more than one reference by the same author occurs in a given year, add a letter to differentiate sources, e.g., [Smith, 1961a], and [Smith, 1961b]. The above format for citation of references (by first author and year) is particularly convenient since citation of additional references (or deletion of cited references) does not require extensive alterations of the text. Other formats of reference citation, e.g., by consecutive numbers allotted to each reference, require a change to many citations when a single reference is added or deleted. References should be listed alphabetically (and, for a given author, sequentially by year) in the following format:
+
+Brown, B.J., Smith, N.K., Jackson P.B. (1970) Pollution World’s Critical Challenge, Oxford University Press, pp. 293.
+Smith, T.G. (1961) A Study of urban growth in North America, Journal of Social Studies, Volume 5, Number 6, pp. 261-272.
+
+Personally acquired information should be referred to as “private communication”, as follows:
+
+Bittner, B.C. (1992) Private Communication.
+
+Each Appendix should have a title. Additionally, when more than one appendix is used, designate them as Appendix A, Appendix B., etc. All pages, tables, figures, and equation numbers in Appendix A should be preceded by “A-“, those in Appendix B by “B-” etc. When only a single appendix is used, should one omit the letter prefix
+
+Formatting
+All headings should be flush left and should have at least two lines of space above. A heading should not be placed near the bottom of a page unless there is space for at least two lines of text below. Optionally, if desired, the decimal system may be used for numbering the headings, sub-headings and sub-sub-headings (e.g., 1, 1.1, 1.1.1). Avoid the excessive use of headings, each paragraph doesn’t have to have a heading. Text paragraphs should be typed with 1.5 line spacing, with extra space between paragraphs. A paragraph should not begin near the bottom of a page unless there is space for at least two lines of text.
+
+Footnotes: In the text, symbols should be used to designate footnotes. The symbol should be placed at the upper right of the appropriate word in the text, and at the beginning of the footnote. Footnotes should be typed single-spaced at the bottom of the page. If there is more than one footnote on a page, successive footnotes should follow without line-spacing.
+
+Equations: They should be carefully formatted (handwritten if necessary). Symbols used for the first time should be explained. Number those equations which are part of a series or which are referred to in the text. Use consecutive Arabic numerals; for example, 1, 2, or 1-1, 1-2, 2-1, etc. When used, the equation numbers should be enclosed in parentheses and placed in the lower right corner of the equation. Align the equation numbers. Use Eq. (1) when referring to equations.
+
+Figures: They should be consecutively numbered. Titles should be centered below the figures. The word “Figure” should be capitalized, e.g., FIGURE 12. If there is more than one line in the title, the additional lines should be typed single-spaced. If included, photos should be of suitable quality. Crop or mask out insignificant detail. Similarly, tables should be consecutively numbered. When feasible, design tables for reading in an upright position, not sideways. Break lengthy, complicated tables into separate smaller ones. Combine related tables on single sheets when they will fit comfortably. Brief explanatory captions should be on all tables in addition to references for explanations in the text. Captions should be centered atop tables. The word “Table” should be capitalized. If there is more than one line in the caption, the additional lines should be typed single-spaced. All references, figures, tables and appendices must be cited in the text. Use Fig. 1, Table 1 to cite figures and tables in the text. Tables, figures and appendices should be arranged in the sequence of citations in the text.
+
+Code: Source code listings of complete programs should be in the appendices if included at all. Code fragments may appear within the text body proper for illustration purposes. Where possible, keep the listings upright, not sideways. Use smaller print if necessary.

@@ -12,8 +12,8 @@ struct SLAMConfig {
 
     // ---- Occupancy grid ----
     double grid_resolution = 0.01; // metres per cell
-    int    grid_width      = 1000; // cells
-    int    grid_height     = 1000;
+    int    grid_width      = 2000; // cells
+    int    grid_height     = 2000;
     double grid_origin_x   = -5.0; // world X of cell (0,0), metres
     double grid_origin_y   = -5.0;
 

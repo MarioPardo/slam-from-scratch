@@ -158,7 +158,7 @@ Pose Graph SLAM is a popular implementation of SLAM used by most modern state of
 that provide a computationally efficient, yet effective, solution to the localization and mapping
 problem. 
 
-This project presents a C++ implementation of a Graph-Based SLAM system developed from first
+This project presents a C++ implementation of a Pose Graph SLAM system developed from first
 principles.
 The resulting system demonstrates reliable convergence in pose-graph optimization, validating
 that a ground-up implementation can manage the underlying mathematical complexity and
@@ -402,7 +402,8 @@ are used for calculating trajectory using ICP.
 \newpage
 
 \section{Point Cloud}
-
+Our LiDAR sensor uses laser pulses to create a 2d map of our surroundings. This gives us a consistent and precise
+source our data of our surroundings, which we process with the methods shown below. 
 The lidar emits $N$ beams uniformly spread over a $360^\circ$ field of view.
 Each beam $i$ returns a range $r_i$ --- the distance to the nearest surface along angle
 $\alpha_i = \frac{2\pi i}{N}$.
@@ -417,7 +418,7 @@ $\alpha_i = \frac{2\pi i}{N}$.
 \end{figure}
 
 \textbf{Robot frame.}
-Using basic trigonometry, each return is converted to a 2-D point relative to the robot:
+Using basic trigonometry, each beam's return is converted to a 2-D point relative to the robot:
 \begin{equation}
     p_i^{\,\text{robot}} =
     \begin{pmatrix} r_i \cos\alpha_i \\ r_i \sin\alpha_i \end{pmatrix}
@@ -426,7 +427,7 @@ This gives the point cloud in the robot's own coordinate frame, centred at the r
 position with the robot's heading as the forward axis.
 
 \textbf{World frame projection.}
-With the current robot pose $(x,\, y,\, \theta)$, each point is transformed into the fixed world
+With the current robot pose $(x,\, y,\, \theta)$, each point then is transformed into the fixed world
 frame by applying a 2-D rigid-body transform:
 \begin{equation}
     p_i^{\,\text{world}} =
@@ -699,7 +700,7 @@ so the set of candidate nodes is filtered aggressively before ICP is invoked:
 
 With a loop closure edge added, the graph forms a full loop and is ready to be optimized.
 Optimization finds the arrangement of node poses that minimizes the total error across all edges.
-This step is what "snaps" the map in place, through the reduction of acculumated drift
+This step is what "snaps" the map in place, through the reduction of acculumated drift.
 
 \section{Problem Formulation}
 
@@ -716,7 +717,7 @@ The error for edge $(i,j)$ is:
 \end{equation}
 
 Each edge carries an information matrix $\Omega_{ij}$, representing confidence in the measurement
-(derived from how much the ICP result differed from the odometry prediction).
+, derived from how much the ICP result differed from the odometry prediction.
 The weighted squared error per edge is:
 \begin{equation}
     \varepsilon_{ij}(\mathbf{x})
@@ -733,7 +734,7 @@ Thus, to minimize error, the optimization goal is:
 \section{Solving via Iterative Local Linearization}
 
 This nonlinear least-squares problem is solved using iterative local linearization, upon which the
-Levenberg--Marquardt optimizer builds.
+Levenberg--Marquardt optimizer provided by GTSAM builds.
 
 \textbf{Step 1 --- Linearize around the current estimate.}
 \begin{equation}
@@ -1263,8 +1264,10 @@ than landmarks made of straight surfaces.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{../images/StraightVsCurvedLandmark.jpg}
-    \caption{Straight vs Curved Landmarks}
+    \includegraphics[width=0.6\textwidth]{../images/StraightVsCurvedLandmark.jpeg}
+    \caption{Straight vs Curved Landmark}
+    \small{Red surface projections on white surfaces from lidar rays. Straight landmark looks 
+    similar to wall behind, while round landmark has distinctive geometry compared to the wall behind}
     \label{fig:straight_v_curved_landmarks}
 \end{figure}
 
@@ -1287,7 +1290,7 @@ loop closures are found, our Pose Graph Optimization is able to consistently red
 
 \section{Future Work}
 
-This project created a working SLAM system, but one that could be further improved to work with larger and more complex environments,
+This project created a working SLAM system, but one that could be further improved to work with larger and more complex environments.
 It is also one that shows the working structure of a SLAM system, real world systems build on this architecture and add complex processing 
 for features such as object detection and tracking, that allow them to be used in real world systems such as in autonomously navigating vehicles. 
 Several directions could improve the core system:

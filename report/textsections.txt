@@ -383,15 +383,6 @@ At this point, is where we discovered the Lidar issue with WEBOTS, which made ev
 * possibly statistics from well established datasets. 
 
 
-
-
-
-
-
-
-
-
-
 Challenges: 
 
 Webots: 

@@ -1,0 +1,188 @@
+\relax 
+\providecommand{\transparent@use}[1]{}
+\providecommand\hyper@newdestlabel[2]{}
+\providecommand\HyField@AuxAddToFields[1]{}
+\providecommand\HyField@AuxAddToCoFields[2]{}
+\@writefile{toc}{\contentsline {chapter}{\numberline {1}Introduction}{1}{chapter.1}\protected@file@percent }
+\@writefile{lof}{\addvspace {10\p@ }}
+\@writefile{lot}{\addvspace {10\p@ }}
+\@writefile{toc}{\contentsline {chapter}{\numberline {2}System Architecture}{2}{chapter.2}\protected@file@percent }
+\@writefile{lof}{\addvspace {10\p@ }}
+\@writefile{lot}{\addvspace {10\p@ }}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Visualization of a the data flow and main components of the SLAM System.}}{2}{figure.caption.5}\protected@file@percent }
+\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
+\newlabel{fig:slam_architecture}{{1}{2}{Visualization of a the data flow and main components of the SLAM System}{figure.caption.5}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {2.1}Technology Stack}{3}{section.2.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{\numberline {3}World Setup and Sensor Integration}{4}{chapter.3}\protected@file@percent }
+\@writefile{lof}{\addvspace {10\p@ }}
+\@writefile{lot}{\addvspace {10\p@ }}
+\@writefile{toc}{\contentsline {section}{\numberline {3.1}Arena and Robot Setup}{4}{section.3.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Webots arena used for Development}}{4}{figure.caption.6}\protected@file@percent }
+\citation{dunbar2005swarm}
+\@writefile{toc}{\contentsline {section}{\numberline {3.2}Odometry}{5}{section.3.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Diagram of differential drive}}{5}{figure.caption.7}\protected@file@percent }
+\newlabel{fig:diff_drive}{{3}{5}{Diagram of differential drive}{figure.caption.7}{}}
+\citation{mishra2020kinematics}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Diagram of rotation with Differential Drive}}{6}{figure.caption.8}\protected@file@percent }
+\newlabel{fig:diff_drive_rotation}{{4}{6}{Diagram of rotation with Differential Drive}{figure.caption.8}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3.3}Point Cloud}{7}{section.3.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Diagram of Lidar Points from robot POV}}{7}{figure.caption.9}\protected@file@percent }
+\newlabel{fig:lidar_diagram}{{5}{7}{Diagram of Lidar Points from robot POV}{figure.caption.9}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3.4}Webots Lidar Noise During Rotation}{8}{section.3.4}\protected@file@percent }
+\newlabel{sec:webots_bug}{{3.4}{8}{Webots Lidar Noise During Rotation}{section.3.4}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Initial visualizations showing odometry trajectory estimation , and basic cloud point recognition}}{8}{figure.caption.10}\protected@file@percent }
+\newlabel{fig:first_traj_lidar_viz}{{6}{8}{Initial visualizations showing odometry trajectory estimation , and basic cloud point recognition}{figure.caption.10}{}}
+\citation{rodriguez2010grid}
+\@writefile{toc}{\contentsline {chapter}{\numberline {4}Occupancy Grid}{9}{chapter.4}\protected@file@percent }
+\@writefile{lof}{\addvspace {10\p@ }}
+\@writefile{lot}{\addvspace {10\p@ }}
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Ray Casting and Occupancy}}{9}{figure.caption.11}\protected@file@percent }
+\newlabel{fig:raycast_occ_diagram}{{7}{9}{Ray Casting and Occupancy}{figure.caption.11}{}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {5}ICP: Scan Matching}{10}{chapter.5}\protected@file@percent }
+\@writefile{lof}{\addvspace {10\p@ }}
+\@writefile{lot}{\addvspace {10\p@ }}
+\newlabel{chap:icp}{{5}{10}{ICP: Scan Matching}{chapter.5}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5.1}Correspondence Matching}{10}{section.5.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {5.2}Estimating the Transform}{11}{section.5.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {5.3}Convergence}{11}{section.5.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {5.4}Handling Rotation}{12}{section.5.4}\protected@file@percent }
+\newlabel{sec:icp_rotation}{{5.4}{12}{Handling Rotation}{section.5.4}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5.5}ICP 180-Degree Inversion Bug}{12}{section.5.5}\protected@file@percent }
+\citation{pose_graph_thesis}
+\@writefile{toc}{\contentsline {chapter}{\numberline {6}Pose Graph Construction}{13}{chapter.6}\protected@file@percent }
+\@writefile{lof}{\addvspace {10\p@ }}
+\@writefile{lot}{\addvspace {10\p@ }}
+\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces Diagram of Pose Graph}}{13}{figure.caption.12}\protected@file@percent }
+\newlabel{fig:pose_graph}{{8}{13}{Diagram of Pose Graph}{figure.caption.12}{}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {7}Loop Closure Detection}{14}{chapter.7}\protected@file@percent }
+\@writefile{lof}{\addvspace {10\p@ }}
+\@writefile{lot}{\addvspace {10\p@ }}
+\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces Visualization of detected loop closures edges (cyan) between pink nodes.}}{14}{figure.caption.13}\protected@file@percent }
+\newlabel{fig:loop_closure}{{9}{14}{Visualization of detected loop closures edges (cyan) between pink nodes}{figure.caption.13}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {7.1}Performance Tuning}{15}{section.7.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{\numberline {8}Pose Graph Optimization}{16}{chapter.8}\protected@file@percent }
+\@writefile{lof}{\addvspace {10\p@ }}
+\@writefile{lot}{\addvspace {10\p@ }}
+\@writefile{toc}{\contentsline {section}{\numberline {8.1}Problem Formulation}{16}{section.8.1}\protected@file@percent }
+\newlabel{eq:error}{{8.1}{16}{Problem Formulation}{equation.8.1}{}}
+\newlabel{eq:opt_goal}{{8.3}{16}{Problem Formulation}{equation.8.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {8.2}Solving via Iterative Local Linearization}{17}{section.8.2}\protected@file@percent }
+\newlabel{eq:expand}{{8.5}{17}{Solving via Iterative Local Linearization}{equation.8.5}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {8.3}Implementation}{17}{section.8.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{\numberline {9}Results}{18}{chapter.9}\protected@file@percent }
+\@writefile{lof}{\addvspace {10\p@ }}
+\@writefile{lot}{\addvspace {10\p@ }}
+\newlabel{fig:hallway_mapimg}{{10a}{19}{environment image}{figure.caption.14}{}}
+\newlabel{sub@fig:hallway_mapimg}{{a}{19}{environment image}{figure.caption.14}{}}
+\newlabel{fig:hallway_traj}{{10b}{19}{Trajectory comparison}{figure.caption.14}{}}
+\newlabel{sub@fig:hallway_traj}{{b}{19}{Trajectory comparison}{figure.caption.14}{}}
+\newlabel{fig:hallway_grid}{{10c}{19}{Occupancy grid output}{figure.caption.14}{}}
+\newlabel{sub@fig:hallway_grid}{{c}{19}{Occupancy grid output}{figure.caption.14}{}}
+\newlabel{fig:hallway_error}{{10d}{19}{Localisation error over time}{figure.caption.14}{}}
+\newlabel{sub@fig:hallway_error}{{d}{19}{Localisation error over time}{figure.caption.14}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces Hallway Map results.}}{19}{figure.caption.14}\protected@file@percent }
+\newlabel{fig:hallway_results}{{10}{19}{Hallway Map results}{figure.caption.14}{}}
+\newlabel{fig:hallway_lm_mapimg}{{11a}{20}{environment image}{figure.caption.15}{}}
+\newlabel{sub@fig:hallway_lm_mapimg}{{a}{20}{environment image}{figure.caption.15}{}}
+\newlabel{fig:hallway_lm_traj}{{11b}{20}{Trajectory comparison}{figure.caption.15}{}}
+\newlabel{sub@fig:hallway_lm_traj}{{b}{20}{Trajectory comparison}{figure.caption.15}{}}
+\newlabel{fig:hallway_lm_grid}{{11c}{20}{Occupancy grid output}{figure.caption.15}{}}
+\newlabel{sub@fig:hallway_lm_grid}{{c}{20}{Occupancy grid output}{figure.caption.15}{}}
+\newlabel{fig:hallway_lm_error}{{11d}{20}{Localisation error over time}{figure.caption.15}{}}
+\newlabel{sub@fig:hallway_lm_error}{{d}{20}{Localisation error over time}{figure.caption.15}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {11}{\ignorespaces Hallway Map (with landmarks) results.}}{20}{figure.caption.15}\protected@file@percent }
+\newlabel{fig:hallway_lm_results}{{11}{20}{Hallway Map (with landmarks) results}{figure.caption.15}{}}
+\newlabel{fig:round_mapimg}{{12a}{21}{environment image}{figure.caption.16}{}}
+\newlabel{sub@fig:round_mapimg}{{a}{21}{environment image}{figure.caption.16}{}}
+\newlabel{fig:round_traj}{{12b}{21}{Trajectory comparison}{figure.caption.16}{}}
+\newlabel{sub@fig:round_traj}{{b}{21}{Trajectory comparison}{figure.caption.16}{}}
+\newlabel{fig:round_grid}{{12c}{21}{Occupancy grid output}{figure.caption.16}{}}
+\newlabel{sub@fig:round_grid}{{c}{21}{Occupancy grid output}{figure.caption.16}{}}
+\newlabel{fig:round_error}{{12d}{21}{Localisation error over time}{figure.caption.16}{}}
+\newlabel{sub@fig:round_error}{{d}{21}{Localisation error over time}{figure.caption.16}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {12}{\ignorespaces Round Hallway results.}}{21}{figure.caption.16}\protected@file@percent }
+\newlabel{fig:round_results}{{12}{21}{Round Hallway results}{figure.caption.16}{}}
+\newlabel{fig:round_lm_mapimg}{{13a}{22}{environment image}{figure.caption.17}{}}
+\newlabel{sub@fig:round_lm_mapimg}{{a}{22}{environment image}{figure.caption.17}{}}
+\newlabel{fig:round_lm_traj}{{13b}{22}{Trajectory comparison}{figure.caption.17}{}}
+\newlabel{sub@fig:round_lm_traj}{{b}{22}{Trajectory comparison}{figure.caption.17}{}}
+\newlabel{fig:round_lm_grid}{{13c}{22}{Occupancy grid output}{figure.caption.17}{}}
+\newlabel{sub@fig:round_lm_grid}{{c}{22}{Occupancy grid output}{figure.caption.17}{}}
+\newlabel{fig:round_lm_error}{{13d}{22}{Localisation error over time}{figure.caption.17}{}}
+\newlabel{sub@fig:round_lm_error}{{d}{22}{Localisation error over time}{figure.caption.17}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {13}{\ignorespaces Round Hallway (with landmarks) results.}}{22}{figure.caption.17}\protected@file@percent }
+\newlabel{fig:round_lm_results}{{13}{22}{Round Hallway (with landmarks) results}{figure.caption.17}{}}
+\newlabel{fig:grid2_mapimg}{{14a}{23}{environment image}{figure.caption.18}{}}
+\newlabel{sub@fig:grid2_mapimg}{{a}{23}{environment image}{figure.caption.18}{}}
+\newlabel{fig:grid2_traj}{{14b}{23}{Trajectory comparison}{figure.caption.18}{}}
+\newlabel{sub@fig:grid2_traj}{{b}{23}{Trajectory comparison}{figure.caption.18}{}}
+\newlabel{fig:grid2_grid}{{14c}{23}{Occupancy grid output}{figure.caption.18}{}}
+\newlabel{sub@fig:grid2_grid}{{c}{23}{Occupancy grid output}{figure.caption.18}{}}
+\newlabel{fig:grid2_error}{{14d}{23}{Localisation error over time}{figure.caption.18}{}}
+\newlabel{sub@fig:grid2_error}{{d}{23}{Localisation error over time}{figure.caption.18}{}}
+\newlabel{fig:cross_map_warped_grid}{{14e}{23}{Occupancy grid mid-trajectory}{figure.caption.18}{}}
+\newlabel{sub@fig:cross_map_warped_grid}{{e}{23}{Occupancy grid mid-trajectory}{figure.caption.18}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {14}{\ignorespaces Crosses Map results.}}{23}{figure.caption.18}\protected@file@percent }
+\newlabel{fig:grid2_results}{{14}{23}{Crosses Map results}{figure.caption.18}{}}
+\newlabel{fig:ball_mapimg}{{15a}{24}{environment image}{figure.caption.19}{}}
+\newlabel{sub@fig:ball_mapimg}{{a}{24}{environment image}{figure.caption.19}{}}
+\newlabel{fig:ball_traj}{{15b}{24}{Trajectory comparison}{figure.caption.19}{}}
+\newlabel{sub@fig:ball_traj}{{b}{24}{Trajectory comparison}{figure.caption.19}{}}
+\newlabel{fig:ball_grid}{{15c}{24}{Occupancy grid output}{figure.caption.19}{}}
+\newlabel{sub@fig:ball_grid}{{c}{24}{Occupancy grid output}{figure.caption.19}{}}
+\newlabel{fig:ball_error}{{15d}{24}{Localisation error over time}{figure.caption.19}{}}
+\newlabel{sub@fig:ball_error}{{d}{24}{Localisation error over time}{figure.caption.19}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {15}{\ignorespaces Ball Map results.}}{24}{figure.caption.19}\protected@file@percent }
+\newlabel{fig:ball_results}{{15}{24}{Ball Map results}{figure.caption.19}{}}
+\newlabel{fig:ultra_mapimg}{{16a}{25}{environment image}{figure.caption.20}{}}
+\newlabel{sub@fig:ultra_mapimg}{{a}{25}{environment image}{figure.caption.20}{}}
+\newlabel{fig:ultra_traj}{{16b}{25}{Trajectory comparison}{figure.caption.20}{}}
+\newlabel{sub@fig:ultra_traj}{{b}{25}{Trajectory comparison}{figure.caption.20}{}}
+\newlabel{fig:ultra_grid}{{16c}{25}{Occupancy grid output}{figure.caption.20}{}}
+\newlabel{sub@fig:ultra_grid}{{c}{25}{Occupancy grid output}{figure.caption.20}{}}
+\newlabel{fig:everything_round_error}{{16d}{25}{Localisation error over time}{figure.caption.20}{}}
+\newlabel{sub@fig:everything_round_error}{{d}{25}{Localisation error over time}{figure.caption.20}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {16}{\ignorespaces Everything Round results.}}{25}{figure.caption.20}\protected@file@percent }
+\newlabel{fig:everything_round_results}{{16}{25}{Everything Round results}{figure.caption.20}{}}
+\newlabel{fig:regular_mapimg}{{17a}{26}{environment image}{figure.caption.21}{}}
+\newlabel{sub@fig:regular_mapimg}{{a}{26}{environment image}{figure.caption.21}{}}
+\newlabel{fig:regular_traj}{{17b}{26}{Trajectory comparison}{figure.caption.21}{}}
+\newlabel{sub@fig:regular_traj}{{b}{26}{Trajectory comparison}{figure.caption.21}{}}
+\newlabel{fig:regular_grid}{{17c}{26}{Occupancy grid output}{figure.caption.21}{}}
+\newlabel{sub@fig:regular_grid}{{c}{26}{Occupancy grid output}{figure.caption.21}{}}
+\newlabel{fig:regular_error}{{17d}{26}{Localisation error over time}{figure.caption.21}{}}
+\newlabel{sub@fig:regular_error}{{d}{26}{Localisation error over time}{figure.caption.21}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {17}{\ignorespaces Regular Map results.}}{26}{figure.caption.21}\protected@file@percent }
+\newlabel{fig:regular_results}{{17}{26}{Regular Map results}{figure.caption.21}{}}
+\newlabel{fig:apartment_mapimg}{{18a}{27}{Environment Image}{figure.caption.22}{}}
+\newlabel{sub@fig:apartment_mapimg}{{a}{27}{Environment Image}{figure.caption.22}{}}
+\newlabel{fig:apartment_traj}{{18b}{27}{Trajectory comparison}{figure.caption.22}{}}
+\newlabel{sub@fig:apartment_traj}{{b}{27}{Trajectory comparison}{figure.caption.22}{}}
+\newlabel{fig:apartment_grid}{{18c}{27}{Occupancy grid output}{figure.caption.22}{}}
+\newlabel{sub@fig:apartment_grid}{{c}{27}{Occupancy grid output}{figure.caption.22}{}}
+\newlabel{fig:apartment_error}{{18d}{27}{Localisation error over time}{figure.caption.22}{}}
+\newlabel{sub@fig:apartment_error}{{d}{27}{Localisation error over time}{figure.caption.22}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {18}{\ignorespaces Apartment results.}}{27}{figure.caption.22}\protected@file@percent }
+\newlabel{fig:apartment_results}{{18}{27}{Apartment results}{figure.caption.22}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {9.1}Analysis}{28}{section.9.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {19}{\ignorespaces Straight vs Curved Landmark}}{28}{figure.caption.23}\protected@file@percent }
+\newlabel{fig:straight_v_curved_landmarks}{{19}{28}{Straight vs Curved Landmark}{figure.caption.23}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.1.1}Wave-like Error over Time}{28}{subsection.9.1.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {9.2}Future Work}{29}{section.9.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{References}{29}{section.9.2}\protected@file@percent }
+\bibcite{dunbar2005swarm}{1}
+\bibcite{bresenham_mbedded}{2}
+\bibcite{mishra2020kinematics}{3}
+\bibcite{rodriguez2010grid}{4}
+\bibcite{pose_graph_thesis}{5}
+\bibcite{gtsam}{6}
+\bibcite{stachniss2020posegraph}{7}
+\bibcite{stachniss2021icp}{8}
+\bibcite{stachniss2020occgrid}{9}
+\bibcite{stachniss2020leastsquares}{10}
+\@writefile{toc}{\contentsline {chapter}{\numberline {A}Source Code}{32}{appendix.A}\protected@file@percent }
+\@writefile{lof}{\addvspace {10\p@ }}
+\@writefile{lot}{\addvspace {10\p@ }}
+\newlabel{app:code}{{A}{32}{Source Code}{appendix.A}{}}
+\gdef\svg@ink@ver@settings{{\m@ne }{inkscape}{\m@ne }}
+\gdef \@abspage@last{38}

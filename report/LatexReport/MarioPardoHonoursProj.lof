@@ -1,0 +1,29 @@
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {1}{\ignorespaces Visualization of a the data flow and main components of the SLAM System.}}{2}{figure.caption.5}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {2}{\ignorespaces Webots arena used for Development}}{4}{figure.caption.6}%
+\contentsline {figure}{\numberline {3}{\ignorespaces Diagram of differential drive}}{5}{figure.caption.7}%
+\contentsline {figure}{\numberline {4}{\ignorespaces Diagram of rotation with Differential Drive}}{6}{figure.caption.8}%
+\contentsline {figure}{\numberline {5}{\ignorespaces Diagram of Lidar Points from robot POV}}{7}{figure.caption.9}%
+\contentsline {figure}{\numberline {6}{\ignorespaces Initial visualizations showing odometry trajectory estimation , and basic cloud point recognition}}{8}{figure.caption.10}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {7}{\ignorespaces Ray Casting and Occupancy}}{9}{figure.caption.11}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {8}{\ignorespaces Diagram of Pose Graph}}{13}{figure.caption.12}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {9}{\ignorespaces Visualization of detected loop closures edges (cyan) between pink nodes.}}{14}{figure.caption.13}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {10}{\ignorespaces Hallway Map results.}}{19}{figure.caption.14}%
+\contentsline {figure}{\numberline {11}{\ignorespaces Hallway Map (with landmarks) results.}}{20}{figure.caption.15}%
+\contentsline {figure}{\numberline {12}{\ignorespaces Round Hallway results.}}{21}{figure.caption.16}%
+\contentsline {figure}{\numberline {13}{\ignorespaces Round Hallway (with landmarks) results.}}{22}{figure.caption.17}%
+\contentsline {figure}{\numberline {14}{\ignorespaces Crosses Map results.}}{23}{figure.caption.18}%
+\contentsline {figure}{\numberline {15}{\ignorespaces Ball Map results.}}{24}{figure.caption.19}%
+\contentsline {figure}{\numberline {16}{\ignorespaces Everything Round results.}}{25}{figure.caption.20}%
+\contentsline {figure}{\numberline {17}{\ignorespaces Regular Map results.}}{26}{figure.caption.21}%
+\contentsline {figure}{\numberline {18}{\ignorespaces Apartment results.}}{27}{figure.caption.22}%
+\contentsline {figure}{\numberline {19}{\ignorespaces Straight vs Curved Landmark}}{28}{figure.caption.23}%
+\addvspace {10\p@ }

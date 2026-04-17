@@ -1,0 +1,623 @@
+PWD /Users/mario/Documents/Programming/slam-lab/report/LatexReport
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/data/miktex/data/le/pdftex/pdflatex.fmt
+INPUT /Users/mario/Documents/Programming/slam-lab/report/LatexReport/MarioPardoHonoursProj.tex
+OUTPUT MarioPardoHonoursProj.log
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/base/report.cls
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/base/report.cls
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/base/size12.clo
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/base/size12.clo
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/base/size12.clo
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/public/cm/cmr12.tfm
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/geometry/geometry.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/geometry/geometry.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/graphics/keyval.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/graphics/keyval.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/generic/iftex/ifvtex.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/generic/iftex/ifvtex.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/generic/iftex/iftex.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/generic/iftex/iftex.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/geometry/geometry.cfg
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/geometry/geometry.cfg
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/geometry/geometry.cfg
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/setspace/setspace.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/setspace/setspace.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/graphics/graphicx.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/graphics/graphicx.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/graphics/graphics.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/graphics/graphics.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/graphics/trig.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/graphics/trig.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/graphics-cfg/graphics.cfg
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/graphics-cfg/graphics.cfg
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/graphics-cfg/graphics.cfg
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/graphics-def/pdftex.def
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/graphics-def/pdftex.def
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/graphics-def/pdftex.def
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/gensymb/gensymb.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/gensymb/gensymb.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/amsmath/amsmath.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/amsmath/amsmath.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/amsmath/amsopn.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/amsmath/amstext.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/amsmath/amstext.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/amsmath/amsgen.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/amsmath/amsgen.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/amsmath/amsbsy.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/amsmath/amsbsy.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/amsmath/amsopn.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/amsfonts/amssymb.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/amsfonts/amssymb.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/amsfonts/amsfonts.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/amsfonts/amsfonts.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/hyperref/hyperref.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/hyperref/hyperref.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/kvsetkeys/kvsetkeys.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/kvsetkeys/kvsetkeys.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/generic/kvdefinekeys/kvdefinekeys.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/generic/kvdefinekeys/kvdefinekeys.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/generic/pdfescape/pdfescape.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/generic/pdfescape/pdfescape.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/generic/ltxcmds/ltxcmds.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/generic/ltxcmds/ltxcmds.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/generic/pdftexcmds/pdftexcmds.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/generic/pdftexcmds/pdftexcmds.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/generic/infwarerr/infwarerr.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/generic/infwarerr/infwarerr.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/hycolor/hycolor.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/hycolor/hycolor.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/hyperref/nameref.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/hyperref/nameref.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/refcount/refcount.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/refcount/refcount.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/generic/gettitlestring/gettitlestring.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/generic/gettitlestring/gettitlestring.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/kvoptions/kvoptions.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/kvoptions/kvoptions.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/etoolbox/etoolbox.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/etoolbox/etoolbox.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/generic/stringenc/stringenc.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/generic/stringenc/stringenc.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/hyperref/pd1enc.def
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/hyperref/pd1enc.def
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/hyperref/pd1enc.def
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/generic/intcalc/intcalc.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/generic/intcalc/intcalc.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/hyperref/puenc.def
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/hyperref/puenc.def
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/hyperref/puenc.def
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/url/url.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/url/url.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/generic/bitset/bitset.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/generic/bitset/bitset.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/generic/bigintcalc/bigintcalc.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/generic/bigintcalc/bigintcalc.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/hyperref/hpdftex.def
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/hyperref/hpdftex.def
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/hyperref/hpdftex.def
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/rerunfilecheck/rerunfilecheck.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/rerunfilecheck/rerunfilecheck.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/generic/uniquecounter/uniquecounter.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/generic/uniquecounter/uniquecounter.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/caption/caption.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/caption/caption.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/caption/caption3.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/caption/caption3.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/caption/subcaption.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/caption/subcaption.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/chngcntr/chngcntr.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/chngcntr/chngcntr.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/fancyhdr/fancyhdr.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/fancyhdr/fancyhdr.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/titlesec/titlesec.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/titlesec/titlesec.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/listings/listings.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/listings/listings.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/listings/lstpatch.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/listings/lstpatch.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/listings/lstpatch.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/listings/lstmisc.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/listings/lstmisc.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/listings/lstmisc.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/listings/listings.cfg
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/listings/listings.cfg
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/listings/listings.cfg
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/xcolor/xcolor.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/xcolor/xcolor.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/graphics-cfg/color.cfg
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/graphics-cfg/color.cfg
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/graphics-cfg/color.cfg
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/graphics/mathcolor.ltx
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/graphics/mathcolor.ltx
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/graphics/mathcolor.ltx
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/booktabs/booktabs.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/booktabs/booktabs.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/float/float.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/float/float.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/svg/svg.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/svg/svg.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/koma-script/scrbase.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/koma-script/scrbase.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/koma-script/scrlfile.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/koma-script/scrlfile.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/koma-script/scrlfile-hook.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/koma-script/scrlfile-hook.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/koma-script/scrlogo.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/koma-script/scrlogo.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/trimspaces/trimspaces.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/trimspaces/trimspaces.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/tools/shellesc.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/tools/shellesc.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/transparent/transparent.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/transparent/transparent.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/transparent/transparent-nometadata.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/transparent/transparent-nometadata.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/auxhook/auxhook.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/auxhook/auxhook.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/pgf/systemlayer/pgfsys.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/pgf/systemlayer/pgfsys.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/pgf/utilities/pgfrcs.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/pgf/utilities/pgfrcs.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/generic/pgf/utilities/pgfutil-common.tex
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/generic/pgf/utilities/pgfutil-latex.def
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/generic/pgf/utilities/pgfrcs.code.tex
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/generic/pgf/utilities/pgfrcs.code.tex
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/generic/pgf/utilities/pgfrcs.code.tex
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/generic/pgf/pgf.revision.tex
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/generic/pgf/pgf.revision.tex
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/generic/pgf/systemlayer/pgfsys.code.tex
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/generic/pgf/systemlayer/pgfsys.code.tex
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/generic/pgf/systemlayer/pgfsys.code.tex
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/generic/pgf/utilities/pgfkeys.code.tex
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/generic/pgf/utilities/pgfkeyslibraryfiltered.code.tex
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/generic/pgf/systemlayer/pgf.cfg
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/generic/pgf/systemlayer/pgfsys-pdftex.def
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/generic/pgf/systemlayer/pgfsys-pdftex.def
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/generic/pgf/systemlayer/pgfsys-common-pdf.def
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/generic/pgf/systemlayer/pgfsyssoftpath.code.tex
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/generic/pgf/systemlayer/pgfsyssoftpath.code.tex
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/generic/pgf/systemlayer/pgfsyssoftpath.code.tex
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/generic/pgf/systemlayer/pgfsysprotocol.code.tex
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/generic/pgf/systemlayer/pgfsysprotocol.code.tex
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/generic/pgf/systemlayer/pgfsysprotocol.code.tex
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/emptypage/emptypage.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/emptypage/emptypage.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/needspace/needspace.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/needspace/needspace.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/l3backend/l3backend-pdftex.def
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/l3backend/l3backend-pdftex.def
+INPUT ./MarioPardoHonoursProj.aux
+INPUT ./MarioPardoHonoursProj.aux
+INPUT MarioPardoHonoursProj.aux
+OUTPUT MarioPardoHonoursProj.aux
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/context/base/mkii/supp-pdf.mkii
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/context/base/mkii/supp-pdf.mkii
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/context/base/mkii/supp-pdf.mkii
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/epstopdf-pkg/epstopdf-base.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/epstopdf-pkg/epstopdf-base.sty
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/00miktex/epstopdf-sys.cfg
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/00miktex/epstopdf-sys.cfg
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/00miktex/epstopdf-sys.cfg
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/graphics/color.sty
+INPUT ./MarioPardoHonoursProj.out
+INPUT ./MarioPardoHonoursProj.out
+INPUT MarioPardoHonoursProj.out
+INPUT MarioPardoHonoursProj.out
+OUTPUT MarioPardoHonoursProj.pdf
+INPUT ./MarioPardoHonoursProj.out
+INPUT ./MarioPardoHonoursProj.out
+OUTPUT MarioPardoHonoursProj.out
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/public/cm/cmr17.tfm
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/public/cm/cmbx12.tfm
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/public/cm/cmr12.tfm
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/public/cm/cmr17.tfm
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/public/cm/cmbx12.tfm
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/public/cm/cmbx12.tfm
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/public/cm/cmr8.tfm
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/public/cm/cmr6.tfm
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/public/cm/cmmi12.tfm
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/public/cm/cmmi8.tfm
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/public/cm/cmmi6.tfm
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/public/cm/cmsy10.tfm
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/public/cm/cmsy8.tfm
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/public/cm/cmsy6.tfm
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/public/cm/cmex10.tfm
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/public/amsfonts/cmextra/cmex8.tfm
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/public/amsfonts/cmextra/cmex7.tfm
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/amsfonts/umsa.fd
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/amsfonts/umsa.fd
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/amsfonts/umsa.fd
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/public/amsfonts/symbols/msam10.tfm
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/public/amsfonts/symbols/msam10.tfm
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/public/amsfonts/symbols/msam7.tfm
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/amsfonts/umsb.fd
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/amsfonts/umsb.fd
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/amsfonts/umsb.fd
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/public/amsfonts/symbols/msbm10.tfm
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/public/amsfonts/symbols/msbm10.tfm
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/public/amsfonts/symbols/msbm7.tfm
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/data/fonts/map/pdftex/pdftex.map
+INPUT ./MarioPardoHonoursProj.toc
+INPUT ./MarioPardoHonoursProj.toc
+INPUT MarioPardoHonoursProj.toc
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/public/cm/cmbx12.tfm
+OUTPUT MarioPardoHonoursProj.toc
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/public/cm/cmr10.tfm
+INPUT ./MarioPardoHonoursProj.lof
+INPUT ./MarioPardoHonoursProj.lof
+INPUT MarioPardoHonoursProj.lof
+OUTPUT MarioPardoHonoursProj.lof
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/public/cm/cmti12.tfm
+INPUT ../images/PG-SLAM_Architecture.png
+INPUT ../images/PG-SLAM_Architecture.png
+INPUT ../images/PG-SLAM_Architecture.png
+INPUT ../images/PG-SLAM_Architecture.png
+INPUT ../images/PG-SLAM_Architecture.png
+INPUT ../images/PG-SLAM_Architecture.png
+INPUT ../images/PG-SLAM_Architecture.png
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/public/cm/cmr17.tfm
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/public/cm/cmbx12.tfm
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/jknappen/ec/tcrm1200.tfm
+INPUT ../images/Experiments/RegularMap/RegularMap_MapImg.png
+INPUT ../images/Experiments/RegularMap/RegularMap_MapImg.png
+INPUT ../images/Experiments/RegularMap/RegularMap_MapImg.png
+INPUT ../images/Experiments/RegularMap/RegularMap_MapImg.png
+INPUT ../images/Experiments/RegularMap/RegularMap_MapImg.png
+INPUT ../images/Experiments/RegularMap/RegularMap_MapImg.png
+INPUT ../images/Experiments/RegularMap/RegularMap_MapImg.png
+INPUT ../images/DifferentialDrive.png
+INPUT ../images/DifferentialDrive.png
+INPUT ../images/DifferentialDrive.png
+INPUT ../images/DifferentialDrive.png
+INPUT ../images/DifferentialDrive.png
+INPUT ../images/DifferentialDrive.png
+INPUT ../images/DifferentialDrive.png
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/public/cm/cmti10.tfm
+INPUT ../images/DiffDriveRotation.png
+INPUT ../images/DiffDriveRotation.png
+INPUT ../images/DiffDriveRotation.png
+INPUT ../images/DiffDriveRotation.png
+INPUT ../images/DiffDriveRotation.png
+INPUT ../images/DiffDriveRotation.png
+INPUT ../images/DiffDriveRotation.png
+INPUT ../images/LidarDiagram.jpeg
+INPUT ../images/LidarDiagram.jpeg
+INPUT ../images/LidarDiagram.jpeg
+INPUT ../images/LidarDiagram.jpeg
+INPUT ../images/LidarDiagram.jpeg
+INPUT ../images/LidarDiagram.jpeg
+INPUT ../images/LidarDiagram.jpeg
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/public/cm/cmmi10.tfm
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/public/cm/cmsy10.tfm
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/public/cm/cmex10.tfm
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/public/amsfonts/symbols/msam10.tfm
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/public/amsfonts/symbols/msbm10.tfm
+INPUT ../images/VisualizeLidarAndTrajTest.png
+INPUT ../images/VisualizeLidarAndTrajTest.png
+INPUT ../images/VisualizeLidarAndTrajTest.png
+INPUT ../images/VisualizeLidarAndTrajTest.png
+INPUT ../images/VisualizeLidarAndTrajTest.png
+INPUT ../images/VisualizeLidarAndTrajTest.png
+INPUT ../images/VisualizeLidarAndTrajTest.png
+INPUT ../images/RayCastOccGrid.png
+INPUT ../images/RayCastOccGrid.png
+INPUT ../images/RayCastOccGrid.png
+INPUT ../images/RayCastOccGrid.png
+INPUT ../images/RayCastOccGrid.png
+INPUT ../images/RayCastOccGrid.png
+INPUT ../images/RayCastOccGrid.png
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/public/cm/cmtt12.tfm
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/public/cm/cmtt8.tfm
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/public/cm/cmtt8.tfm
+INPUT ../images/PoseGraphDiagram.jpg
+INPUT ../images/PoseGraphDiagram.jpg
+INPUT ../images/PoseGraphDiagram.jpg
+INPUT ../images/PoseGraphDiagram.jpg
+INPUT ../images/PoseGraphDiagram.jpg
+INPUT ../images/PoseGraphDiagram.jpg
+INPUT ../images/PoseGraphDiagram.jpg
+INPUT ../../Pictures/ProgressPics/LoopClosure.png
+INPUT ../../Pictures/ProgressPics/LoopClosure.png
+INPUT ../../Pictures/ProgressPics/LoopClosure.png
+INPUT ../../Pictures/ProgressPics/LoopClosure.png
+INPUT ../../Pictures/ProgressPics/LoopClosure.png
+INPUT ../../Pictures/ProgressPics/LoopClosure.png
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/public/cm/cmbx8.tfm
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/public/cm/cmbx6.tfm
+INPUT ../images/Experiments/HallwayMap/HallwayMap_MapImg.png
+INPUT ../images/Experiments/HallwayMap/HallwayMap_MapImg.png
+INPUT ../images/Experiments/HallwayMap/HallwayMap_MapImg.png
+INPUT ../images/Experiments/HallwayMap/HallwayMap_MapImg.png
+INPUT ../images/Experiments/HallwayMap/HallwayMap_MapImg.png
+INPUT ../images/Experiments/HallwayMap/HallwayMap_MapImg.png
+INPUT ../images/Experiments/HallwayMap/HallwayMap_MapImg.png
+INPUT ../images/Experiments/HallwayMap/HallwayMap_traj.png
+INPUT ../images/Experiments/HallwayMap/HallwayMap_traj.png
+INPUT ../images/Experiments/HallwayMap/HallwayMap_traj.png
+INPUT ../images/Experiments/HallwayMap/HallwayMap_traj.png
+INPUT ../images/Experiments/HallwayMap/HallwayMap_traj.png
+INPUT ../images/Experiments/HallwayMap/HallwayMap_traj.png
+INPUT ../images/Experiments/HallwayMap/HallwayMap_traj.png
+INPUT ../images/Experiments/HallwayMap/HallwayMap_grid.png
+INPUT ../images/Experiments/HallwayMap/HallwayMap_grid.png
+INPUT ../images/Experiments/HallwayMap/HallwayMap_grid.png
+INPUT ../images/Experiments/HallwayMap/HallwayMap_grid.png
+INPUT ../images/Experiments/HallwayMap/HallwayMap_grid.png
+INPUT ../images/Experiments/HallwayMap/HallwayMap_grid.png
+INPUT ../images/Experiments/HallwayMap/HallwayMap_grid.png
+INPUT ../images/Experiments/HallwayMap/HallwayMap_errorline.png
+INPUT ../images/Experiments/HallwayMap/HallwayMap_errorline.png
+INPUT ../images/Experiments/HallwayMap/HallwayMap_errorline.png
+INPUT ../images/Experiments/HallwayMap/HallwayMap_errorline.png
+INPUT ../images/Experiments/HallwayMap/HallwayMap_errorline.png
+INPUT ../images/Experiments/HallwayMap/HallwayMap_errorline.png
+INPUT ../images/Experiments/HallwayMap/HallwayMap_errorline.png
+INPUT ../images/Experiments/HallwayMap/HallwayMap_Landmark_MapImg.png
+INPUT ../images/Experiments/HallwayMap/HallwayMap_Landmark_MapImg.png
+INPUT ../images/Experiments/HallwayMap/HallwayMap_Landmark_MapImg.png
+INPUT ../images/Experiments/HallwayMap/HallwayMap_Landmark_MapImg.png
+INPUT ../images/Experiments/HallwayMap/HallwayMap_Landmark_MapImg.png
+INPUT ../images/Experiments/HallwayMap/HallwayMap_Landmark_MapImg.png
+INPUT ../images/Experiments/HallwayMap/HallwayMap_Landmark_MapImg.png
+INPUT ../images/Experiments/HallwayMap/HallwayMap_Landmark_traj.png
+INPUT ../images/Experiments/HallwayMap/HallwayMap_Landmark_traj.png
+INPUT ../images/Experiments/HallwayMap/HallwayMap_Landmark_traj.png
+INPUT ../images/Experiments/HallwayMap/HallwayMap_Landmark_traj.png
+INPUT ../images/Experiments/HallwayMap/HallwayMap_Landmark_traj.png
+INPUT ../images/Experiments/HallwayMap/HallwayMap_Landmark_traj.png
+INPUT ../images/Experiments/HallwayMap/HallwayMap_Landmark_traj.png
+INPUT ../images/Experiments/HallwayMap/HallwayMap_Landmark_grid.png
+INPUT ../images/Experiments/HallwayMap/HallwayMap_Landmark_grid.png
+INPUT ../images/Experiments/HallwayMap/HallwayMap_Landmark_grid.png
+INPUT ../images/Experiments/HallwayMap/HallwayMap_Landmark_grid.png
+INPUT ../images/Experiments/HallwayMap/HallwayMap_Landmark_grid.png
+INPUT ../images/Experiments/HallwayMap/HallwayMap_Landmark_grid.png
+INPUT ../images/Experiments/HallwayMap/HallwayMap_Landmark_grid.png
+INPUT ../images/Experiments/HallwayMap/HallwayMap_Landmark_errorline.png
+INPUT ../images/Experiments/HallwayMap/HallwayMap_Landmark_errorline.png
+INPUT ../images/Experiments/HallwayMap/HallwayMap_Landmark_errorline.png
+INPUT ../images/Experiments/HallwayMap/HallwayMap_Landmark_errorline.png
+INPUT ../images/Experiments/HallwayMap/HallwayMap_Landmark_errorline.png
+INPUT ../images/Experiments/HallwayMap/HallwayMap_Landmark_errorline.png
+INPUT ../images/Experiments/HallwayMap/HallwayMap_Landmark_errorline.png
+INPUT ../images/Experiments/RoundHallway/RoundHallway_MapImg.png
+INPUT ../images/Experiments/RoundHallway/RoundHallway_MapImg.png
+INPUT ../images/Experiments/RoundHallway/RoundHallway_MapImg.png
+INPUT ../images/Experiments/RoundHallway/RoundHallway_MapImg.png
+INPUT ../images/Experiments/RoundHallway/RoundHallway_MapImg.png
+INPUT ../images/Experiments/RoundHallway/RoundHallway_MapImg.png
+INPUT ../images/Experiments/RoundHallway/RoundHallway_MapImg.png
+INPUT ../images/Experiments/RoundHallway/RoundHallway_traj_noloop.png
+INPUT ../images/Experiments/RoundHallway/RoundHallway_traj_noloop.png
+INPUT ../images/Experiments/RoundHallway/RoundHallway_traj_noloop.png
+INPUT ../images/Experiments/RoundHallway/RoundHallway_traj_noloop.png
+INPUT ../images/Experiments/RoundHallway/RoundHallway_traj_noloop.png
+INPUT ../images/Experiments/RoundHallway/RoundHallway_traj_noloop.png
+INPUT ../images/Experiments/RoundHallway/RoundHallway_traj_noloop.png
+INPUT ../images/Experiments/RoundHallway/RoundHallway_Grid.png
+INPUT ../images/Experiments/RoundHallway/RoundHallway_Grid.png
+INPUT ../images/Experiments/RoundHallway/RoundHallway_Grid.png
+INPUT ../images/Experiments/RoundHallway/RoundHallway_Grid.png
+INPUT ../images/Experiments/RoundHallway/RoundHallway_Grid.png
+INPUT ../images/Experiments/RoundHallway/RoundHallway_Grid.png
+INPUT ../images/Experiments/RoundHallway/RoundHallway_Grid.png
+INPUT ../images/Experiments/RoundHallway/RoundHallway_error_overtime.png
+INPUT ../images/Experiments/RoundHallway/RoundHallway_error_overtime.png
+INPUT ../images/Experiments/RoundHallway/RoundHallway_error_overtime.png
+INPUT ../images/Experiments/RoundHallway/RoundHallway_error_overtime.png
+INPUT ../images/Experiments/RoundHallway/RoundHallway_error_overtime.png
+INPUT ../images/Experiments/RoundHallway/RoundHallway_error_overtime.png
+INPUT ../images/Experiments/RoundHallway/RoundHallway_error_overtime.png
+INPUT ../images/Experiments/RoundHallway/RoundHallway_landmark_MapImg.png
+INPUT ../images/Experiments/RoundHallway/RoundHallway_landmark_MapImg.png
+INPUT ../images/Experiments/RoundHallway/RoundHallway_landmark_MapImg.png
+INPUT ../images/Experiments/RoundHallway/RoundHallway_landmark_MapImg.png
+INPUT ../images/Experiments/RoundHallway/RoundHallway_landmark_MapImg.png
+INPUT ../images/Experiments/RoundHallway/RoundHallway_landmark_MapImg.png
+INPUT ../images/Experiments/RoundHallway/RoundHallway_landmark_MapImg.png
+INPUT ../images/Experiments/RoundHallway/RoundHallway_Landmark_Traj.png
+INPUT ../images/Experiments/RoundHallway/RoundHallway_Landmark_Traj.png
+INPUT ../images/Experiments/RoundHallway/RoundHallway_Landmark_Traj.png
+INPUT ../images/Experiments/RoundHallway/RoundHallway_Landmark_Traj.png
+INPUT ../images/Experiments/RoundHallway/RoundHallway_Landmark_Traj.png
+INPUT ../images/Experiments/RoundHallway/RoundHallway_Landmark_Traj.png
+INPUT ../images/Experiments/RoundHallway/RoundHallway_Landmark_Traj.png
+INPUT ../images/Experiments/RoundHallway/RoundHallway_Landmark_Grid.png
+INPUT ../images/Experiments/RoundHallway/RoundHallway_Landmark_Grid.png
+INPUT ../images/Experiments/RoundHallway/RoundHallway_Landmark_Grid.png
+INPUT ../images/Experiments/RoundHallway/RoundHallway_Landmark_Grid.png
+INPUT ../images/Experiments/RoundHallway/RoundHallway_Landmark_Grid.png
+INPUT ../images/Experiments/RoundHallway/RoundHallway_Landmark_Grid.png
+INPUT ../images/Experiments/RoundHallway/RoundHallway_Landmark_Grid.png
+INPUT ../images/Experiments/RoundHallway/RoundHallway__landmarkerror_overtime.png
+INPUT ../images/Experiments/RoundHallway/RoundHallway__landmarkerror_overtime.png
+INPUT ../images/Experiments/RoundHallway/RoundHallway__landmarkerror_overtime.png
+INPUT ../images/Experiments/RoundHallway/RoundHallway__landmarkerror_overtime.png
+INPUT ../images/Experiments/RoundHallway/RoundHallway__landmarkerror_overtime.png
+INPUT ../images/Experiments/RoundHallway/RoundHallway__landmarkerror_overtime.png
+INPUT ../images/Experiments/RoundHallway/RoundHallway__landmarkerror_overtime.png
+INPUT ../images/Experiments/GridWorld/GridWorld2_MapImg.png
+INPUT ../images/Experiments/GridWorld/GridWorld2_MapImg.png
+INPUT ../images/Experiments/GridWorld/GridWorld2_MapImg.png
+INPUT ../images/Experiments/GridWorld/GridWorld2_MapImg.png
+INPUT ../images/Experiments/GridWorld/GridWorld2_MapImg.png
+INPUT ../images/Experiments/GridWorld/GridWorld2_MapImg.png
+INPUT ../images/Experiments/GridWorld/GridWorld2_MapImg.png
+INPUT ../images/Experiments/GridWorld/GridWorld_2_traj.png
+INPUT ../images/Experiments/GridWorld/GridWorld_2_traj.png
+INPUT ../images/Experiments/GridWorld/GridWorld_2_traj.png
+INPUT ../images/Experiments/GridWorld/GridWorld_2_traj.png
+INPUT ../images/Experiments/GridWorld/GridWorld_2_traj.png
+INPUT ../images/Experiments/GridWorld/GridWorld_2_traj.png
+INPUT ../images/Experiments/GridWorld/GridWorld_2_traj.png
+INPUT ../images/Experiments/GridWorld/GridWorld_2_grid.png
+INPUT ../images/Experiments/GridWorld/GridWorld_2_grid.png
+INPUT ../images/Experiments/GridWorld/GridWorld_2_grid.png
+INPUT ../images/Experiments/GridWorld/GridWorld_2_grid.png
+INPUT ../images/Experiments/GridWorld/GridWorld_2_grid.png
+INPUT ../images/Experiments/GridWorld/GridWorld_2_grid.png
+INPUT ../images/Experiments/GridWorld/GridWorld_2_grid.png
+INPUT ../images/Experiments/GridWorld/GridWorld_2_errorline.png
+INPUT ../images/Experiments/GridWorld/GridWorld_2_errorline.png
+INPUT ../images/Experiments/GridWorld/GridWorld_2_errorline.png
+INPUT ../images/Experiments/GridWorld/GridWorld_2_errorline.png
+INPUT ../images/Experiments/GridWorld/GridWorld_2_errorline.png
+INPUT ../images/Experiments/GridWorld/GridWorld_2_errorline.png
+INPUT ../images/Experiments/GridWorld/GridWorld_2_errorline.png
+INPUT ../images/Experiments/GridWorld/GridWorld_1_grid.png
+INPUT ../images/Experiments/GridWorld/GridWorld_1_grid.png
+INPUT ../images/Experiments/GridWorld/GridWorld_1_grid.png
+INPUT ../images/Experiments/GridWorld/GridWorld_1_grid.png
+INPUT ../images/Experiments/GridWorld/GridWorld_1_grid.png
+INPUT ../images/Experiments/GridWorld/GridWorld_1_grid.png
+INPUT ../images/Experiments/GridWorld/GridWorld_1_grid.png
+INPUT ../images/Experiments/BallMap/BallMap_MapImg.png
+INPUT ../images/Experiments/BallMap/BallMap_MapImg.png
+INPUT ../images/Experiments/BallMap/BallMap_MapImg.png
+INPUT ../images/Experiments/BallMap/BallMap_MapImg.png
+INPUT ../images/Experiments/BallMap/BallMap_MapImg.png
+INPUT ../images/Experiments/BallMap/BallMap_MapImg.png
+INPUT ../images/Experiments/BallMap/BallMap_MapImg.png
+INPUT ../images/Experiments/BallMap/BallWorld_traj.png
+INPUT ../images/Experiments/BallMap/BallWorld_traj.png
+INPUT ../images/Experiments/BallMap/BallWorld_traj.png
+INPUT ../images/Experiments/BallMap/BallWorld_traj.png
+INPUT ../images/Experiments/BallMap/BallWorld_traj.png
+INPUT ../images/Experiments/BallMap/BallWorld_traj.png
+INPUT ../images/Experiments/BallMap/BallWorld_traj.png
+INPUT ../images/Experiments/BallMap/BallWorld_grid.png
+INPUT ../images/Experiments/BallMap/BallWorld_grid.png
+INPUT ../images/Experiments/BallMap/BallWorld_grid.png
+INPUT ../images/Experiments/BallMap/BallWorld_grid.png
+INPUT ../images/Experiments/BallMap/BallWorld_grid.png
+INPUT ../images/Experiments/BallMap/BallWorld_grid.png
+INPUT ../images/Experiments/BallMap/BallWorld_grid.png
+INPUT ../images/Experiments/BallMap/BallMap_errorline.png
+INPUT ../images/Experiments/BallMap/BallMap_errorline.png
+INPUT ../images/Experiments/BallMap/BallMap_errorline.png
+INPUT ../images/Experiments/BallMap/BallMap_errorline.png
+INPUT ../images/Experiments/BallMap/BallMap_errorline.png
+INPUT ../images/Experiments/BallMap/BallMap_errorline.png
+INPUT ../images/Experiments/BallMap/BallMap_errorline.png
+INPUT ../images/Experiments/UltraRound/UltraRound_MapImg.png
+INPUT ../images/Experiments/UltraRound/UltraRound_MapImg.png
+INPUT ../images/Experiments/UltraRound/UltraRound_MapImg.png
+INPUT ../images/Experiments/UltraRound/UltraRound_MapImg.png
+INPUT ../images/Experiments/UltraRound/UltraRound_MapImg.png
+INPUT ../images/Experiments/UltraRound/UltraRound_MapImg.png
+INPUT ../images/Experiments/UltraRound/UltraRound_MapImg.png
+INPUT ../images/Experiments/UltraRound/UltraRound_traj.png
+INPUT ../images/Experiments/UltraRound/UltraRound_traj.png
+INPUT ../images/Experiments/UltraRound/UltraRound_traj.png
+INPUT ../images/Experiments/UltraRound/UltraRound_traj.png
+INPUT ../images/Experiments/UltraRound/UltraRound_traj.png
+INPUT ../images/Experiments/UltraRound/UltraRound_traj.png
+INPUT ../images/Experiments/UltraRound/UltraRound_traj.png
+INPUT ../images/Experiments/UltraRound/UltraRound_grid.png
+INPUT ../images/Experiments/UltraRound/UltraRound_grid.png
+INPUT ../images/Experiments/UltraRound/UltraRound_grid.png
+INPUT ../images/Experiments/UltraRound/UltraRound_grid.png
+INPUT ../images/Experiments/UltraRound/UltraRound_grid.png
+INPUT ../images/Experiments/UltraRound/UltraRound_grid.png
+INPUT ../images/Experiments/UltraRound/UltraRound_grid.png
+INPUT ../images/Experiments/UltraRound/UltraRound_errorlien.png
+INPUT ../images/Experiments/UltraRound/UltraRound_errorlien.png
+INPUT ../images/Experiments/UltraRound/UltraRound_errorlien.png
+INPUT ../images/Experiments/UltraRound/UltraRound_errorlien.png
+INPUT ../images/Experiments/UltraRound/UltraRound_errorlien.png
+INPUT ../images/Experiments/UltraRound/UltraRound_errorlien.png
+INPUT ../images/Experiments/UltraRound/UltraRound_errorlien.png
+INPUT ../images/Experiments/RegularMap/RegularMap_MapImg.png
+INPUT ../images/Experiments/RegularMap/RegularMap_MapImg.png
+INPUT ../images/Experiments/RegularMap/RegularMap_MapImg.png
+INPUT ../images/Experiments/RegularMap/RegularMap_MapImg.png
+INPUT ../images/Experiments/RegularMap/RegularMap_traj.png
+INPUT ../images/Experiments/RegularMap/RegularMap_traj.png
+INPUT ../images/Experiments/RegularMap/RegularMap_traj.png
+INPUT ../images/Experiments/RegularMap/RegularMap_traj.png
+INPUT ../images/Experiments/RegularMap/RegularMap_traj.png
+INPUT ../images/Experiments/RegularMap/RegularMap_traj.png
+INPUT ../images/Experiments/RegularMap/RegularMap_traj.png
+INPUT ../images/Experiments/RegularMap/RegularMap_grid.png
+INPUT ../images/Experiments/RegularMap/RegularMap_grid.png
+INPUT ../images/Experiments/RegularMap/RegularMap_grid.png
+INPUT ../images/Experiments/RegularMap/RegularMap_grid.png
+INPUT ../images/Experiments/RegularMap/RegularMap_grid.png
+INPUT ../images/Experiments/RegularMap/RegularMap_grid.png
+INPUT ../images/Experiments/RegularMap/RegularMap_grid.png
+INPUT ../images/Experiments/RegularMap/RegularMap_errorline.png
+INPUT ../images/Experiments/RegularMap/RegularMap_errorline.png
+INPUT ../images/Experiments/RegularMap/RegularMap_errorline.png
+INPUT ../images/Experiments/RegularMap/RegularMap_errorline.png
+INPUT ../images/Experiments/RegularMap/RegularMap_errorline.png
+INPUT ../images/Experiments/RegularMap/RegularMap_errorline.png
+INPUT ../images/Experiments/RegularMap/RegularMap_errorline.png
+INPUT ../images/Experiments/Apartment/Apartment_MapImg.png
+INPUT ../images/Experiments/Apartment/Apartment_MapImg.png
+INPUT ../images/Experiments/Apartment/Apartment_MapImg.png
+INPUT ../images/Experiments/Apartment/Apartment_MapImg.png
+INPUT ../images/Experiments/Apartment/Apartment_MapImg.png
+INPUT ../images/Experiments/Apartment/Apartment_MapImg.png
+INPUT ../images/Experiments/Apartment/Apartment_MapImg.png
+INPUT ../images/Experiments/Apartment/Apartment_traj.png
+INPUT ../images/Experiments/Apartment/Apartment_traj.png
+INPUT ../images/Experiments/Apartment/Apartment_traj.png
+INPUT ../images/Experiments/Apartment/Apartment_traj.png
+INPUT ../images/Experiments/Apartment/Apartment_traj.png
+INPUT ../images/Experiments/Apartment/Apartment_traj.png
+INPUT ../images/Experiments/Apartment/Apartment_traj.png
+INPUT ../images/Experiments/Apartment/Apartment_grid.png
+INPUT ../images/Experiments/Apartment/Apartment_grid.png
+INPUT ../images/Experiments/Apartment/Apartment_grid.png
+INPUT ../images/Experiments/Apartment/Apartment_grid.png
+INPUT ../images/Experiments/Apartment/Apartment_grid.png
+INPUT ../images/Experiments/Apartment/Apartment_grid.png
+INPUT ../images/Experiments/Apartment/Apartment_grid.png
+INPUT ../images/Experiments/Apartment/Apartment_errorLine.png
+INPUT ../images/Experiments/Apartment/Apartment_errorLine.png
+INPUT ../images/Experiments/Apartment/Apartment_errorLine.png
+INPUT ../images/Experiments/Apartment/Apartment_errorLine.png
+INPUT ../images/Experiments/Apartment/Apartment_errorLine.png
+INPUT ../images/Experiments/Apartment/Apartment_errorLine.png
+INPUT ../images/Experiments/Apartment/Apartment_errorLine.png
+INPUT ../images/StraightVsCurvedLandmark.jpeg
+INPUT ../images/StraightVsCurvedLandmark.jpeg
+INPUT ../images/StraightVsCurvedLandmark.jpeg
+INPUT ../images/StraightVsCurvedLandmark.jpeg
+INPUT ../images/StraightVsCurvedLandmark.jpeg
+INPUT ../images/StraightVsCurvedLandmark.jpeg
+INPUT ../images/StraightVsCurvedLandmark.jpeg
+INPUT MarioPardoHonoursProj.aux
+INPUT ./MarioPardoHonoursProj.out
+INPUT ./MarioPardoHonoursProj.out
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/data/fonts/pk/ljfour/jknappen/ec/dpi600/tcrm1200.pk
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/data/fonts/pk/ljfour/jknappen/ec/dpi600/tcrm1200.pk
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmbx12.pfb
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmbx12.pfb
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmbx8.pfb
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmbx8.pfb
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmex10.pfb
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmex10.pfb
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmmi12.pfb
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmmi12.pfb
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmmi6.pfb
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmmi6.pfb
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmmi8.pfb
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmmi8.pfb
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmr10.pfb
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmr10.pfb
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmr12.pfb
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmr12.pfb
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmr8.pfb
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmr8.pfb
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmsy10.pfb
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmsy10.pfb
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmsy6.pfb
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmsy6.pfb
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmsy8.pfb
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmsy8.pfb
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmti10.pfb
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmti10.pfb
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmti12.pfb
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmti12.pfb
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmtt12.pfb
+INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmtt12.pfb
