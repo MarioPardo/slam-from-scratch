@@ -206,6 +206,12 @@ OUTPUT MarioPardoHonoursProj.pdf
 INPUT ./MarioPardoHonoursProj.out
 INPUT ./MarioPardoHonoursProj.out
 OUTPUT MarioPardoHonoursProj.out
+INPUT ../images/CarletonLogo.png
+INPUT ../images/CarletonLogo.png
+INPUT ../images/CarletonLogo.png
+INPUT ../images/CarletonLogo.png
+INPUT ../images/CarletonLogo.png
+INPUT ../images/CarletonLogo.png
 INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/public/cm/cmr17.tfm
 INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/public/cm/cmbx12.tfm
 INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/public/cm/cmr12.tfm
@@ -315,12 +321,12 @@ INPUT ../images/PoseGraphDiagram.jpg
 INPUT ../images/PoseGraphDiagram.jpg
 INPUT ../images/PoseGraphDiagram.jpg
 INPUT ../images/PoseGraphDiagram.jpg
-INPUT ../../Pictures/ProgressPics/LoopClosure.png
-INPUT ../../Pictures/ProgressPics/LoopClosure.png
-INPUT ../../Pictures/ProgressPics/LoopClosure.png
-INPUT ../../Pictures/ProgressPics/LoopClosure.png
-INPUT ../../Pictures/ProgressPics/LoopClosure.png
-INPUT ../../Pictures/ProgressPics/LoopClosure.png
+INPUT ../../ProgressPics/LoopClosure.png
+INPUT ../../ProgressPics/LoopClosure.png
+INPUT ../../ProgressPics/LoopClosure.png
+INPUT ../../ProgressPics/LoopClosure.png
+INPUT ../../ProgressPics/LoopClosure.png
+INPUT ../../ProgressPics/LoopClosure.png
 INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/public/cm/cmbx8.tfm
 INPUT /Users/mario/Library/Application Support/MiKTeX/texmfs/install/fonts/tfm/public/cm/cmbx6.tfm
 INPUT ../images/Experiments/HallwayMap/HallwayMap_MapImg.png
