@@ -10,19 +10,23 @@ Webots is used as the robot simulation front end, with a TurtleBot driving throu
 
 ```
 slam-lab/
-├── slam_core/          # Core C++ SLAM implementation
-│   ├── src/            # Source files (ICP, odometry, pose graph, occupancy grid, etc.)
-│   ├── tests/          # Unit and integration tests for SLAM components
+├── slam_core/              # Core C++ SLAM implementation
+│   ├── src/                # Source files (ICP, odometry, pose graph, occupancy grid, etc.)
+│   ├── tests/              # Unit and integration tests for SLAM components
 │   └── build/         
-├── webots/             # Webots simulation setup
+├── webots/                 # Webots simulation setup
 │   ├── controllers/    
 │   ├── worlds/        
 │   └── ...           
-├── report/             # report writing files
-├── notes/              # Personal notes studying SLAM
-├── Pictures/           # Screenshots and figures
-├── slam_viewer_pygame.py  # Pygame-based visualization tool for the SLAM output
-├── Planning.txt        # Personal TODO and progress tracker
+├── Visualizers/            # Pygame-based visualization tools for SLAM output
+│   ├── slam_viewer_pygame.py
+│   └── slam_grid_viewer.py
+├── configs/                # Sensor/robot config files (intel.json, turtlebot.json)
+├── CARMEN_testing/         # CARMEN log files and replay script for offline testing
+├── ResultVideos/           # Recorded demo videos of SLAM runs
+├── report/                 # Report writing files
+├── HandwrittenNotes/       # Personal notes studying SLAM
+├── ProgressPics/           # Screenshots and figures
 └── requirements.txt   
 ```
 
@@ -45,7 +49,7 @@ slam-lab/
 AI tools were used selectively in this project:
 
 - **Testing code**: Test scaffolding and test cases were generated with AI assistance.
-- **Visualization code**: The Pygame viewer (`slam_viewer_pygame.py`) was built with AI help.
+- **Visualization code**: The Pygame viewers in `Visualizers/` were built with AI help.
 - **Syntax help**: AI was used for C++ syntax questions and general language guidance.
 - **Algorithm explanation**: AI was used to explain the theory behind SLAM (pose graph optimization, ICP, etc.) for me to then implement independently.
 
