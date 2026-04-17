@@ -23,6 +23,7 @@
 \contentsline {chapter}{\numberline {9}Results}{18}{chapter.9}%
 \contentsline {section}{\numberline {9.1}Analysis}{28}{section.9.1}%
 \contentsline {subsection}{\numberline {9.1.1}Wave-like Error over Time}{28}{subsection.9.1.1}%
-\contentsline {section}{\numberline {9.2}Future Work}{29}{section.9.2}%
-\contentsline {chapter}{References}{29}{section.9.2}%
-\contentsline {chapter}{\numberline {A}Source Code}{32}{appendix.A}%
+\contentsline {section}{\numberline {9.2}Conclusion}{29}{section.9.2}%
+\contentsline {chapter}{\numberline {10}Future Work}{30}{chapter.10}%
+\contentsline {chapter}{References}{30}{chapter.10}%
+\contentsline {chapter}{\numberline {A}Source Code}{33}{appendix.A}%

@@ -155,9 +155,9 @@ is a key challenge in developing autonomous robots and vehicles.
 Simultaneous Localization and Mapping (SLAM) is a class of algorithms dedicated to just this task,
 allowing systems to understand the environment in which they operate and where they are within
 it --- especially critical in scenarios where external positioning sources, such as GPS, are unavailable.
-Pose Graph SLAM is a popular implementation of SLAM used by most modern state of the art systems, and 
-that provide a computationally efficient, yet effective, solution to the localization and mapping
-problem. 
+Pose Graph SLAM is a popular implementation of SLAM used by most modern state-of-the-art systems, and
+provides a computationally efficient, yet effective, solution to the localization and mapping
+problem.
 
 This project presents a C++ implementation of a Pose Graph SLAM system developed from first
 principles.
@@ -213,11 +213,11 @@ As pose estimates build on top of one another, this drift accumulates quickly, l
 estimates and conflicts with incoming sensor data --- ultimately producing catastrophic errors in
 localization and mapping.
 
-To illustrate. Assume our robot is at $(2\text{ m},\; 0\text{ m})$, but our current estimates think that the 
+To illustrate, assume our robot is at $(2\text{ m},\; 0\text{ m})$, but our current estimates think that the 
 robot is at $(3\text{ m},\; 1\text{ m})$.
 If our lidar tells us that there is a wall 3m ahead, then we will register this wall to be at $(6\text{ m},\; 1\text{ m})$, 
 when in reality our wall is at $(5\text{ m},\; 0\text{ m})$.\newline
-Frame by frame, these error quickly compound leading to highly innacurate trajectory and mapping estimations. 
+Frame by frame, these errors quickly compound, leading to highly inaccurate trajectory and mapping estimations.
 
 A Graph-Based SLAM system constructs a graph of poses and movements, and when it detects a
 \textit{loop closure} --- a location previously visited --- it uses this new observation to update all
@@ -250,10 +250,10 @@ and map surrounding environment
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.72\textwidth]{../images/PG-SLAM_Architecture.png}
-    \caption{Visualization of a the data flow and main components of the SLAM System.}
+    \caption{Visualization of the data flow and main components of the SLAM System.}
     \label{fig:slam_architecture}
     \small{Sensors are used to obtain odometry and point cloud data, which is used by ICP for transform
-    estimation. As the robot traverses the pose graph is continuously updated, and if succesfull loop clousures are found,
+    estimation. As the robot traverses the pose graph is continuously updated, and if successful loop closures are found,
     pose graph optimization is run to reduce error in the graph}
 \end{figure}
 
@@ -308,9 +308,9 @@ This data is gathered in Webots and the raw values are forwarded to the C++ back
 \section{Arena and Robot Setup}
 
 The first step was to set up the testing arena and robot.
-A simple square arena was created, and was populated with various and assymetric landmarks.
-These landmarks are important for ICP (Chapter~\ref{chap:icp}) to work with, as well as for easy diagnostics 
-though visualization tools. 
+A simple square arena was created, and populated with various asymmetric landmarks.
+These landmarks are important for ICP (Chapter~\ref{chap:icp}) to work with, as well as for easy diagnostics
+through visualization tools.
 The premade TurtleBot Burger 3 was selected, already equipped with all the necessary actuators and sensors
 for our project. 
 A simple differential drive controller was created and tested to confirm reliable movement and control of the robot.
@@ -334,7 +334,6 @@ A simple differential drive controller was created and tested to confirm reliabl
 \end{figure}
 
 A differential drive robot steers by varying the speed of its two wheels independently.
-We 
 At each timestep, wheel encoders report the angular displacement of each wheel, $\Delta\phi_l$ and
 $\Delta\phi_r$ (in radians) for each wheel. \newline
 Multiplying by the wheel radius $r$ converts these to linear distances:
@@ -394,7 +393,7 @@ wet terrain --- or introduce sensor measurement noise.
 Modelling this noise is important, as correcting for it is a core responsibility of the SLAM system.
 
 Odometry provides the first reference point for the SLAM algorithm.
-Later on during ICP (Chapter~\ref{chap:icp}), odometry trajectory is used as a starting off point for 
+Later on during ICP (Chapter~\ref{chap:icp}), odometry trajectory is used as a starting point for scan matching.
 
 Wheel sensors and therefore odometry data can be quite noisy, which is why point clouds, which are much less prone to noise, 
 are used for calculating trajectory using ICP. 
@@ -404,7 +403,7 @@ are used for calculating trajectory using ICP.
 
 \section{Point Cloud}
 Our LiDAR sensor uses laser pulses to create a 2d map of our surroundings. This gives us a consistent and precise
-source our data of our surroundings, which we process with the methods shown below. 
+source of data about our surroundings, which we process with the methods shown below.
 The lidar emits $N$ beams uniformly spread over a $360^\circ$ field of view.
 Each beam $i$ returns a range $r_i$ --- the distance to the nearest surface along angle
 $\alpha_i = \frac{2\pi i}{N}$.
@@ -456,15 +455,15 @@ After considerable troubleshooting, the source was identified as a Webots simula
 the robot is rotating, the lidar scan twitches back and forth and only snaps back into place once
 rotation finishes, producing very noisy and incorrect lidar data during the rotation.
 The fix was to discard all lidar data collected while the robot is rotating, using only readings when the 
-robot is undergoing no rotation, where lidar readings are accurate
+robot is undergoing no rotation, where lidar readings are accurate.
 
-The figure below shows a working odometry trajectory combined with a single instance of lidar data. 
-Due to it being a single instance, the mentioned "smear" is not shown
+The figure below shows a working odometry trajectory combined with a single instance of lidar data.
+Due to it being a single instance, the mentioned "smear" is not shown.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.72\textwidth]{../images/VisualizeLidarAndTrajTest.png}
-    \caption{Initial visualizations showing odometry trajectory estimation , and basic cloud point recognition}
+    \caption{Initial visualizations showing odometry trajectory estimation, and basic point cloud recognition}
     \label{fig:first_traj_lidar_viz}
 \end{figure}
 
@@ -487,12 +486,12 @@ and cells along the free path are decreased.
 The occupancy grid is only updated on new keyframes (Chapter 6) to ensure readings come from stable
 and trusted data. 
 
-To find out which cells are occupied and not, we use the \textbf{BresenhamLine Algorithm} to "trace" a line
+To find out which cells are occupied and which are not, we use the \textbf{Bresenham's Line Algorithm} to "trace" a line
 through our grid.
-For each ray, we draw a line. We take the endpoint of our ray to be occupied, and anything before it to be free. 
-This is then used to update the occupation probability of each cell. 
-The figure below shows an example of four separate rays being casted, and the resulting occupied (grey) 
-and unnocupied (white) area
+For each ray, we draw a line. We take the endpoint of our ray to be occupied, and anything before it to be free.
+This is then used to update the occupation probability of each cell.
+The figure below shows an example of four separate rays being cast, and the resulting occupied (grey)
+and unoccupied (white) area.
 
 \begin{figure}[H]
     \centering
@@ -526,10 +525,10 @@ The algorithm, at a high level, proceeds as follows: \newline
 
 \section{Correspondence Matching}
 To estimate the transformation between point clouds, we must first find pairs of points (source, target) in the two 
-point clouds, which we deem to be the same place on the surface, just from different point of view. 
-This change in the point of view is the transformation we wish to compute. 
+point clouds, which we deem to be the same place on the surface, just from a different point of view.
+This change in point of view is the transformation we wish to compute.
 \newline
-The most simple method of corrßespondence matching was used, \textbf{Point to Point}.
+The simplest method of correspondence matching was used, \textbf{Point to Point}.
 \newline
 The logic goes as follows: 
 \newline for each point in the source cloud, the closest
@@ -639,7 +638,7 @@ to the ground truth information about the environment, and the robot's trajector
 angle $\delta\theta$, tuned through trial and error.
 This is a trade-off: too many nodes overwhelm the optimizer; too few forces ICP to find
 transformations across large gaps.
-For a square world nearly 2~m diagonally across, a keyframe step of 15~cm, and angle change of 0.2radians (~12\degree) was large enough not to
+For a square world nearly 2~m diagonally across, a keyframe step of 15~cm, and angle change of 0.2 radians (${\sim}12\degree$) was large enough not to
 overwhelm the optimizer while small enough for ICP to find accurate transformations.
 
 The visualization tool was updated to display graph nodes and their ICP-estimated edges.
@@ -701,7 +700,7 @@ so the set of candidate nodes is filtered aggressively before ICP is invoked:
 
 With a loop closure edge added, the graph forms a full loop and is ready to be optimized.
 Optimization finds the arrangement of node poses that minimizes the total error across all edges.
-This step is what "snaps" the map in place, through the reduction of acculumated drift.
+This step is what "snaps" the map in place, through the reduction of accumulated drift.
 
 \section{Problem Formulation}
 
@@ -909,14 +908,14 @@ Landmark surfaces are added to the walls to provide additional ICP features and 
     \label{fig:hallway_lm_results}
 \end{figure}
 
-We see that landmarks provided a noticeable improvement in performance. From visual inspection, the tajectory is closer 
-to ground truth, specifically that the green line is less visible, telling us that Pose Graph Optimization had lessworkd to do. 
-Likelise for mapping, we no longer have that "artifact" at the bottom of the map.
+We see that landmarks provided a noticeable improvement in performance. From visual inspection, the trajectory is closer
+to ground truth, specifically that the green line is less visible, telling us that Pose Graph Optimization had less work to do.
+Likewise for mapping, we no longer have that "artifact" at the bottom of the map.
 
 \newpage
 \subsection*{Round Hallway}
 
-Now we test the same hallway idea, but the walls are now curved
+Now we test the same hallway idea, but the walls are now curved.
 
 \begin{figure}[H]
     \centering
@@ -958,15 +957,15 @@ Now we test the same hallway idea, but the walls are now curved
 This is our first negative result. We see that the round walls have a detrimental effect on our trajectory. 
 Looking at the trajectory comparison, we see that the ICP trajectory is actually quite far back compared to our ground truth. While
 the white ground truth line has made a full loop, ICP still believes we are a bit far back, around 1/8th of the circle back. 
-Then, when a loop closure is found and the Pose Graph Optimized, it is unable to remove mcuh error at all compared to other maps. 
+Then, when a loop closure is found and the Pose Graph Optimized, it is unable to remove much error at all compared to other maps.
 
-This result shows the clear negative effect of round surfaces on ICP
+This result shows the clear negative effect of round surfaces on ICP.
 
 We must also analyze that while trajectory is affected, mapping is not. Due to the radial symmetry of the circular path, 
 being further back "looks" identical as it relates to a point cloud, so the robot only has to drive a little further to complete the circle
 
 \subsection*{Round Hallway --- With Landmarks}
-Now we add landmarks to the surfaces of the walls to measure their impact
+Now we add landmarks to the surfaces of the walls to measure their impact.
 
 \begin{figure}[H]
     \centering
@@ -1016,10 +1015,10 @@ from our occupancy grid.
 \newpage
 
 \subsection*{Crosses Map}
-Now we start increasing the complexity of the Map. Here we have a map very symmetrical in nature, with clear but 
-repeated landmarks. 
+Now we start increasing the complexity of the map. Here we have a map very symmetrical in nature, with clear but
+repeated landmarks.
 
-We take a more complex path through the map to better test our system and to get a complete mapping of the environment
+We take a more complex path through the map to better test our system and to get a complete mapping of the environment.
 
 \begin{figure}[H]
     \centering
@@ -1071,7 +1070,7 @@ This is quantified by the substantial drop in localisation error from 0.12 to be
 
 
 \subsection*{Ball Map}
-This map is similar in it's simmetry to the crosses map, but has round objects.
+This map is similar in its symmetry to the crosses map, but has round objects.
 
 \begin{figure}[H]
     \centering
@@ -1118,7 +1117,7 @@ but could also be impacted by the smaller size of the landmarks in relation to t
 
 
 \subsection*{Everything Round}
-We combine round walls with round surfaces
+We combine round walls with round surfaces.
 
 \begin{figure}[H]
     \centering
@@ -1159,11 +1158,11 @@ We combine round walls with round surfaces
 
 The performance on this environment is surprisingly good, given our past issues with a round wall and highly symmetric environments.
 
-Given the performance here, we can deduct that curved surfaces perform well quite well as landmarks.
+Given the performance here, we can deduce that curved surfaces perform quite well as landmarks.
 
 \newpage
 \subsection*{Regular Map}
-This map was used during development. It is highly asymmetrical and quite random in nature
+This map was used during development. It is highly asymmetrical and quite random in nature.
 
 \begin{figure}[H]
     \centering
@@ -1202,11 +1201,11 @@ This map was used during development. It is highly asymmetrical and quite random
     \label{fig:regular_results}
 \end{figure}
 
-The performance in both trajectory and mapping is excellent, as we might expect in a map with clear landmarks
+The performance in both trajectory and mapping is excellent, as we might expect in a map with clear landmarks.
 
 \newpage
 \subsection*{Apartment}
-Fially, we test our system on a pre made Webots map, made for other scenarios. This serves as a "real world" test
+Finally, we test our system on a pre-made Webots map, made for other scenarios. This serves as a ``real world'' test.
 
 \begin{figure}[H]
     \centering
@@ -1251,15 +1250,15 @@ life environments.
 
 \section{Analysis}
 These results show a SLAM algorithm that performs exceptionally well in a variety of environments. 
-These experiments showed the impact of various environment factors on the systems's performance. 
+These experiments showed the impact of various environmental factors on the system's performance.
 
-\textbf{Symmetry} In the Crosses Map and the Ball Map we see that a highly symmetric map gives issues to ICP in localization. 
-Both Apartment and Regular Maps have highly assymetrical environments, and this is seen in their performance.
+\textbf{Symmetry} In the Crosses Map and the Ball Map we see that a highly symmetric map gives issues to ICP in localization.
+Both Apartment and Regular Maps have highly asymmetrical environments, and this is seen in their performance.
 
 \textbf{Landmarks} In both hallway maps, we saw an immediate and significant improvement in performance once landmarks were introduced. 
 As we noted, ICP makes great use of landmarks to best calculate relative transformations. 
 
-\textbf{Round Landmarks} Surprisingly, we saw that round landmarks did very well both in Ball Map and in Everythin Round. 
+\textbf{Round Landmarks} Surprisingly, we saw that round landmarks did very well both in Ball Map and in Everything Round.
 I hypothesize that the contrast of the curved landmarks and the walls behind them are more identifiable to the ICP system 
 than landmarks made of straight surfaces. 
 
@@ -1274,7 +1273,7 @@ than landmarks made of straight surfaces.
 
 
 \subsection{Wave-like Error over Time}
-We may notice that in multiple maps: HallwayMap, CrossesMap, BallMap, EverthingMap, and RegularMap, 
+We may notice that in multiple maps: Hallway Map, Crosses Map, Ball Map, Everything Round, and Regular Map,
 there is a distinctive "wave" like behaviour in error over time. After analyzing the trajectories taken, as well as the 
 error over time as the trajectory is being taken live, I notice that these bumps/increases in error correspond to moments of major rotation 
 during the trajectory. This can also be seen in trajectory lines: where the robot is undergoing a trajectory
@@ -1283,13 +1282,15 @@ with significant arc, the green ICP line is more evident, showing us a bigger mi
 These results can be attributed to ICP's weakness when undergoing rotation, since once the rotation stops and a more
 straight trajectory is resumed, error lowers significantly. 
 
-We conclude that the main weakness in the system is when undergoing rotatoin, and it's recognition and filtering of landmarks and surfaces. 
+We conclude that the main weakness in the system is when undergoing rotation, and its recognition and filtering of landmarks and surfaces.
+
+\section{Conclusion}
 
 Overall, we see that we have a strong SLAM system, in which we can see all parts of the system performing well. 
-ICP is able to map it's trajectory, we then combine this data with point clouds to update our occupancy grid, and once 
-loop closures are found, our Pose Graph Optimization is able to consistently reduce error, correct our trajectory, and snap our map into place. 
+ICP is able to map its trajectory, we then combine this data with point clouds to update our occupancy grid, and once
+loop closures are found, our Pose Graph Optimization is able to consistently reduce error, correct our trajectory, and snap our map into place.
 
-\section{Future Work}
+\chapter{Future Work}
 
 This project created a working SLAM system, but one that could be further improved to work with larger and more complex environments.
 It is also one that shows the working structure of a SLAM system, real world systems build on this architecture and add complex processing 
@@ -1311,6 +1312,9 @@ Several directions could improve the core system:
           Adapting to larger maps would require algorithmic improvements to loop closure candidate
           search, correspondence matching, and optimization.
 \end{itemize}
+
+This project has been a challenging and succesful introduction into the world of robotics software, I am excited to continue 
+working in this field, and to use this project as a catapult into the ever expanding world of robotics.
 
 % ============================================================
 %  REFERENCES
@@ -1344,7 +1348,7 @@ D.~Rodr\'iguez-Losada, P.~de~la~Puente, A.~Valero-Gomez, P.~San~Segundo, and M.~
 [Online]. Available: \url{https://www.researchgate.net/figure/Bresenham-line-algorithm-for-a-laser-beam-Note-that-the-occupied-cells-include-those_fig2_267690266}
 
 \bibitem{pose_graph_thesis}
-Max Pfingsthorn
+Max Pfingsthorn,
 ``Generalized Simultaneous Localization and Mapping (SLAM) on Graphs with Multimodal Probabilities and Hyperedges,''
 Ph.D.\ thesis, Mar.\ 2014.
 Supervisor: A.~Birk.

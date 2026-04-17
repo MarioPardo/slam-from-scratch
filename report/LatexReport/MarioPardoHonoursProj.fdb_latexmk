@@ -1,5 +1,5 @@
 # Fdb version 4
-["pdflatex"] 1776441584.3588 "/Users/mario/Documents/Programming/slam-lab/report/LatexReport/MarioPardoHonoursProj.tex" "MarioPardoHonoursProj.pdf" "MarioPardoHonoursProj" 1776441587.75346 0
+["pdflatex"] 1776442324.94023 "/Users/mario/Documents/Programming/slam-lab/report/LatexReport/MarioPardoHonoursProj.tex" "MarioPardoHonoursProj.pdf" "MarioPardoHonoursProj" 1776442328.16631 0
   "../../ProgressPics/LoopClosure.png" 1772744350.00056 55979 a07dd5ed1ac4dd4d4117f6ef09bbb13e ""
   "../images/CarletonLogo.png" 1776441325.53022 6805 7077eae66493cd16a624cedd9d0a500b ""
   "../images/DiffDriveRotation.png" 1776372644.45901 80175 147bab328826f72823cf6f83e65f0b14 ""
@@ -47,7 +47,7 @@
   "../images/RayCastOccGrid.png" 1776095524.25293 50894 31d70a694820f1b69b81382507bbdc86 ""
   "../images/StraightVsCurvedLandmark.jpeg" 1776377436.27414 103094 2cce8b6a2ca83489814fa36af1ccaaab ""
   "../images/VisualizeLidarAndTrajTest.png" 1771198994.87633 495892 0c9166d72a8c21086036a46041209a79 ""
-  "/Users/mario/Documents/Programming/slam-lab/report/LatexReport/MarioPardoHonoursProj.tex" 1776441583.82058 61005 3e4c4fa342d3cdb0cfa4e41171e27211 ""
+  "/Users/mario/Documents/Programming/slam-lab/report/LatexReport/MarioPardoHonoursProj.tex" 1776442322.94796 61259 f63ef476e4bb5a67d6bf9bcf9f282214 ""
   "/Users/mario/Library/Application Support/MiKTeX/texmfs/data/fonts/map/pdftex/pdftex.map" 1776372188.88123 80937 91001db6d4ae332437b4b739862cda02 ""
   "/Users/mario/Library/Application Support/MiKTeX/texmfs/data/fonts/pk/ljfour/jknappen/ec/dpi600/tcrm1200.pk" 1774989805.59247 14064 7154da3e83d39063c45fda10cff700a5 ""
   "/Users/mario/Library/Application Support/MiKTeX/texmfs/data/miktex/data/le/pdftex/pdflatex.fmt" 1772754916.26781 13342341 91d80a486bfa824c3f5874898f9d550e ""
@@ -185,11 +185,11 @@
   "/Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/trimspaces/trimspaces.sty" 1770227549.48918 1380 971a51b00a14503ddf754cab24c3f209 ""
   "/Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/url/url.sty" 1770227550.36137 12796 8edb7d69a20b857904dd0ea757c14ec9 ""
   "/Users/mario/Library/Application Support/MiKTeX/texmfs/install/tex/latex/xcolor/xcolor.sty" 1770227550.5973 55384 b454dec21c2d9f45ec0b793f0995b992 ""
-  "MarioPardoHonoursProj.aux" 1776441587.60056 16457 2d704de4ed2f72a559ade83b80226a86 "pdflatex"
-  "MarioPardoHonoursProj.lof" 1776441587.6025 2393 f6f281ab74a935a0f1caec6a3814fe69 "pdflatex"
-  "MarioPardoHonoursProj.out" 1776441587.60217 4153 58e954656a8974d93e5892373db3f297 "pdflatex"
-  "MarioPardoHonoursProj.tex" 1776441583.82058 61005 3e4c4fa342d3cdb0cfa4e41171e27211 ""
-  "MarioPardoHonoursProj.toc" 1776441587.60248 2175 b55d54757059f3c426de1e05510d59c0 "pdflatex"
+  "MarioPardoHonoursProj.aux" 1776442328.02584 16636 fdfb0d46c0acb286e80b60f277b02a76 "pdflatex"
+  "MarioPardoHonoursProj.lof" 1776442328.02782 2410 9c96951932fd85a4cfbe6be24c499fa9 "pdflatex"
+  "MarioPardoHonoursProj.out" 1776442328.02734 4247 2810d3bf3931ce36e715e76c5bf88f39 "pdflatex"
+  "MarioPardoHonoursProj.tex" 1776442322.94796 61259 f63ef476e4bb5a67d6bf9bcf9f282214 ""
+  "MarioPardoHonoursProj.toc" 1776442328.02779 2243 fe647bc4c3b0963faa61a2c21a988c96 "pdflatex"
   (generated)
   "MarioPardoHonoursProj.aux"
   "MarioPardoHonoursProj.lof"

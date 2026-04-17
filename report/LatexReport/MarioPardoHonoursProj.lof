@@ -1,12 +1,12 @@
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {1}{\ignorespaces Visualization of a the data flow and main components of the SLAM System.}}{2}{figure.caption.5}%
+\contentsline {figure}{\numberline {1}{\ignorespaces Visualization of the data flow and main components of the SLAM System.}}{2}{figure.caption.5}%
 \addvspace {10\p@ }
 \contentsline {figure}{\numberline {2}{\ignorespaces Webots arena used for Development}}{4}{figure.caption.6}%
 \contentsline {figure}{\numberline {3}{\ignorespaces Diagram of differential drive}}{5}{figure.caption.7}%
 \contentsline {figure}{\numberline {4}{\ignorespaces Diagram of rotation with Differential Drive}}{6}{figure.caption.8}%
 \contentsline {figure}{\numberline {5}{\ignorespaces Diagram of Lidar Points from robot POV}}{7}{figure.caption.9}%
-\contentsline {figure}{\numberline {6}{\ignorespaces Initial visualizations showing odometry trajectory estimation , and basic cloud point recognition}}{8}{figure.caption.10}%
+\contentsline {figure}{\numberline {6}{\ignorespaces Initial visualizations showing odometry trajectory estimation, and basic point cloud recognition}}{8}{figure.caption.10}%
 \addvspace {10\p@ }
 \contentsline {figure}{\numberline {7}{\ignorespaces Ray Casting and Occupancy}}{9}{figure.caption.11}%
 \addvspace {10\p@ }
@@ -26,4 +26,5 @@
 \contentsline {figure}{\numberline {17}{\ignorespaces Regular Map results.}}{26}{figure.caption.21}%
 \contentsline {figure}{\numberline {18}{\ignorespaces Apartment results.}}{27}{figure.caption.22}%
 \contentsline {figure}{\numberline {19}{\ignorespaces Straight vs Curved Landmark}}{28}{figure.caption.23}%
+\addvspace {10\p@ }
 \addvspace {10\p@ }
