@@ -1,4 +1,4 @@
-# SLAM Lab
+# SLAM from scratch
 
 A from-scratch implementation of a graph-based SLAM (Simultaneous Localization and Mapping) algorithm, written in C++. The purpose of this project is to learn the mathematics and logic behind graph-based SLAM, and to get practice designing, implementing, and testing a complicated algorithm end to end.
 
