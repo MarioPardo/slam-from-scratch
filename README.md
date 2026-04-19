@@ -4,6 +4,9 @@ A from-scratch implementation of a graph-based SLAM (Simultaneous Localization a
 
 Webots is used as the robot simulation front end, with a TurtleBot driving through an environment while the SLAM system processes sensor data in real time.
 
+![Image](SLAMfromscratch.png)
+
+ 
 ---
 
 ## Project Structure
@@ -29,6 +32,7 @@ slam-lab/
 ├── ProgressPics/           # Screenshots and figures
 └── requirements.txt   
 ```
+https://github.com/user-attachments/assets/88a78228-28e5-4d2f-b41d-d8b17d0dba2c
 
 ### Key Components (`slam_core/src/`)
 
